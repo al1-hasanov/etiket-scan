@@ -29,6 +29,8 @@ public class SubmissionActivity extends ComponentActivity {
     private Spinner nutritionBasis;
     private final Map<String,EditText> nutritionFields=new LinkedHashMap<>();
     private final Map<String,TextView> analysisPreviews=new HashMap<>();
+    private final Map<String,Button> applyButtons=new HashMap<>();
+    private boolean readAfterCrop;
     private CheckBox consent;
     private Button submit;
     private TextView feedback;
@@ -51,12 +53,25 @@ public class SubmissionActivity extends ComponentActivity {
         }
     });
 
+    private final ActivityResultLauncher<Intent> cropEditor = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(), result -> {
+            Intent data = result.getData();
+            if (result.getResultCode() == RESULT_OK && data != null && state != null) {
+                String role = data.getStringExtra("role");
+                if (state.pendingRole.equals(role)) state.commitCrop(role, readAfterCrop);
+            }
+            readAfterCrop = false;
+        });
+
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
         az = getSharedPreferences("etiket", MODE_PRIVATE).getBoolean("az", true);
         state = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(SubmissionState.class);
         if (saved != null && !state.busy) state.restore(saved.getString("draftId"));
-        if (saved != null) state.pendingRole = saved.getString("role", "front");
+        if (saved != null) {
+            state.pendingRole = saved.getString("role", "front");
+            readAfterCrop = saved.getBoolean("readAfterCrop");
+        }
         build(saved);
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
@@ -69,6 +84,11 @@ public class SubmissionActivity extends ComponentActivity {
             feedback.setText(event.busy() ? t("Foto hazırlanır və ya göndərilir…", "Preparing or uploading photos…") : error(event.error()));
             updatePhotos();
             updateAnalysis();
+            if (!event.busy() && !state.readAfterCommit.isEmpty()) {
+                String role = state.readAfterCommit;
+                state.readAfterCommit = "";
+                analyze(role);
+            }
             if (event.receipt() != null && !receiptShown) {
                 receiptShown = true;
                 boolean pending = event.receipt().optString("status").equals("PENDING");
@@ -78,13 +98,7 @@ public class SubmissionActivity extends ComponentActivity {
                     .setCancelable(false).setPositiveButton("OK", (dialog, which) -> { state.cleanFiles(); setResult(RESULT_OK); finish(); }).show();
             }
         });
-        state.analysisEvent.observe(this,event->{
-            if(!event.error().isEmpty())feedback.setText(error(event.error()));
-            else if(Set.of("QUEUED","PROCESSING").contains(event.status()))feedback.setText(t("Etiket mətni oxunur… Bu vaxt ala bilər.","Reading the label… This may take a little time."));
-            else if(event.status().equals("RETAKE"))feedback.setText(t("Mətn tam oxunmadı. Daha aydın foto çəkin və ya mətni əl ilə yazın.","The text is unclear. Retake a close-up or enter it manually."));
-            else feedback.setText(t("Oxunan mətni və rəqəmləri foto ilə müqayisə edin.","Check the extracted words and numbers against the photo."));
-            updateAnalysis();
-        });
+        state.analysisEvent.observe(this, event -> updateAnalysis());
     }
     private String t(String a, String e) { return az ? a : e; }
     private int dp(int size) { return Math.round(size * getResources().getDisplayMetrics().density); }
@@ -132,14 +146,27 @@ public class SubmissionActivity extends ComponentActivity {
             image.setContentDescription(role); form.addView(image,new LinearLayout.LayoutParams(-1,dp(150)));previews.put(role,image);
             Button button = new Button(this); button.setAllCaps(false);button.setText(t("Foto seç və ya çək", "Choose or take photo"));
             button.setOnClickListener(view->choose(role));form.addView(button);photoButtons.add(button);
-            if(role.equals("ingredients")||role.equals("nutrition")){
+            if(SubmissionState.canCrop(role)){
+                Button crop = new Button(this);
+                crop.setAllCaps(false);
+                crop.setText(t("Etiketi kəs və düzəlt", "Crop and straighten"));
+                crop.setOnClickListener(view -> editPhoto(role, false));
+                form.addView(crop);
+                photoButtons.add(crop);
                 addText(t("Oxuma üçün internet lazımdır. Məlumat yalnız yoxlamadan sonra dərc olunur.","Reading needs internet. Information is published only after review."),13,false);
                 Button read=new Button(this);read.setAllCaps(false);read.setText(t("Fotodan mətni oxu", "Read text from photo"));
-                read.setOnClickListener(view->analyze(role));form.addView(read);photoButtons.add(read);
+                if(role.equals("ingredients"))read.setId(R.id.read_ingredients);
+                read.setOnClickListener(view -> {
+                    if (state.hasCrop(role)) analyze(role);
+                    else editPhoto(role, true);
+                });
+                form.addView(read);photoButtons.add(read);
                 TextView extracted=new TextView(this);extracted.setTextSize(14);extracted.setTextIsSelectable(true);extracted.setPadding(dp(10),dp(10),dp(10),dp(10));
+                extracted.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
                 form.addView(extracted);analysisPreviews.put(role,extracted);
                 Button use=new Button(this);use.setAllCaps(false);use.setText(role.equals("ingredients")?t("Mətni tərkib sahəsinə köçür","Use extracted ingredient text"):t("Təklif edilən qida dəyərlərini köçür","Use suggested nutrition values"));
-                use.setOnClickListener(view->applyAnalysis(role));form.addView(use);photoButtons.add(use);
+                if(role.equals("ingredients"))use.setId(R.id.use_ocr_ingredients);
+                use.setOnClickListener(view->applyAnalysis(role));form.addView(use);applyButtons.put(role,use);
             }
         }
         Button optionalButton = new Button(this); optionalButton.setAllCaps(false); optionalButton.setText(t("Etiket mətnini də yaz (istəyə görə)","Add label text (optional)"));
@@ -173,24 +200,62 @@ public class SubmissionActivity extends ComponentActivity {
         }).show();
     }
     private void updatePhotos(){for(String role:SubmissionClient.PHOTO_ROLES){File file=state.photos.get(role);if(file!=null)previews.get(role).setImageBitmap(LabelPhotoProcessor.thumbnail(file));}}
+    private void editPhoto(String role, boolean read) {
+        if (state.busy) return;
+        if (!state.photos.containsKey(role)) {
+            analysisPreviews.get(role).setText(t("Əvvəl bu bölməyə foto əlavə edin.", "Add a photo to this section first."));
+            return;
+        }
+        state.pendingRole = role;
+        readAfterCrop = read;
+        cropEditor.launch(new Intent(this, LabelCropActivity.class).putExtra("draftId", state.id).putExtra("role", role));
+    }
+
     private void analyze(String role){
         if(state.busy)return;
         if(!state.photos.containsKey(role)){feedback.setText(t("Əvvəl bu bölməyə foto əlavə edin.","Add a photo to this section first."));return;}
         try{String base=ApiClient.validateBase(getSharedPreferences("etiket",MODE_PRIVATE).getString("base","http://10.0.2.2:8080"));state.analyze(base,role,languages[language.getSelectedItemPosition()]);}
         catch(IllegalArgumentException e){feedback.setText(t("Parametrlərdə server ünvanını yoxlayın.","Check the server address in Settings."));}
     }
-    private void updateAnalysis(){
-        for(var entry:analysisPreviews.entrySet()){
-            JSONObject result=state.analysisResults.get(entry.getKey());TextView preview=entry.getValue();
-            if(result==null){preview.setText("");continue;}
-            String text=t("Avtomatik oxunmuş qaralama — fotoya baxıb yoxlayın.\n","Automatically read draft — check against the photo.\n")+result.optString("rawText");
-            JSONArray uncertain=result.optJSONArray("uncertainWords");
-            if(uncertain!=null&&uncertain.length()>0){List<String> words=new ArrayList<>();for(int i=0;i<Math.min(uncertain.length(),15);i++)words.add(uncertain.optString(i));text+=t("\nYoxlanmalı sözlər: ","\nWords to check: ")+String.join(", ",words);}
-            preview.setText(text);
+    private void updateAnalysis() {
+        SubmissionState.AnalysisEvent job = state.analysisEvent.getValue();
+        for (var entry : analysisPreviews.entrySet()) {
+            String role = entry.getKey();
+            TextView preview = entry.getValue();
+            JSONObject result = state.analysisResults.get(role);
+            boolean readable = SubmissionState.readable(result);
+            boolean thisRole = job != null && role.equals(job.role());
+            Button use = applyButtons.get(role);
+            use.setEnabled(readable && !state.busy);
+            use.setVisibility(readable ? View.VISIBLE : View.GONE);
+            preview.setTextColor(0xff19372a);
+            if (thisRole && state.busy && Set.of("QUEUED", "PROCESSING").contains(job.status())) {
+                preview.setText(t("Etiket mətni oxunur…", "Reading the label…"));
+            } else if (thisRole && !job.error().isEmpty()) {
+                preview.setText(error(job.error()));
+                preview.setTextColor(0xff9e3232);
+            } else if (result == null && !(thisRole && "RETAKE".equals(job.status()))) {
+                preview.setText("");
+            } else if (!readable) {
+                preview.setText(t("Mətn aydın oxunmadı. Kəsimi düzəldin, daha yaxın foto çəkin və ya mətni əl ilə yazın.",
+                    "The label could not be read clearly. Adjust the crop, retake a close-up or enter the text manually."));
+                preview.setTextColor(0xff9e3232);
+            } else {
+                String text = t("Avtomatik oxunmuş qaralama — fotoya baxıb yoxlayın.\n",
+                    "Automatically read draft — check against the photo.\n") + result.optString("rawText");
+                JSONArray uncertain = result.optJSONArray("uncertainWords");
+                if (uncertain != null && uncertain.length() > 0) {
+                    List<String> words = new ArrayList<>();
+                    for (int i = 0; i < Math.min(uncertain.length(), 15); i++) words.add(uncertain.optString(i));
+                    text += t("\nYoxlanmalı sözlər: ", "\nWords to check: ") + String.join(", ", words);
+                }
+                preview.setText(text);
+            }
         }
     }
     private void applyAnalysis(String role){
-        JSONObject result=state.analysisResults.get(role);if(result==null){feedback.setText(t("Əvvəl fotodan mətni oxudun.","Read text from the photo first."));return;}
+        JSONObject result=state.analysisResults.get(role);
+        if(state.busy || !SubmissionState.readable(result))return;
         Runnable apply;
         if(role.equals("ingredients"))apply=()->{ingredients.setText(result.optString("rawText"));optionalText.setVisibility(View.VISIBLE);};
         else {
@@ -235,7 +300,7 @@ public class SubmissionActivity extends ComponentActivity {
         case "OCR_QUEUE_FULL","OCR_BUSY"->t("Mətn oxuma növbəsi doludur. Bir az sonra yenidən sınayın.","The reading queue is busy. Please try again shortly.");
         case "ANALYSIS_PHOTO_CHANGED","ANALYSIS_NOT_FOUND","ANALYSIS_NOT_READY"->t("Foto üçün mətni yenidən oxudun və ya əl ilə göndərin.","Read the photo again before submitting, or enter it manually.");
         default->t("Göndərmə alınmadı. Məlumatları və fotoları yoxlayın.","Submission failed. Check the details and photos.");};}
-    @Override public void onSaveInstanceState(Bundle out){super.onSaveInstanceState(out);out.putString("draftId",state.id);out.putString("role",state.pendingRole);
+    @Override public void onSaveInstanceState(Bundle out){super.onSaveInstanceState(out);out.putString("draftId",state.id);out.putString("role",state.pendingRole);out.putBoolean("readAfterCrop",readAfterCrop);
         out.putString("barcode",barcode.getText().toString());out.putString("name",name.getText().toString());out.putString("brand",brand.getText().toString());out.putString("quantity",quantity.getText().toString());
         out.putInt("nutritionBasis",nutritionBasis.getSelectedItemPosition());for(var entry:nutritionFields.entrySet())out.putString("nutrition-"+entry.getKey(),entry.getValue().getText().toString());
         out.putString("ingredients",ingredients.getText().toString());out.putString("allergens",allergens.getText().toString());out.putInt("language",language.getSelectedItemPosition());out.putBoolean("consent",consent.isChecked());out.putBoolean("optionalExpanded",optionalText.getVisibility()==View.VISIBLE);}

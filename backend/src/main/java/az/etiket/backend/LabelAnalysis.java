@@ -102,11 +102,14 @@ final class LabelAnalysis {
         try {
             OcrEngine.Text text=engine.recognize(claimed.photo(),claimed.language());
             var parsed=claimed.role().equals("nutrition")?NutritionTextParser.parse(text.text()):new NutritionTextParser.Result(NutritionLabel.empty(),List.of());
-            List<String> warnings=new ArrayList<>(parsed.warnings());
-            boolean retake=text.text().strip().length()<8||text.confidence()<45;
+            List<String> warnings=new ArrayList<>(text.warnings());
+            warnings.addAll(parsed.warnings());
+            boolean retake=!OcrQuality.assess(text.text(),text.confidence()).readable()
+                ||text.warnings().stream().anyMatch(warning->warning.startsWith("RETAKE_"));
             if(retake)warnings.add("RETAKE_CLEAR_CLOSE_UP");
             else if(!text.uncertainWords().isEmpty())warnings.add("CHECK_UNCERTAIN_WORDS");
-            var snapshot=new Snapshot("Tesseract",claimed.language(),text.text(),text.confidence(),text.uncertainWords(),text.rotation(),parsed.nutrition(),List.copyOf(warnings));
+            var snapshot=new Snapshot("Tesseract/Etiket-0.5.1",claimed.language(),text.text(),text.confidence(),
+                text.uncertainWords(),text.rotation(),retake?NutritionLabel.empty():parsed.nutrition(),List.copyOf(warnings));
             db.update("UPDATE label_analysis_jobs SET status=?,output=?,error_code='',photo_data=NULL WHERE id=? AND status='PROCESSING' AND attempts=?",
                 retake?"RETAKE":"COMPLETED",json.writeValueAsString(snapshot),claimed.id(),claimed.attempts());
         } catch(Exception e) {

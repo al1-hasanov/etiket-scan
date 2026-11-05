@@ -4,6 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
 import androidx.lifecycle.*;
+import az.etiket.core.OcrQuality;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -22,6 +25,7 @@ public final class SubmissionState extends AndroidViewModel {
     String id = UUID.randomUUID().toString();
     String pendingRole = "front";
     volatile boolean busy;
+    volatile String readAfterCommit = "";
     public SubmissionState(Application application) { super(application); }
     File directory() {
         File directory = new File(getApplication().getCacheDir(), "label-drafts/" + id);
@@ -41,17 +45,84 @@ public final class SubmissionState extends AndroidViewModel {
             }
         }catch(Exception ignored){ }
     }
+    static boolean canCrop(String role) {
+        return "ingredients".equals(role) || "nutrition".equals(role);
+    }
+
+    boolean hasCrop(String role) {
+        return canCrop(role) && new File(directory(), role + "-original.jpg").isFile();
+    }
+
     void photo(Uri uri, String role) {
-        busy = true; event.setValue(new Event(true, "", null));
+        if (busy) return;
+        busy = true;
+        event.setValue(new Event(true, "", null));
         worker.execute(() -> {
             String error = "";
-            try { File file = new File(directory(), role + ".jpg"); LabelPhotoProcessor.prepare(getApplication(), uri, file); photos.put(role, file);
-                analysisLinks.remove(role);analysisResults.remove(role);persistAnalysis(); }
-            catch (Exception e) { error = "PHOTO_INVALID"; }
-            finally { new File(directory(), "camera-original.jpg").delete(); }
-            busy = false; event.postValue(new Event(false, error, null));
+            File replacement = new File(directory(), role + "-selected.jpg");
+            try {
+                LabelPhotoProcessor.prepare(getApplication(), uri, replacement);
+                invalidateAnalysis(role);
+                Files.deleteIfExists(new File(directory(), role + "-original.jpg").toPath());
+                installPhoto(role, replacement);
+            } catch (Exception e) {
+                error = "PHOTO_INVALID";
+            } finally {
+                replacement.delete();
+                new File(directory(), "camera-original.jpg").delete();
+            }
+            busy = false;
+            event.postValue(new Event(false, error, null));
         });
     }
+
+    void commitCrop(String role, boolean read) {
+        if (busy || !canCrop(role) || !photos.containsKey(role)) return;
+        busy = true;
+        event.setValue(new Event(true, "", null));
+        worker.execute(() -> {
+            String error = "";
+            File cropped = new File(directory(), role + "-crop.jpg");
+            File original = new File(directory(), role + "-original.jpg");
+            File backup = new File(directory(), role + "-backup.tmp");
+            boolean newOriginal = false;
+            try {
+                if (!cropped.isFile() || cropped.length() > LabelPhotoProcessor.MAX_BYTES)
+                    throw new IOException("Invalid crop");
+                invalidateAnalysis(role);
+                if (!original.isFile()) {
+                    Files.copy(photos.get(role).toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(backup.toPath(), original.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    newOriginal = true;
+                }
+                installPhoto(role, cropped);
+                if (read) readAfterCommit = role;
+            } catch (Exception e) {
+                if (newOriginal) original.delete();
+                error = "PHOTO_INVALID";
+            } finally {
+                cropped.delete();
+                backup.delete();
+            }
+            busy = false;
+            event.postValue(new Event(false, error, null));
+        });
+    }
+
+    private void installPhoto(String role, File source) throws IOException {
+        File destination = new File(directory(), role + ".jpg");
+        Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        photos.put(role, destination);
+    }
+
+    private void invalidateAnalysis(String role) throws IOException, JSONException {
+        analysisLinks.remove(role);
+        analysisResults.remove(role);
+        persistAnalysis();
+        AnalysisEvent current = analysisEvent.getValue();
+        if (current != null && current.role().equals(role)) analysisEvent.postValue(null);
+    }
+
     void analyze(String base,String role,String language){
         if(busy)return;
         busy=true;event.setValue(new Event(true,"",null));analysisEvent.setValue(new AnalysisEvent(role,"QUEUED",""));
@@ -70,20 +141,35 @@ public final class SubmissionState extends AndroidViewModel {
                     if(System.nanoTime()>deadline)throw new ApiClient.Failure("OCR_PENDING");
                     Thread.sleep(1500);response=AnalysisClient.status(base,link);
                 }
+                String status=response.optString("status");
                 JSONObject result=response.optJSONObject("result");
-                if(result!=null){analysisResults.put(role,result);link.put("result",result);persistAnalysis();}
-                String status=response.optString("status");busy=false;event.postValue(new Event(false,"",null));
+                if(result!=null){
+                    result.put("_status",status);
+                    analysisResults.put(role,result);link.put("result",result);persistAnalysis();
+                }
                 if(status.equals("FAILED")){analysisLinks.remove(role);analysisResults.remove(role);persistAnalysis();}
+                busy=false;event.postValue(new Event(false,"",null));
                 analysisEvent.postValue(new AnalysisEvent(role,status,status.equals("FAILED")?response.optString("errorCode","OCR_UNAVAILABLE"):""));
             }catch(Exception e){busy=false;event.postValue(new Event(false,"",null));analysisEvent.postValue(new AnalysisEvent(role,"",e instanceof ApiClient.Failure failure?failure.code:"CONNECTION_FAILED"));}
         });
     }
     JSONObject references(String base)throws JSONException{
         JSONObject result=new JSONObject();
-        for(var entry:analysisLinks.entrySet())if(analysisResults.containsKey(entry.getKey())&&base.equals(entry.getValue().optString("base")))
+        for(var entry:analysisLinks.entrySet())if(readable(analysisResults.get(entry.getKey()))&&base.equals(entry.getValue().optString("base")))
             result.put(entry.getKey(),new JSONObject().put("id",entry.getValue().getString("id")).put("token",entry.getValue().getString("token")));
         return result;
     }
+    static boolean readable(JSONObject result) {
+        if (result == null || "RETAKE".equals(result.optString("_status"))) return false;
+        JSONArray warnings = result.optJSONArray("warnings");
+        if (warnings != null) {
+            for (int i = 0; i < warnings.length(); i++) {
+                if (warnings.optString(i).startsWith("RETAKE_")) return false;
+            }
+        }
+        return OcrQuality.assess(result.optString("rawText"), result.optDouble("confidence")).readable();
+    }
+
     private void persistAnalysis()throws IOException,JSONException{
         JSONObject value=new JSONObject();for(var entry:analysisLinks.entrySet())value.put(entry.getKey(),entry.getValue());
         File temp=new File(directory(),"analysis.tmp");java.nio.file.Files.write(temp.toPath(),value.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));

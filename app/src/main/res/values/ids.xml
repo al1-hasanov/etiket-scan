@@ -16,4 +16,8 @@
     <item name="nutrition_fibre" type="id" />
     <item name="nutrition_protein" type="id" />
     <item name="nutrition_salt" type="id" />
+    <item name="label_crop_canvas" type="id" />
+    <item name="label_crop_use" type="id" />
+    <item name="read_ingredients" type="id" />
+    <item name="use_ocr_ingredients" type="id" />
 </resources>

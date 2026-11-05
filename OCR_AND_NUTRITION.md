@@ -1,4 +1,4 @@
-# OCR and nutrition contract — 0.5
+# OCR and nutrition contract — 0.5.1
 
 ## Private analysis
 
@@ -10,7 +10,11 @@ States: `QUEUED` → `PROCESSING` → `COMPLETED`, `RETAKE` or `FAILED`. One sch
 
 A result snapshot contains the engine name, selected language, `rawText`, engine confidence, uncertain words, attempted image rotation, conservative nutrition suggestions and warnings. Engine confidence is not a calibrated probability of correctness. Text remains data. It is never an instruction to call another tool, alter access or publish.
 
-Image limits are the existing 2 MiB per file / 20 million source pixels, sanitised to a maximum 2048-pixel side. The local executable has a 35-second total deadline, a bounded output and one CPU thread; it tries quarter-turn rotations when necessary. Model selection and executable arguments are fixed server-side, without a shell. Manual entry remains available if the engine/models cannot run.
+Image limits are 2 MiB per file and 20 million source pixels, sanitised to a maximum 2048-pixel side. Android lets the user crop, rotate and straighten the label before uploading it. A new crop clears the previous analysis reference. The submission uses the same photo as the new analysis.
+
+The local executable has a 35-second total deadline, a bounded output and one CPU thread. It tries contrast adjustments, deskew, and quarter turns when needed. It uses the selected language's model. The Docker image installs five pinned models from tessdata_best. Model selection and arguments are fixed server-side.
+
+Short or fragmentary text and incomplete image coverage can yield `RETAKE` with no nutrition suggestions. The private snapshot retains the original reading for diagnosis. Android hides the unusable draft and prompts for a new crop, a close-up or manual entry.
 
 ## Final submission and audit
 
@@ -44,4 +48,4 @@ Product adds the explicit `nutrition` object. Existing per-100-g `nutrients` rem
 
 - [Tesseract command-line use](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html)
 - [Tesseract installation and language data](https://tesseract-ocr.github.io/tessdoc/Installation.html)
-- [Tesseract fast language models](https://github.com/tesseract-ocr/tessdata_fast)
+- [Tesseract language models](https://github.com/tesseract-ocr/tessdata_best)

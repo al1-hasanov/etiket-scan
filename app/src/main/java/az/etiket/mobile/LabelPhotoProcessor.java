@@ -7,10 +7,11 @@ import android.net.Uri;
 import java.io.*;
 
 final class LabelPhotoProcessor {
+    static final int MAX_BYTES = 2 * 1024 * 1024;
+
     private LabelPhotoProcessor() { }
     static void prepare(Context context, Uri uri, File destination) throws IOException {
         File raw = new File(destination.getParentFile(), "selected-original.tmp");
-        File candidate = new File(destination.getParentFile(), "prepared-photo.tmp");
         try {
             try (InputStream in = context.getContentResolver().openInputStream(uri); OutputStream out = new FileOutputStream(raw)) {
                 if (in == null) throw new IOException("PHOTO_INVALID");
@@ -51,21 +52,36 @@ final class LabelPhotoProcessor {
             Bitmap clean = Bitmap.createBitmap(resized.getWidth(), resized.getHeight(), Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(clean); canvas.drawColor(Color.WHITE); canvas.drawBitmap(resized, 0, 0, null); resized.recycle();
             try {
-                for (int quality : new int[]{85, 70}) {
-                    try (OutputStream out = new FileOutputStream(candidate)) {
-                        if (!clean.compress(Bitmap.CompressFormat.JPEG, quality, out)) throw new IOException("PHOTO_INVALID");
-                    }
-                    if (candidate.length() <= 2 * 1024 * 1024) {
-                        java.nio.file.Files.move(candidate.toPath(), destination.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                        return;
-                    }
-                }
-                throw new IOException("PHOTO_TOO_LARGE");
+                writeJpeg(clean, destination, 90, 75, 70);
             } finally { clean.recycle(); }
-        } finally { raw.delete(); candidate.delete(); }
+        } finally { raw.delete(); }
     }
+
+    static void writeJpeg(Bitmap bitmap, File destination, int... qualities) throws IOException {
+        File candidate = File.createTempFile("label-", ".tmp", destination.getParentFile());
+        try {
+            for (int quality : qualities) {
+                try (OutputStream out = new FileOutputStream(candidate)) {
+                    if (!bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)) throw new IOException("PHOTO_INVALID");
+                }
+                if (candidate.length() <= MAX_BYTES) {
+                    java.nio.file.Files.move(candidate.toPath(), destination.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    return;
+                }
+            }
+            throw new IOException("PHOTO_TOO_LARGE");
+        } finally {
+            candidate.delete();
+        }
+    }
+
     static Bitmap thumbnail(File file) {
-        BitmapFactory.Options options = new BitmapFactory.Options(); options.inSampleSize = 8;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(file.getPath(), options);
+        options.inSampleSize = 1;
+        while (Math.max(options.outWidth, options.outHeight) / options.inSampleSize > 900) options.inSampleSize *= 2;
+        options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFile(file.getPath(), options);
     }
 }
