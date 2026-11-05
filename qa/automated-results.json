@@ -1,89 +1,44 @@
 {
-  "version": "0.2.0",
-  "suites": [
-    {
-      "module": "core",
-      "suite": "az.etiket.core.BarcodeTest",
-      "tests": 8,
-      "failures": 0
+  "version": "0.3.0",
+  "validatedOn": "2026-11-05",
+  "sourceBaseCommit": "af3c4ce632a2cf7324a43c5c742c6e2808f7123e",
+  "uploadedDevZipMatchedGitHub": true,
+  "modules": {
+    "core": {
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
     },
-    {
-      "module": "backend",
-      "suite": "az.etiket.backend.CatalogueApiTest",
-      "tests": 7,
-      "failures": 0
+    "backend": {
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
     },
+    "app": {
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "totalTests": 60,
+  "lintIssues": [
     {
-      "module": "backend",
-      "suite": "az.etiket.backend.LegacyDatabaseTest",
-      "tests": 2,
-      "failures": 0
-    },
-    {
-      "module": "backend",
-      "suite": "az.etiket.backend.PostgresCatalogueTest",
-      "tests": 2,
-      "failures": 0
-    },
-    {
-      "module": "backend",
-      "suite": "az.etiket.backend.ProductApiTest",
-      "tests": 11,
-      "failures": 0
-    },
-    {
-      "module": "app",
-      "suite": "az.etiket.mobile.ApiClientTest",
-      "tests": 3,
-      "failures": 0
-    },
-    {
-      "module": "app",
-      "suite": "az.etiket.mobile.AppFlowTest",
-      "tests": 10,
-      "failures": 0
+      "id": "NewerVersionAvailable",
+      "severity": "Warning",
+      "message": "A newer version of com.squareup.okhttp3:mockwebserver than 4.12.0 is available: 5.5.1"
     }
   ],
-  "totalChecks": 43,
-  "lintIssues": [],
-  "runtimeSmoke": [
-    {
-      "run": 1,
-      "health": {
-        "version": "0.2.0",
-        "status": "UP"
-      },
-      "summary": {
-        "products": 77,
-        "missingIngredients": 67,
-        "labelVerified": 0,
-        "reviewStatus": "WEB_SOURCED_UNVERIFIED",
-        "withIngredients": 10,
-        "dataset": "bazarstore-starter"
-      },
-      "known": 200,
-      "partial": 200,
-      "unknown": 404,
-      "invalid": 400
-    },
-    {
-      "run": 2,
-      "health": {
-        "version": "0.2.0",
-        "status": "UP"
-      },
-      "summary": {
-        "missingIngredients": 67,
-        "products": 77,
-        "dataset": "bazarstore-starter",
-        "withIngredients": 10,
-        "reviewStatus": "WEB_SOURCED_UNVERIFIED",
-        "labelVerified": 0
-      },
-      "known": 200,
-      "partial": 200,
-      "unknown": 404,
-      "invalid": 400
-    }
+  "backendBootJar": "passed",
+  "androidDebugApk": "passed",
+  "catalogueAssetsUnchanged": true,
+  "apkSigningCertificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
+  "apkSigningCertificateMatches02": true,
+  "limits": [
+    "No physical-device camera test for this new build.",
+    "Docker image not run locally.",
+    "This update has not been pushed to GitHub or deployed to Railway."
   ]
 }
