@@ -293,6 +293,7 @@ public class MainActivity extends ComponentActivity {
         }
         if (!p.traces().isEmpty()) { gap(ingredients, 5); full(ingredients, text(t("İz miqdarları: ", "Possible traces: ") + tags(p.traces()), 13, MUTED, false)); }
         full(body, ingredients); gap(body, 14);
+        ingredientExplanations(p);
         full(body, nutrition); gap(body, 14);
         full(body, button(store.contains("saved", p) ? t("Seçilmişlərdən çıxar", "Remove from saved") : t("Məhsulu yadda saxla", "Save product"), true,
             () -> { store.toggleSaved(p); render(); })); gap(body, 14);
@@ -308,6 +309,44 @@ public class MainActivity extends ComponentActivity {
             gap(body, 7); full(body, text(retailer ? t("Mənbə: bazarstore.az • test üçün sayt məlumatları", "Source: bazarstore.az • web data for prototype testing")
                 : "Data © Open Food Facts contributors • ODbL 1.0", 11, MUTED, false));
         }
+    }
+    private void ingredientExplanations(Product p) {
+        IngredientAnalysis analysis = p.ingredientAnalysis();
+        LinearLayout explanations = card(PALE);
+        full(explanations, text(t("Tərkibin sadə izahı", "Ingredient explanations (Azerbaijani)"), 20, DARK, true));
+        gap(explanations, 7);
+        if (analysis.status().equals("MISSING")) {
+            full(explanations, text(t("Tərkib siyahısı yoxdur; izah hazırlamaq mümkün deyil.",
+                "There is no ingredient list to explain."), 14, MUTED, false));
+        } else if (analysis.status().equals("UNSUPPORTED_LANGUAGE")) {
+            full(explanations, text(t("Hazırda yalnız Azərbaycan dilindəki tərkib siyahıları izah olunur.",
+                "This version explains ingredient lists written in Azerbaijani."), 14, MUTED, false));
+        } else {
+            full(explanations, text(t("Ümumi lüğət izahlarıdır. Məhsulun tərkibini təsdiqləmir. Mətnlər redaktə mərhələsindədir.",
+                "General dictionary descriptions. They do not verify the product ingredients. Wording is an editorial draft."), 12, MUTED, false));
+            gap(explanations, 7);
+            full(explanations, text(t("İzahı olan hissələr: ", "Entries with explanations: ")
+                + analysis.recognizedCount() + " / " + analysis.items().size(), 12, GREEN, true));
+            Set<IngredientAnalysis.Reference> references = new LinkedHashSet<>();
+            for (IngredientAnalysis.Item item : analysis.items()) {
+                gap(explanations, 13);
+                full(explanations, text(item.recognized() ? item.nameAz() : item.reportedText(), 15, DARK, true));
+                if (!item.group().isEmpty()) full(explanations, text(item.group(), 11, MUTED, false));
+                full(explanations, text(item.recognized() ? item.explanationAz()
+                    : t("Bu hissə üçün lüğətdə izah yoxdur.", "This entry has no dictionary explanation yet."), 14, MUTED, false));
+                references.addAll(item.references());
+            }
+            if (!references.isEmpty()) {
+                gap(explanations, 16);
+                full(explanations, text(t("İzahlar üçün istinadlar", "Explanation references"), 13, DARK, true));
+                for (IngredientAnalysis.Reference reference : references) {
+                    gap(explanations, 6);
+                    full(explanations, button(reference.title(), false,
+                        () -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(reference.url())))));
+                }
+            }
+        }
+        full(body, explanations); gap(body, 14);
     }
     private String tags(List<String> values) {
         Map<String, String> labels = new HashMap<>();

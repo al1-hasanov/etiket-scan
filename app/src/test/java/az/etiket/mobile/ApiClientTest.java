@@ -31,6 +31,13 @@ public class ApiClientTest {
     @Test public void liveLookupPreservesAzerbaijaniAndReviewEvidence() throws Exception {
         assertEquals(expected, lookup());
     }
+    @Test public void anOlderApiWithoutAnalysisStillGetsOfflineDictionaryDescriptions() throws Exception {
+        assertFalse(body.contains("ingredientAnalysis"));
+        Product loaded = lookup();
+        assertEquals("AVAILABLE", loaded.ingredientAnalysis().status());
+        assertEquals(5, loaded.ingredientAnalysis().recognizedCount());
+        assertFalse(loaded.evidence().labelPhotoChecked());
+    }
     @Test public void missingAndUnavailableAreDifferentFailures() throws Exception {
         status = 404; assertFailure("PRODUCT_NOT_FOUND");
         status = 503; assertFailure("SOURCE_UNAVAILABLE");

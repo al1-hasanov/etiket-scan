@@ -44,6 +44,10 @@ class CatalogueApiTest {
         assertFalse(p.at("/evidence/labelPhotoChecked").asBoolean());
         assertTrue(p.path("nutrients").isEmpty()); assertTrue(p.path("allergens").isEmpty());
         assertEquals("", p.path("nutriScore").asString()); assertFalse(p.path("demo").asBoolean());
+        assertEquals("AVAILABLE", p.at("/ingredientAnalysis/status").asString());
+        assertEquals(5, p.at("/ingredientAnalysis/recognizedCount").asInt());
+        assertEquals("İnək südü", p.at("/ingredientAnalysis/items/0/nameAz").asString());
+        assertEquals("EDITORIAL_DRAFT", p.at("/ingredientAnalysis/contentStatus").asString());
     }
     @Test void missingIngredientsRemainAFoundProductAndCandidateStaysSeparate() throws Exception {
         var result = get("products/5201360553457"); assertEquals(200, result.statusCode());
@@ -52,6 +56,8 @@ class CatalogueApiTest {
         assertEquals("MISSING", p.at("/evidence/ingredientsStatus").asString());
         assertTrue(p.at("/evidence/externalCandidateAvailable").asBoolean());
         assertTrue(p.path("allergens").isEmpty()); assertTrue(p.path("traces").isEmpty());
+        assertEquals("MISSING", p.at("/ingredientAnalysis/status").asString());
+        assertTrue(p.at("/ingredientAnalysis/items").isEmpty());
         assertFalse(result.body().contains("əla növ çörəkbişirmə buğda unu"));
         String raw = db.queryForObject("SELECT source_record FROM catalogue_products WHERE barcode=?", String.class, "5201360553457");
         assertTrue(json.readTree(raw).path("external_ingredient_candidate").isObject());
@@ -83,5 +89,18 @@ class CatalogueApiTest {
             assertFalse(p.evidence().labelPhotoChecked());
             assertEquals(p.ingredients().isEmpty() ? "MISSING" : "WEB_TEXT_REQUIRES_REVIEW", p.evidence().ingredientsStatus());
         }
+    }
+    @Test void everyStarterIngredientListGetsDescriptionsWithoutChangingTheSeed() throws Exception {
+        for (String payload : db.query("SELECT payload FROM catalogue_products WHERE has_ingredients=TRUE", (rs, i) -> rs.getString(1))) {
+            Product original = json.readValue(payload, Product.class);
+            JsonNode response = json.readTree(get("products/" + original.barcode()).body());
+            assertEquals(original.ingredients(), response.path("ingredients").asString());
+            assertTrue(response.at("/ingredientAnalysis/recognizedCount").asInt() > 0);
+            assertEquals("WEB_SOURCED_UNVERIFIED", response.at("/evidence/reviewStatus").asString());
+            assertFalse(response.at("/evidence/labelPhotoChecked").asBoolean());
+        }
+        JsonNode berry = json.readTree(get("products/4606779682100").body());
+        assertEquals("PARTIAL", berry.at("/ingredientAnalysis/status").asString());
+        assertTrue(berry.path("ingredientAnalysis").path("items").size() > berry.at("/ingredientAnalysis/recognizedCount").asInt());
     }
 }
