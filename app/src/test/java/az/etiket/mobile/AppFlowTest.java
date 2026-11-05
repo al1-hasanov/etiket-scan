@@ -131,6 +131,40 @@ public class AppFlowTest {
             assertNotNull(find(c.get().getWindow().getDecorView(), "Web-sourced text • needs human review"));
         }
     }
+    @Test public void ingredientExplanationsAppearOfflineWithoutChangingReviewStatus() throws Exception {
+        try (ActivityController<MainActivity> c = Robolectric.buildActivity(MainActivity.class).setup()) {
+            click(c.get().getWindow().getDecorView(), "N1 ŞOR 400 Q QAYMAQLI");
+            View root = c.get().getWindow().getDecorView();
+            assertNotNull(find(root, "Tərkibin sadə izahı"));
+            assertNotNull(find(root, "İzahı olan hissələr: 5 / 5"));
+            assertNotNull(find(root, "İnək südü"));
+            assertNotNull(find(root, "Qablaşdırma ilə yoxlanmayıb"));
+            capture(c.get(), "ingredients-az.png");
+            click(root, "Məhsulu yadda saxla");
+            Product saved = new ProductStore(RuntimeEnvironment.getApplication().getSharedPreferences("etiket", Context.MODE_PRIVATE)).list("saved").get(0);
+            assertEquals(5, saved.ingredientAnalysis().recognizedCount());
+            assertFalse(saved.evidence().labelPhotoChecked());
+        }
+    }
+    @Test public void missingIngredientsNeverProduceExplanations() {
+        try (ActivityController<MainActivity> c = Robolectric.buildActivity(MainActivity.class).setup()) {
+            click(c.get().getWindow().getDecorView(), "7 DAYS MİDİ KRUASSAN 65 Q BİŞMİŞ SÜDLÜ");
+            View root = c.get().getWindow().getDecorView();
+            assertNotNull(find(root, "Tərkib siyahısı yoxdur; izah hazırlamaq mümkün deyil."));
+            assertNull(find(root, "İnək südü"));
+        }
+    }
+    @Test public void partialDictionaryLeavesUnknownTextVisibleInEnglishUi() {
+        try (ActivityController<MainActivity> c = Robolectric.buildActivity(MainActivity.class).setup()) {
+            click(c.get().getWindow().getDecorView(), "EN");
+            click(c.get().getWindow().getDecorView(), "Catalogue");
+            click(c.get().getWindow().getDecorView(), "ERMI YOQURT İÇMƏLİ 290 Q MEŞƏ GİLƏMEYVƏ");
+            View root = c.get().getWindow().getDecorView();
+            assertNotNull(find(root, "Ingredient explanations (Azerbaijani)"));
+            assertNotNull(find(root, "This entry has no dictionary explanation yet."));
+            assertNotNull(find(root, "konsentrasiyalı yerkökü"));
+        }
+    }
     private static EditText firstEditText(View v) {
         if (v instanceof EditText e) return e;
         if (v instanceof ViewGroup group) for (int i = 0; i < group.getChildCount(); i++) {
@@ -155,7 +189,8 @@ public class AppFlowTest {
         View view = a.getWindow().getDecorView();
         view.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(2400, View.MeasureSpec.EXACTLY));
         view.layout(0, 0, 1080, 2400);
-        Bitmap bitmap = Bitmap.createBitmap(1080, 2400, Bitmap.Config.ARGB_8888); view.draw(new Canvas(bitmap));
+        if (file.startsWith("ingredients-")) view = (View) find(view, "Tərkibin sadə izahı").getParent();
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888); view.draw(new Canvas(bitmap));
         File dir = new File("build/qa"); dir.mkdirs();
         try (OutputStream out = new FileOutputStream(new File(dir, file))) { bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); }
     }

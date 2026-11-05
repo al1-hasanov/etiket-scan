@@ -3,9 +3,14 @@ setlocal
 cd /d "%~dp0"
 echo Starting Etiket API at http://127.0.0.1:8080
 echo Requires JDK 25. Leave this window open while testing.
+if not exist "backend\build\libs\etiket-backend-0.3.0.jar" (
+  echo Build the backend first: gradlew.bat -PbackendOnly :backend:bootJar
+  pause
+  exit /b 1
+)
 if defined JAVA_HOME (
-  "%JAVA_HOME%\bin\java.exe" -jar "dist\etiket-backend-0.2.0.jar"
+  "%JAVA_HOME%\bin\java.exe" -jar "backend\build\libs\etiket-backend-0.3.0.jar"
 ) else (
-  java -jar "dist\etiket-backend-0.2.0.jar"
+  java -jar "backend\build\libs\etiket-backend-0.3.0.jar"
 )
 if errorlevel 1 pause
