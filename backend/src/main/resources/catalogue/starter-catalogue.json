@@ -1,0 +1,4658 @@
+{
+  "schemaVersion": 1,
+  "dataset": "bazarstore-starter",
+  "sourceDigest": "6f61ebfec538f8312af2627496118e19ae14c642a3bfdab6a30916f96a0805e4",
+  "records": [
+    {
+      "product": {
+        "barcode": "5201360553457",
+        "name": "7 DAYS MİDİ KRUASSAN 65 Q BİŞMİŞ SÜDLÜ",
+        "brand": "7 DAYS",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/7-days-midi-kruassan-65-q-bismis-sudlu",
+        "retrievedAt": "2026-11-04T09:58:34.624287+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name.",
+            "One foreign ingredient candidate has been attached separately; Bazarstore itself does not provide ingredients for this item in the captured page."
+          ],
+          "externalCandidateAvailable": true
+        }
+      },
+      "sourceRecord": {
+        "name_az": "7 DAYS MİDİ KRUASSAN 65 Q BİŞMİŞ SÜDLÜ",
+        "brand": "7 DAYS",
+        "retailer_sku": "30050643",
+        "barcode": "5201360553457",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Keks biskvit"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/7-days-midi-kruassan-65-q-bismis-sudlu",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0000955_7-days-midi-kruassan-65-q-bismis-sudlu_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:58:34.624287+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name.",
+          "One foreign ingredient candidate has been attached separately; Bazarstore itself does not provide ingredients for this item in the captured page."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false,
+        "external_ingredient_candidate": {
+          "source_url": "https://prodly.kz/product/604e3aef18912e2f59c54179?category=326HQn6piU917uuLKWzXK8Dicg4",
+          "source_site": "PRODLY",
+          "source_type": "OTHER_RETAILER_WEBPAGE",
+          "barcode_as_reported": "5201360553457",
+          "pack_size_as_reported": "65 g",
+          "source_language": "ru",
+          "target_language": "az",
+          "ingredient_terms_az_draft_in_source_order": [
+            "əla növ çörəkbişirmə buğda unu",
+            "bitki yağları (palma, günəbaxan)",
+            "su",
+            "şəkər",
+            "bitki mənşəli yağ (palma)",
+            "qlükoza-fruktoza siropu",
+            "preslənmiş çörək mayası",
+            "yağsızlaşdırılmış süd tozu",
+            "quru süd zərdabı",
+            "emulqatorlar (yağ turşularının mono- və diqliseridləri; poliqliserin və yağ turşularının efirləri)",
+            "yumurta məhsulu",
+            "duz",
+            "qida xammalından rektifikasiya edilmiş etil spirti",
+            "ətirləndiricilər",
+            "konservantlar (kalsium propionat, kalium sorbat)",
+            "qatılaşdırıcı (E466)",
+            "stabilizator (aqar)"
+          ],
+          "trace_statement_az_draft": "Tərkibində çərəz izləri ola bilər.",
+          "review_status": "CROSS_MARKET_CANDIDATE_REQUIRES_REVIEW",
+          "label_photo_checked": false,
+          "notes": [
+            "This is a factual draft translation of a foreign retailer composition listing, not a verified Azerbaijan package label.",
+            "ROZETKA lists 60 g under the same barcode; Bazarstore and PRODLY list 65 g. This conflict must not be silently resolved.",
+            "A source declaration does not establish that every local batch has the same composition."
+          ],
+          "conflict_source_url": "https://rozetka.com.ua/338010565/p338010565/"
+        }
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760177560085",
+        "name": "N1 ŞOR 400 Q QAYMAQLI",
+        "brand": "N1",
+        "quantity": "",
+        "ingredients": "inək südü, bitki yağı, maya, duz, qara çörək otu",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/n1-sor-400-q-qaymaqli",
+        "retrievedAt": "2026-11-04T09:58:35.230630+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/n1-sor-400-q-qaymaqli",
+          "ingredientSectionAsReported": "inək südü, bitki yağı, maya, duz, qara çörək otu",
+          "declaredAllergenStatement": "",
+          "notes": [],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "N1 ŞOR 400 Q QAYMAQLI",
+        "brand": "N1",
+        "retailer_sku": "30183831",
+        "barcode": "4760177560085",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Süd məhsulları",
+          "Kəsmik"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/n1-sor-400-q-qaymaqli",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/n1-sor-400-q-qaymaqli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0022447_n1-sor-400-q-qaymaqli_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:58:35.230630+00:00",
+        "ingredients_text_sha256": "ed583827e14be1d2873593b7dda388d7cf788e8d9693cb0649343307ae1a6c00",
+        "notes": [],
+        "ingredient_section_as_reported": "inək südü, bitki yağı, maya, duz, qara çörək otu",
+        "ingredients_text_candidate": "inək südü, bitki yağı, maya, duz, qara çörək otu",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760095105863",
+        "name": "AZERSÜD KEFİR 1 L",
+        "brand": "AZERSUD",
+        "quantity": "",
+        "ingredients": "Pasterizə inək südü,maya",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/azersud-kefir-1-l",
+        "retrievedAt": "2026-11-04T09:58:40.645311+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/azersud-kefir-1-l",
+          "ingredientSectionAsReported": "Pasterizə inək südü,maya,",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "Ingredient candidate excludes trailing non-ingredient GMO statement/punctuation; original extracted section retained separately."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "AZERSÜD KEFİR 1 L",
+        "brand": "AZERSUD",
+        "retailer_sku": "30188213",
+        "barcode": "4760095105863",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Süd məhsulları",
+          "Kəsmik"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/azersud-kefir-1-l",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/azersud-kefir-1-l",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0004363_azersud-kefir-1-l_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:58:40.645311+00:00",
+        "ingredients_text_sha256": "55d6529a642e50e4685acfc365d5e270df159051794f04c1fadbff29a5944e6c",
+        "notes": [
+          "Ingredient candidate excludes trailing non-ingredient GMO statement/punctuation; original extracted section retained separately."
+        ],
+        "ingredient_section_as_reported": "Pasterizə inək südü,maya,",
+        "ingredients_text_candidate": "Pasterizə inək südü,maya",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4606779682407",
+        "name": "ERMI YOQURT İÇMƏLİ 290 Q ÇİYƏLƏK BANAN",
+        "brand": "ERMIQURT",
+        "quantity": "",
+        "ingredients": "yağsızlaşdırılmış süd, su, qaymaq, şəkər, qlükoza-fruktoza siropu, quru süd zərdabı, çiyələk püresi, çiyələk şirəsi,banan püresi, qatılaşdırıcılar (E1422, ksantan kitrəsi, pektinlər), jelatin, aromatizatorlar, turşuluq tənzimləyiciləri (limon turşusu, natrium sitratlar, natrium fosfatlar), boyayıcı - karminlər, mayadan istifadə etməklə",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/ermi-yoqurt-icmeli-290-q-ciyelek-banan",
+        "retrievedAt": "2026-11-04T09:58:40.625861+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/ermi-yoqurt-icmeli-290-q-ciyelek-banan",
+          "ingredientSectionAsReported": "yağsızlaşdırılmış süd, su, qaymaq, şəkər, qlükoza-fruktoza siropu, quru süd zərdabı, çiyələk püresi, çiyələk şirəsi,banan püresi, qatılaşdırıcılar (E1422, ksantan kitrəsi, pektinlər), jelatin, aromatizatorlar, turşuluq tənzimləyiciləri (limon turşusu, natrium sitratlar, natrium fosfatlar), boyayıcı - karminlər, mayadan istifadə etməklə",
+          "declaredAllergenStatement": "",
+          "notes": [],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ERMI YOQURT İÇMƏLİ 290 Q ÇİYƏLƏK BANAN",
+        "brand": "ERMIQURT",
+        "retailer_sku": "30060682",
+        "barcode": "4606779682407",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/ermi-yoqurt-icmeli-290-q-ciyelek-banan",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/ermi-yoqurt-icmeli-290-q-ciyelek-banan",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0011211_ermi-yoqurt-icmeli-290-q-ciyelek-banan_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:58:40.625861+00:00",
+        "ingredients_text_sha256": "03cee873f82fa5832538398624df164aa9f13dfed243ff798ec11e9d5d7fb112",
+        "notes": [],
+        "ingredient_section_as_reported": "yağsızlaşdırılmış süd, su, qaymaq, şəkər, qlükoza-fruktoza siropu, quru süd zərdabı, çiyələk püresi, çiyələk şirəsi,banan püresi, qatılaşdırıcılar (E1422, ksantan kitrəsi, pektinlər), jelatin, aromatizatorlar, turşuluq tənzimləyiciləri (limon turşusu, natrium sitratlar, natrium fosfatlar), boyayıcı - karminlər, mayadan istifadə etməklə",
+        "ingredients_text_candidate": "yağsızlaşdırılmış süd, su, qaymaq, şəkər, qlükoza-fruktoza siropu, quru süd zərdabı, çiyələk püresi, çiyələk şirəsi,banan püresi, qatılaşdırıcılar (E1422, ksantan kitrəsi, pektinlər), jelatin, aromatizatorlar, turşuluq tənzimləyiciləri (limon turşusu, natrium sitratlar, natrium fosfatlar), boyayıcı - karminlər, mayadan istifadə etməklə",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081605261",
+        "name": "MİLLA SÜD 1 L YAĞLI 1,5 % LAKTOZASIZ",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-sud-1-l-yagli-1-5-laktozasiz",
+        "retrievedAt": "2026-11-04T09:58:46.813690+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA SÜD 1 L YAĞLI 1,5 % LAKTOZASIZ",
+        "brand": "MILLA",
+        "retailer_sku": "30201556",
+        "barcode": "4760081605261",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-sud-1-l-yagli-1-5-laktozasiz",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:58:46.813690+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760095107577",
+        "name": "AZƏRSÜD QATIQ 450 Q HOMOGENİZE 3.6%",
+        "brand": "AZERSUD",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/azersud-qatiq-450-q-homogenize-3-6",
+        "retrievedAt": "2026-11-04T09:58:46.877371+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "AZƏRSÜD QATIQ 450 Q HOMOGENİZE 3.6%",
+        "brand": "AZERSUD",
+        "retailer_sku": "30204818",
+        "barcode": "4760095107577",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Süd məhsulları",
+          "Qatıq"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/azersud-qatiq-450-q-homogenize-3-6",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:58:46.877371+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081604400",
+        "name": "MİLLA YOQURT İÇMƏLİ 270 ML MANQO ŞAFTALI",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-yoqurt-icmeli-270-ml-manqo-saftali",
+        "retrievedAt": "2026-11-04T09:58:52.933005+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA YOQURT İÇMƏLİ 270 ML MANQO ŞAFTALI",
+        "brand": "MILLA",
+        "retailer_sku": "30067578",
+        "barcode": "4760081604400",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-yoqurt-icmeli-270-ml-manqo-saftali",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021450_milla-yoqurt-icmeli-270-ml-manqo-saftali_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:58:52.933005+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4606779682100",
+        "name": "ERMI YOQURT İÇMƏLİ 290 Q MEŞƏ GİLƏMEYVƏ",
+        "brand": "ERMIQURT",
+        "quantity": "",
+        "ingredients": "yağsızlaşdırılmış süd, su, şəkər, qlükoza-fruktoza siropu,qaymaq,quru süd zərdabı,konsentrasiyalı çiyələk püresi,konsentrasiyalı moruq püresi, qaragilə, mərsin, qatılaşdırıcılar(E1442,E1422,pektinlər,ksantan kitrəsi),jelatin, konsentrasiyalı yerkökü,üzüm vəaroniya şirələri, aromatizatorlar, turşuluq tənzimləyiciləri (limon turşusu, natrium sitratlar, kalsium sitratlar,natrium fosfatlar), mayadan istifadə etməklə",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/ermi-yoqurt-icmeli-290-q-mese-gileme-1",
+        "retrievedAt": "2026-11-04T09:58:52.984027+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/ermi-yoqurt-icmeli-290-q-mese-gileme-1",
+          "ingredientSectionAsReported": "yağsızlaşdırılmış süd, su, şəkər, qlükoza-fruktoza siropu,qaymaq,quru süd zərdabı,konsentrasiyalı çiyələk püresi,konsentrasiyalı moruq püresi, qaragilə, mərsin, qatılaşdırıcılar(E1442,E1422,pektinlər,ksantan kitrəsi),jelatin, konsentrasiyalı yerkökü,üzüm vəaroniya şirələri, aromatizatorlar, turşuluq tənzimləyiciləri (limon turşusu, natrium sitratlar, kalsium sitratlar,natrium fosfatlar), mayadan istifadə etməklə",
+          "declaredAllergenStatement": "",
+          "notes": [],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ERMI YOQURT İÇMƏLİ 290 Q MEŞƏ GİLƏMEYVƏ",
+        "brand": "ERMIQURT",
+        "retailer_sku": "30060684",
+        "barcode": "4606779682100",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/ermi-yoqurt-icmeli-290-q-mese-gileme-1",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/ermi-yoqurt-icmeli-290-q-mese-gileme-1",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0011213_ermi-yoqurt-icmeli-290-q-mese-gilemeyve_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:58:52.984027+00:00",
+        "ingredients_text_sha256": "a10c74fe91362effa42d72d10d679a85b5b491b8ae86485e27bedca817148cd8",
+        "notes": [],
+        "ingredient_section_as_reported": "yağsızlaşdırılmış süd, su, şəkər, qlükoza-fruktoza siropu,qaymaq,quru süd zərdabı,konsentrasiyalı çiyələk püresi,konsentrasiyalı moruq püresi, qaragilə, mərsin, qatılaşdırıcılar(E1442,E1422,pektinlər,ksantan kitrəsi),jelatin, konsentrasiyalı yerkökü,üzüm vəaroniya şirələri, aromatizatorlar, turşuluq tənzimləyiciləri (limon turşusu, natrium sitratlar, kalsium sitratlar,natrium fosfatlar), mayadan istifadə etməklə",
+        "ingredients_text_candidate": "yağsızlaşdırılmış süd, su, şəkər, qlükoza-fruktoza siropu,qaymaq,quru süd zərdabı,konsentrasiyalı çiyələk püresi,konsentrasiyalı moruq püresi, qaragilə, mərsin, qatılaşdırıcılar(E1442,E1422,pektinlər,ksantan kitrəsi),jelatin, konsentrasiyalı yerkökü,üzüm vəaroniya şirələri, aromatizatorlar, turşuluq tənzimləyiciləri (limon turşusu, natrium sitratlar, kalsium sitratlar,natrium fosfatlar), mayadan istifadə etməklə",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4870206416129",
+        "name": "DANONE YUNAN YOQURT 120 Q SADƏ",
+        "brand": "DANONE",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/danone-yunan-yoqurt-120-q-sade",
+        "retrievedAt": "2026-11-04T09:59:01.438154+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "DANONE YUNAN YOQURT 120 Q SADƏ",
+        "brand": "DANONE",
+        "retailer_sku": "30207069",
+        "barcode": "4870206416129",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/danone-yunan-yoqurt-120-q-sade",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:01.438154+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8076809587334",
+        "name": "BARİLLA MAKARON 500 Q GRAN RUOTE",
+        "brand": "BARILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/barilla-makaron-500-q-gran-ruote",
+        "retrievedAt": "2026-11-04T09:59:01.628209+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BARİLLA MAKARON 500 Q GRAN RUOTE",
+        "brand": "BARILLA",
+        "retailer_sku": "30207072",
+        "barcode": "8076809587334",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Makaron"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/barilla-makaron-500-q-gran-ruote",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:01.628209+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8696362804671",
+        "name": "HEINZ KETÇUP TOMAT 375 Q",
+        "brand": "HEINZ",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/heinz-ketcup-tomat-375-q",
+        "retrievedAt": "2026-11-04T09:59:07.681166+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "HEINZ KETÇUP TOMAT 375 Q",
+        "brand": "HEINZ",
+        "retailer_sku": "30204174",
+        "barcode": "8696362804671",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/heinz-ketcup-tomat-375-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:07.681166+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "59032823",
+        "name": "NUTELLA ŞOKOLAD YAĞI 630 Q",
+        "brand": "NUTELLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/nutella-sokolad-yagi-630-q",
+        "retrievedAt": "2026-11-04T09:59:07.712865+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "NUTELLA ŞOKOLAD YAĞI 630 Q",
+        "brand": "NUTELLA",
+        "retailer_sku": "30124025",
+        "barcode": "59032823",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/nutella-sokolad-yagi-630-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023575_nutella-sokolad-yagi-630-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:07.712865+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "7622210309358",
+        "name": "OREO SÜDLÜ PEÇENYE 95 Q",
+        "brand": "OREO",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/oreo-sudlu-pecenya-95-gr",
+        "retrievedAt": "2026-11-04T09:59:14.627440+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "OREO SÜDLÜ PEÇENYE 95 Q",
+        "brand": "OREO",
+        "retailer_sku": "30116895",
+        "barcode": "7622210309358",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/oreo-sudlu-pecenya-95-gr",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023968_oreo-sudlu-pecenye-95-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:14.627440+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8690526822471",
+        "name": "ETI ŞOKOLAD 60 Q ANTEP FISTIKLI",
+        "brand": "ETI",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/eti-sokolad-60-q-antep-fistikli",
+        "retrievedAt": "2026-11-04T09:59:14.379482+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ETI ŞOKOLAD 60 Q ANTEP FISTIKLI",
+        "brand": "ETI",
+        "retailer_sku": "30207933",
+        "barcode": "8690526822471",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Şokoladlar",
+          "Şokolad barlar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/eti-sokolad-60-q-antep-fistikli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:14.379482+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760018505107",
+        "name": "BIZIM TARLA ZOĞAL MÜRƏBBƏSİ 400 Q",
+        "brand": "BIZIM TARLA",
+        "quantity": "",
+        "ingredients": "zoğal,şəkər tozu",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/bizim-tarla-zogal-murebbesi-400-q",
+        "retrievedAt": "2026-11-04T09:59:20.409469+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/bizim-tarla-zogal-murebbesi-400-q",
+          "ingredientSectionAsReported": "zoğal,şəkər tozu.Tərkibində GMO yoxdur",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "Ingredient candidate excludes trailing non-ingredient GMO statement/punctuation; original extracted section retained separately."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BIZIM TARLA ZOĞAL MÜRƏBBƏSİ 400 Q",
+        "brand": "BIZIM TARLA",
+        "retailer_sku": "10001404",
+        "barcode": "4760018505107",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/bizim-tarla-zogal-murebbesi-400-q",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/bizim-tarla-zogal-murebbesi-400-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0006443_bizim-tarla-zogal-murebbesi-400-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:20.409469+00:00",
+        "ingredients_text_sha256": "6cb4a5742b47e1966afe31ac293d7e9614514901536ad9dd90a0e7022e7f758f",
+        "notes": [
+          "Ingredient candidate excludes trailing non-ingredient GMO statement/punctuation; original extracted section retained separately."
+        ],
+        "ingredient_section_as_reported": "zoğal,şəkər tozu.Tərkibində GMO yoxdur",
+        "ingredients_text_candidate": "zoğal,şəkər tozu",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760177560634",
+        "name": "N1 ŞOR İSMAYILLI 350 Q",
+        "brand": "N1",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/n1-sor-ismayilli-350-q",
+        "retrievedAt": "2026-11-04T09:59:20.416390+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "N1 ŞOR İSMAYILLI 350 Q",
+        "brand": "N1",
+        "retailer_sku": "30207745",
+        "barcode": "4760177560634",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Süd məhsulları",
+          "Kəsmik"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/n1-sor-ismayilli-350-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:20.416390+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081600082",
+        "name": "MILLA SUD AZ YAGLI 1,5% 200 ML",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-sud-200-ml-az-yagli-1-5",
+        "retrievedAt": "2026-11-04T09:59:26.880309+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MILLA SUD AZ YAGLI 1,5% 200 ML",
+        "brand": "MILLA",
+        "retailer_sku": "30036244",
+        "barcode": "4760081600082",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-sud-200-ml-az-yagli-1-5",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021437_milla-sud-az-yagli-15-200-ml_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:26.880309+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760095107638",
+        "name": "AZƏRSÜD SÜD 1 L 2.4 % HƏDİYYƏLİ",
+        "brand": "AZERSUD",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/azersud-sud-1-l-2-4-hediyyeli",
+        "retrievedAt": "2026-11-04T09:59:33.025797+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "AZƏRSÜD SÜD 1 L 2.4 % HƏDİYYƏLİ",
+        "brand": "AZERSUD",
+        "retailer_sku": "30204738",
+        "barcode": "4760095107638",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Süd",
+          "Uzun ömürlü süd"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/azersud-sud-1-l-2-4-hediyyeli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:33.025797+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081604424",
+        "name": "MİLLA YOQURT İÇMƏLİ 270 ML QARA GAVALI",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-yoqurt-icmeli-270-ml-qara-gavali",
+        "retrievedAt": "2026-11-04T09:59:32.890423+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA YOQURT İÇMƏLİ 270 ML QARA GAVALI",
+        "brand": "MILLA",
+        "retailer_sku": "30067577",
+        "barcode": "4760081604424",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-yoqurt-icmeli-270-ml-qara-gavali",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021449_milla-yoqurt-icmeli-270-ml-qara-gavali_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:32.890423+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4870206416136",
+        "name": "DANONE YUNAN YOQURT 260 Q SADƏ",
+        "brand": "DANONE",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/danone-yunan-yoqurt-260-q-sade",
+        "retrievedAt": "2026-11-04T09:59:39.161541+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "DANONE YUNAN YOQURT 260 Q SADƏ",
+        "brand": "DANONE",
+        "retailer_sku": "30207065",
+        "barcode": "4870206416136",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/danone-yunan-yoqurt-260-q-sade",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:39.161541+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8076809513722",
+        "name": "BARILLA SOUS 400 Q BASİLİCO",
+        "brand": "BARILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/barilla-sous-400-q-basilico",
+        "retrievedAt": "2026-11-04T09:59:38.977432+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BARILLA SOUS 400 Q BASİLİCO",
+        "brand": "BARILLA",
+        "retailer_sku": "30035807",
+        "barcode": "8076809513722",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/barilla-sous-400-q-basilico",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0005101_barilla-sous-400-q-basilico_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:38.977432+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8696362806101",
+        "name": "HEINZ PESTO SOUS 225 Q",
+        "brand": "HEINZ",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/heinz-pesto-sous-225-q",
+        "retrievedAt": "2026-11-04T09:59:46.164471+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "HEINZ PESTO SOUS 225 Q",
+        "brand": "HEINZ",
+        "retailer_sku": "30204175",
+        "barcode": "8696362806101",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/heinz-pesto-sous-225-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:46.164471+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "80177425",
+        "name": "NUTELLA ŞOKOLAD YAĞI 180 Q",
+        "brand": "NUTELLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/nutella-sokolad-yagi-180-gr",
+        "retrievedAt": "2026-11-04T09:59:46.106499+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "NUTELLA ŞOKOLAD YAĞI 180 Q",
+        "brand": "NUTELLA",
+        "retailer_sku": "30036380",
+        "barcode": "80177425",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/nutella-sokolad-yagi-180-gr",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023573_nutella-sokolad-yagi-180-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:46.106499+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "7622210309396",
+        "name": "OREO KAKAO VANİLLİ PEÇENYE 38 QR",
+        "brand": "OREO",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/oreo-sudlu-pecenya-38-gr",
+        "retrievedAt": "2026-11-04T09:59:52.558610+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "OREO KAKAO VANİLLİ PEÇENYE 38 QR",
+        "brand": "OREO",
+        "retailer_sku": "30115789",
+        "barcode": "7622210309396",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/oreo-sudlu-pecenya-38-gr",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023967_oreo-kakao-vanilli-pecenye-38-qr_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:52.558610+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8690526057231",
+        "name": "ETI WANTED 32 Q KARAMELLI",
+        "brand": "ETI",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/eti-wanted-32-q-karamelli",
+        "retrievedAt": "2026-11-04T09:59:52.618116+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ETI WANTED 32 Q KARAMELLI",
+        "brand": "ETI",
+        "retailer_sku": "30207853",
+        "barcode": "8690526057231",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Şokoladlar",
+          "Şokolad barlar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/eti-wanted-32-q-karamelli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:52.618116+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760065708018",
+        "name": "BİZİM TARLA YAŞIL NOXUD 680 Q",
+        "brand": "BIZIM TARLA",
+        "quantity": "",
+        "ingredients": "yaşıl noxud,pasterizə edilmiş su, duz, şəkər tozu, turşuluq tənzimləyicisi:limon turşusu",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/bizim-tarla-yasil-noxud-660-q",
+        "retrievedAt": "2026-11-04T09:59:58.974943+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/bizim-tarla-yasil-noxud-660-q",
+          "ingredientSectionAsReported": "yaşıl noxud,pasterizə edilmiş su, duz, şəkər tozu, turşuluq tənzimləyicisi:limon turşusu",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "Current product title reports 680 g, while the historical URL slug says 660 g. Source title retained; package size requires review."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BİZİM TARLA YAŞIL NOXUD 680 Q",
+        "brand": "BIZIM TARLA",
+        "retailer_sku": "10002822",
+        "barcode": "4760065708018",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Konserva",
+          "Konservlər"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/bizim-tarla-yasil-noxud-660-q",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/bizim-tarla-yasil-noxud-660-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0006442_bizim-tarla-yasil-noxud-680-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:58.974943+00:00",
+        "ingredients_text_sha256": "2ead283316075cc3323a1e9762312b5474b3715e62a8d3d493f579495f432382",
+        "notes": [
+          "Current product title reports 680 g, while the historical URL slug says 660 g. Source title retained; package size requires review."
+        ],
+        "ingredient_section_as_reported": "yaşıl noxud,pasterizə edilmiş su, duz, şəkər tozu, turşuluq tənzimləyicisi:limon turşusu",
+        "ingredients_text_candidate": "yaşıl noxud,pasterizə edilmiş su, duz, şəkər tozu, turşuluq tənzimləyicisi:limon turşusu",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "5201360523795",
+        "name": "7 DAYS MİDİ KRUASSAN 65 Q VANİLLİ",
+        "brand": "7 DAYS",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/7-days-midi-kruassan-65-q-vanilli",
+        "retrievedAt": "2026-11-04T09:59:58.835106+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "7 DAYS MİDİ KRUASSAN 65 Q VANİLLİ",
+        "brand": "7 DAYS",
+        "retailer_sku": "30005499",
+        "barcode": "5201360523795",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Keks biskvit"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/7-days-midi-kruassan-65-q-vanilli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0000958_7-days-midi-kruassan-65-q-vanilli_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T09:59:58.835106+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081602598",
+        "name": "MILLA ŞOKOLADLI SUD 1 LT",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-sud-1-l-sokolad",
+        "retrievedAt": "2026-11-04T10:00:05.465752+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MILLA ŞOKOLADLI SUD 1 LT",
+        "brand": "MILLA",
+        "retailer_sku": "30113895",
+        "barcode": "4760081602598",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-sud-1-l-sokolad",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021436_milla-sokoladli-sud-1-lt_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:05.465752+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760095107423",
+        "name": "AZƏRSÜD QATIQ 450 Q HOMOGEN 1.5 %",
+        "brand": "AZERSUD",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/azersud-qatiq-450-q-homogen-1-5",
+        "retrievedAt": "2026-11-04T10:00:05.521785+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "AZƏRSÜD QATIQ 450 Q HOMOGEN 1.5 %",
+        "brand": "AZERSUD",
+        "retailer_sku": "30204338",
+        "barcode": "4760095107423",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Süd məhsulları",
+          "Qatıq"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/azersud-qatiq-450-q-homogen-1-5",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:05.521785+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081604417",
+        "name": "MİLLA YOQURT İÇMƏLİ 270 ML GİLƏMEYVƏ",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-yoqurt-icmeli-270-ml-gilemeyve",
+        "retrievedAt": "2026-11-04T10:00:11.981764+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA YOQURT İÇMƏLİ 270 ML GİLƏMEYVƏ",
+        "brand": "MILLA",
+        "retailer_sku": "30067576",
+        "barcode": "4760081604417",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-yoqurt-icmeli-270-ml-gilemeyve",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021448_milla-yoqurt-icmeli-270-ml-gilemeyve_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:11.981764+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4870206416143",
+        "name": "DANONE YUNAN YOQURT 120 Q ÇİYƏLƏK",
+        "brand": "DANONE",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/danone-yunan-yoqurt-120-q-ciyelek",
+        "retrievedAt": "2026-11-04T10:00:11.985586+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "DANONE YUNAN YOQURT 120 Q ÇİYƏLƏK",
+        "brand": "DANONE",
+        "retailer_sku": "30207067",
+        "barcode": "4870206416143",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/danone-yunan-yoqurt-120-q-ciyelek",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:11.985586+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8076809523547",
+        "name": "BARILLA SOUS 200 Q ROSSO",
+        "brand": "BARILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/barilla-sous-200-q-rosso",
+        "retrievedAt": "2026-11-04T10:00:18.289427+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BARILLA SOUS 200 Q ROSSO",
+        "brand": "BARILLA",
+        "retailer_sku": "30035808",
+        "barcode": "8076809523547",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/barilla-sous-200-q-rosso",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0005100_barilla-sous-200-q-rosso_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:18.289427+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8410066128624",
+        "name": "HEINZ SARIMSAQ SOUS 230 Q",
+        "brand": "HEINZ",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/heinz-sarimsaq-sous-230-q",
+        "retrievedAt": "2026-11-04T10:00:18.194861+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "HEINZ SARIMSAQ SOUS 230 Q",
+        "brand": "HEINZ",
+        "retailer_sku": "30204176",
+        "barcode": "8410066128624",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/heinz-sarimsaq-sous-230-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:18.194861+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "80050100",
+        "name": "NUTELLA AND GO ŞOKOLAD YAĞI 52 Q",
+        "brand": "NUTELLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/nutella-and-go-sokolad-yagi-52-q",
+        "retrievedAt": "2026-11-04T10:00:24.585581+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "NUTELLA AND GO ŞOKOLAD YAĞI 52 Q",
+        "brand": "NUTELLA",
+        "retailer_sku": "30122280",
+        "barcode": "80050100",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/nutella-and-go-sokolad-yagi-52-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023570_nutella-and-go-sokolad-yagi-52-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:24.585581+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "7622210309310",
+        "name": "OREO SÜDLÜ PEÇENYE 228 Q",
+        "brand": "OREO",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/oreo-sudlu-pecenya-228-gr",
+        "retrievedAt": "2026-11-04T10:00:25.139883+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "OREO SÜDLÜ PEÇENYE 228 Q",
+        "brand": "OREO",
+        "retailer_sku": "30115790",
+        "barcode": "7622210309310",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/oreo-sudlu-pecenya-228-gr",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023965_oreo-sudlu-pecenye-228-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:25.139883+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8690526418087",
+        "name": "ETI CANGA VAFLI 34 Q YER FISTIKLI",
+        "brand": "ETI",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/eti-canga-vafli-34-q-yer-fistikli",
+        "retrievedAt": "2026-11-04T10:00:31.008204+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ETI CANGA VAFLI 34 Q YER FISTIKLI",
+        "brand": "ETI",
+        "retailer_sku": "30207552",
+        "barcode": "8690526418087",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Vafli rulet",
+          "Vafli"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/eti-canga-vafli-34-q-yer-fistikli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:31.008204+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760065704737",
+        "name": "BİZİM TARLA YAŞIL NOXUD 325 Q",
+        "brand": "BIZIM TARLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/bizim-tarla-yasil-noxud-325-q",
+        "retrievedAt": "2026-11-04T10:00:31.054475+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BİZİM TARLA YAŞIL NOXUD 325 Q",
+        "brand": "BIZIM TARLA",
+        "retailer_sku": "10001726",
+        "barcode": "4760065704737",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Konserva",
+          "Konservlər"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/bizim-tarla-yasil-noxud-325-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0006440_bizim-tarla-yasil-noxud-325-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:31.054475+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "5201360521210",
+        "name": "7 DAYS MİDİ KRUASSAN 65 Q KAKAOLU",
+        "brand": "7 DAYS",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/7-days-midi-kruassan-65-q-kakaolu",
+        "retrievedAt": "2026-11-04T10:00:41.723066+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "7 DAYS MİDİ KRUASSAN 65 Q KAKAOLU",
+        "brand": "7 DAYS",
+        "retailer_sku": "30005497",
+        "barcode": "5201360521210",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Keks biskvit"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/7-days-midi-kruassan-65-q-kakaolu",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0000957_7-days-midi-kruassan-65-q-kakaolu_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:41.723066+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081600037",
+        "name": "MİLLA SÜD 1 L 3,2% YAĞLI",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-sud-1-l-3-2-yagli",
+        "retrievedAt": "2026-11-04T10:00:41.769646+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA SÜD 1 L 3,2% YAĞLI",
+        "brand": "MILLA",
+        "retailer_sku": "30036203",
+        "barcode": "4760081600037",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-sud-1-l-3-2-yagli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021434_milla-sud-1-l-32-yagli_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:41.769646+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760095107416",
+        "name": "AZERSÜD AYRAN 200 ML NANƏLİ",
+        "brand": "AZERSUD",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/azersud-ayran-200-ml-naneli",
+        "retrievedAt": "2026-11-04T10:00:48.051093+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "AZERSÜD AYRAN 200 ML NANƏLİ",
+        "brand": "AZERSUD",
+        "retailer_sku": "30202425",
+        "barcode": "4760095107416",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/azersud-ayran-200-ml-naneli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:48.051093+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081604394",
+        "name": "MİLLA YOQURT İÇMƏLİ 270 ML ÇİYƏLƏK",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-yoqurt-icmeli-270-ml-ciyelek",
+        "retrievedAt": "2026-11-04T10:00:48.178564+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA YOQURT İÇMƏLİ 270 ML ÇİYƏLƏK",
+        "brand": "MILLA",
+        "retailer_sku": "30067575",
+        "barcode": "4760081604394",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-yoqurt-icmeli-270-ml-ciyelek",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021447_milla-yoqurt-icmeli-270-ml-ciyelek_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:48.178564+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4870206416167",
+        "name": "DANONE YUNAN YOQURT 120 Q ALBALI",
+        "brand": "DANONE",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/danone-yunan-yoqurt-120-q-albali",
+        "retrievedAt": "2026-11-04T10:00:54.680841+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "DANONE YUNAN YOQURT 120 Q ALBALI",
+        "brand": "DANONE",
+        "retailer_sku": "30207071",
+        "barcode": "4870206416167",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/danone-yunan-yoqurt-120-q-albali",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:54.680841+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8076809513388",
+        "name": "BARILLA MAKARON SOSU 400 Q ARRABBIATA",
+        "brand": "BARILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/barilla-makaron-sosu-400-q-arrabbiata",
+        "retrievedAt": "2026-11-04T10:00:54.751804+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BARILLA MAKARON SOSU 400 Q ARRABBIATA",
+        "brand": "BARILLA",
+        "retailer_sku": "30015175",
+        "barcode": "8076809513388",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/barilla-makaron-sosu-400-q-arrabbiata",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0005098_barilla-makaron-sosu-400-q-arrabbiata_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:00:54.751804+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "50157495",
+        "name": "HEINZ XARDAL SOUS 240 Q",
+        "brand": "HEINZ",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/heinz-xardal-sous-240-q",
+        "retrievedAt": "2026-11-04T10:01:00.655130+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "HEINZ XARDAL SOUS 240 Q",
+        "brand": "HEINZ",
+        "retailer_sku": "30204180",
+        "barcode": "50157495",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/heinz-xardal-sous-240-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:00.655130+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "80177173",
+        "name": "NUTELLA ŞOKOLAD YAĞI 350 Q",
+        "brand": "NUTELLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/nutella-sokolad-yagi-350-q",
+        "retrievedAt": "2026-11-04T10:01:00.710129+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "NUTELLA ŞOKOLAD YAĞI 350 Q",
+        "brand": "NUTELLA",
+        "retailer_sku": "30005074",
+        "barcode": "80177173",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/nutella-sokolad-yagi-350-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0000863_nutella-sokolad-yagi-350-q_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:00.710129+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "90441028",
+        "name": "OREO SIROK 27 Q PİROJNOYE",
+        "brand": "OREO",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/oreo-sirok-27-q-pirojnoye",
+        "retrievedAt": "2026-11-04T10:01:07.175408+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "OREO SIROK 27 Q PİROJNOYE",
+        "brand": "OREO",
+        "retailer_sku": "30184421",
+        "barcode": "90441028",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/oreo-sirok-27-q-pirojnoye",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023964_oreo-sirok-27-qpirojnoye_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:07.175408+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8690526854731",
+        "name": "ETI BENIMO KOMBO LOKMALIK 84 Q",
+        "brand": "ETI",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/eti-benimo-kombo-lokmalik-84-q",
+        "retrievedAt": "2026-11-04T10:01:07.180056+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ETI BENIMO KOMBO LOKMALIK 84 Q",
+        "brand": "ETI",
+        "retailer_sku": "30207553",
+        "barcode": "8690526854731",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Peçenye və piroqlar",
+          "Peçenye"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/eti-benimo-kombo-lokmalik-84-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:07.180056+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760068002243",
+        "name": "BİZİM TARLA ÜZÜM YARPAĞI 640 Q",
+        "brand": "BIZIM TARLA",
+        "quantity": "",
+        "ingredients": "üzüm yarpağı,pasterilizə edilmiş su,duz",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/bizim-tarla-uzum-yarpagi-640-q",
+        "retrievedAt": "2026-11-04T10:01:13.913218+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/bizim-tarla-uzum-yarpagi-640-q",
+          "ingredientSectionAsReported": "üzüm yarpağı,pasterilizə edilmiş su,duz",
+          "declaredAllergenStatement": "",
+          "notes": [],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BİZİM TARLA ÜZÜM YARPAĞI 640 Q",
+        "brand": "BIZIM TARLA",
+        "retailer_sku": "10003044",
+        "barcode": "4760068002243",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Konserva",
+          "Konservlər"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/bizim-tarla-uzum-yarpagi-640-q",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/bizim-tarla-uzum-yarpagi-640-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0006439_bizim-tarla-uzum-yarpagi-640-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:13.913218+00:00",
+        "ingredients_text_sha256": "c4451c9a2e9f893e05b13128076816a2540ee75c339ebe54d47b7919e9412626",
+        "notes": [],
+        "ingredient_section_as_reported": "üzüm yarpağı,pasterilizə edilmiş su,duz",
+        "ingredients_text_candidate": "üzüm yarpağı,pasterilizə edilmiş su,duz",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "5201360521418",
+        "name": "7 DAYS MİDİ KRUASSAN 65 Q ÇİYƏLƏKLİ",
+        "brand": "7 DAYS",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/7-days-midi-kruassan-65-q-ciyelekli",
+        "retrievedAt": "2026-11-04T10:01:13.877715+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "7 DAYS MİDİ KRUASSAN 65 Q ÇİYƏLƏKLİ",
+        "brand": "7 DAYS",
+        "retailer_sku": "30005498",
+        "barcode": "5201360521418",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Keks biskvit"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/7-days-midi-kruassan-65-q-ciyelekli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0000956_7-days-midi-kruassan-65-q-ciyelekli_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:13.877715+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081603373",
+        "name": "MİLLA SÜD 1 L 2.5%",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-sud-1-l-2-5",
+        "retrievedAt": "2026-11-04T10:01:20.111107+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA SÜD 1 L 2.5%",
+        "brand": "MILLA",
+        "retailer_sku": "30124047",
+        "barcode": "4760081603373",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-sud-1-l-2-5",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021433_milla-sud-1-l-25_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:20.111107+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760095102039",
+        "name": "AZERSUD AYRAN BODY 200 ML",
+        "brand": "AZERSUD",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/azersud-ayran-body-200-ml",
+        "retrievedAt": "2026-11-04T10:01:19.961817+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "AZERSUD AYRAN BODY 200 ML",
+        "brand": "AZERSUD",
+        "retailer_sku": "10003499",
+        "barcode": "4760095102039",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/azersud-ayran-body-200-ml",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:19.961817+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081602239",
+        "name": "MİLLA YOQURT 115 Q ŞAFTALI",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-yoqurt-115-q-saftali",
+        "retrievedAt": "2026-11-04T10:01:26.131389+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA YOQURT 115 Q ŞAFTALI",
+        "brand": "MILLA",
+        "retailer_sku": "30049556",
+        "barcode": "4760081602239",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-yoqurt-115-q-saftali",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021446_milla-yoqurt-115-q-saftali_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:26.131389+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4870206416099",
+        "name": "DANONE YOQURT 110 Q ÇİYƏLƏK",
+        "brand": "DANONE",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/danone-yoqurt-110-q-ciyelek",
+        "retrievedAt": "2026-11-04T10:01:26.091269+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "DANONE YOQURT 110 Q ÇİYƏLƏK",
+        "brand": "DANONE",
+        "retailer_sku": "30033005",
+        "barcode": "4870206416099",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/danone-yoqurt-110-q-ciyelek",
+        "product_image_reference_url": "https://test.bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:26.091269+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8690579990981",
+        "name": "BARILLA MAKARON SOSU 190 Q PESTOGENOVESE",
+        "brand": "BARILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/barilla-makaron-sosu-190-q-pestogenovese",
+        "retrievedAt": "2026-11-04T10:01:32.558814+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BARILLA MAKARON SOSU 190 Q PESTOGENOVESE",
+        "brand": "BARILLA",
+        "retailer_sku": "30015176",
+        "barcode": "8690579990981",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/barilla-makaron-sosu-190-q-pestogenovese",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0005097_barilla-makaron-sosu-190-q-pestogenovese_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:32.558814+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8715700411194",
+        "name": "HEINZ BBQ SOUS 250 Q",
+        "brand": "HEINZ",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/heinz-bbq-sous-250-q",
+        "retrievedAt": "2026-11-04T10:01:32.457845+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "HEINZ BBQ SOUS 250 Q",
+        "brand": "HEINZ",
+        "retailer_sku": "30204181",
+        "barcode": "8715700411194",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/heinz-bbq-sous-250-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:32.457845+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4620021193114",
+        "name": "OREO DONDURMA 76 Q SENDVİÇ",
+        "brand": "OREO",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/oreo-dondurma-76-q-sendvic",
+        "retrievedAt": "2026-11-04T10:01:38.494251+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "OREO DONDURMA 76 Q SENDVİÇ",
+        "brand": "OREO",
+        "retailer_sku": "30149662",
+        "barcode": "4620021193114",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/oreo-dondurma-76-q-sendvic",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023946_oreo-dondurma-76-q-sendvic_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:38.494251+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8690526732503",
+        "name": "ETI CANGA 45 Q BITTER",
+        "brand": "ETI",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/eti-canga-45-q-bitter",
+        "retrievedAt": "2026-11-04T10:01:38.437845+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ETI CANGA 45 Q BITTER",
+        "brand": "ETI",
+        "retailer_sku": "30207551",
+        "barcode": "8690526732503",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Şokoladlar",
+          "Şokolad barlar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/eti-canga-45-q-bitter",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:38.437845+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760065703150",
+        "name": "BIZIM TARLA TOMAT PASTASI 720 Q",
+        "brand": "BIZIM TARLA",
+        "quantity": "",
+        "ingredients": "Pomidor,turşuluq tənzimləyicisi:limon turşusu",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/bizim-tarla-tomat-pastasi-720-q",
+        "retrievedAt": "2026-11-04T10:01:44.521991+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/bizim-tarla-tomat-pastasi-720-q",
+          "ingredientSectionAsReported": "Pomidor,turşuluq tənzimləyicisi:limon turşusu.Tərkibində GMO yoxdur",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "Ingredient candidate excludes trailing non-ingredient GMO statement/punctuation; original extracted section retained separately."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BIZIM TARLA TOMAT PASTASI 720 Q",
+        "brand": "BIZIM TARLA",
+        "retailer_sku": "10000505",
+        "barcode": "4760065703150",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/bizim-tarla-tomat-pastasi-720-q",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/bizim-tarla-tomat-pastasi-720-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0006436_bizim-tarla-tomat-pastasi-720-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:44.521991+00:00",
+        "ingredients_text_sha256": "7ee8aff85a76724640207044719ae181b44a8fb8177664ea9cc3eb6932a442f2",
+        "notes": [
+          "Ingredient candidate excludes trailing non-ingredient GMO statement/punctuation; original extracted section retained separately."
+        ],
+        "ingredient_section_as_reported": "Pomidor,turşuluq tənzimləyicisi:limon turşusu.Tərkibində GMO yoxdur",
+        "ingredients_text_candidate": "Pomidor,turşuluq tənzimləyicisi:limon turşusu",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081600013",
+        "name": "MİLLA SÜD 0,1% 1 LT",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-sud-1-l-0-1",
+        "retrievedAt": "2026-11-04T10:01:44.450485+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA SÜD 0,1% 1 LT",
+        "brand": "MILLA",
+        "retailer_sku": "30036205",
+        "barcode": "4760081600013",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-sud-1-l-0-1",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021432_milla-sud-01-1-lt_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:44.450485+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760095106396",
+        "name": "AZƏRSÜD YEMƏKLİK QAYMAQ 200 ML 18 %",
+        "brand": "AZERSUD",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/azersud-yemeklik-qaymaq-200-ml-18",
+        "retrievedAt": "2026-11-04T10:01:53.650701+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "AZƏRSÜD YEMƏKLİK QAYMAQ 200 ML 18 %",
+        "brand": "AZERSUD",
+        "retailer_sku": "30196039",
+        "barcode": "4760095106396",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/azersud-yemeklik-qaymaq-200-ml-18",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:53.650701+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081602253",
+        "name": "MİLLA YOQURT 115 Q MEŞƏ GİLƏMEYVƏ",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-yoqurt-115-q-mese-gilemeyve",
+        "retrievedAt": "2026-11-04T10:01:53.674238+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA YOQURT 115 Q MEŞƏ GİLƏMEYVƏ",
+        "brand": "MILLA",
+        "retailer_sku": "30049557",
+        "barcode": "4760081602253",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-yoqurt-115-q-mese-gilemeyve",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021445_milla-yoqurt-115-q-mese-gilemeyve_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:53.674238+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4870206416105",
+        "name": "DANONE YOQURT 110 Q QARAGİLƏ",
+        "brand": "DANONE",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/danone-yoqurt-110-q-qaragile",
+        "retrievedAt": "2026-11-04T10:01:59.867080+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "DANONE YOQURT 110 Q QARAGİLƏ",
+        "brand": "DANONE",
+        "retailer_sku": "30066987",
+        "barcode": "4870206416105",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/danone-yoqurt-110-q-qaragile",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:59.867080+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8076809576130",
+        "name": "BARILLA MAKARONA 450 Q TORTIGLIONI",
+        "brand": "BARILLA",
+        "quantity": "",
+        "ingredients": "əla növ bərk buğda unu, su",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/barilla-makarona-450-q-tortiglioni",
+        "retrievedAt": "2026-11-04T10:01:59.918207+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/barilla-makarona-450-q-tortiglioni",
+          "ingredientSectionAsReported": "əla növ bərk buğda unu, su",
+          "declaredAllergenStatement": "",
+          "notes": [],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BARILLA MAKARONA 450 Q TORTIGLIONI",
+        "brand": "BARILLA",
+        "retailer_sku": "30187587",
+        "barcode": "8076809576130",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/barilla-makarona-450-q-tortiglioni",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/barilla-makarona-450-q-tortiglioni",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0005096_barilla-makarona-450-q-tortiglioni_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:01:59.918207+00:00",
+        "ingredients_text_sha256": "e6d8f18d10fc833018d9905a3b390657c4190c70a3137e82a0c696c832546b8d",
+        "notes": [],
+        "ingredient_section_as_reported": "əla növ bərk buğda unu, su",
+        "ingredients_text_candidate": "əla növ bərk buğda unu, su",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8696362804732",
+        "name": "HEINZ KETÇUP TOMAT 570 Q",
+        "brand": "HEINZ",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/heinz-ketcup-tomat-570-q",
+        "retrievedAt": "2026-11-04T10:02:05.622333+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "HEINZ KETÇUP TOMAT 570 Q",
+        "brand": "HEINZ",
+        "retailer_sku": "30204182",
+        "barcode": "8696362804732",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/heinz-ketcup-tomat-570-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:05.622333+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4620021193121",
+        "name": "OREO DONDURMA 56 Q ESKİMO",
+        "brand": "OREO",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/oreo-dondurma-56-q-eskimo",
+        "retrievedAt": "2026-11-04T10:02:05.695161+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "OREO DONDURMA 56 Q ESKİMO",
+        "brand": "OREO",
+        "retailer_sku": "30150775",
+        "barcode": "4620021193121",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/oreo-dondurma-56-q-eskimo",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0023945_oreo-dondurma-56-q-eskimo_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:05.695161+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8690526940649",
+        "name": "ETI CANGA COOKIE 45 Q",
+        "brand": "ETI",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/eti-canga-cookie-45-q",
+        "retrievedAt": "2026-11-04T10:02:11.926084+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ETI CANGA COOKIE 45 Q",
+        "brand": "ETI",
+        "retailer_sku": "30207550",
+        "barcode": "8690526940649",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Şokoladlar",
+          "Şokolad barlar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/eti-canga-cookie-45-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:11.926084+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760065711759",
+        "name": "BIZIM TARLA TOMAT PASTASI 370 Q",
+        "brand": "BIZIM TARLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/bizim-tarla-tomat-pastasi-370-q",
+        "retrievedAt": "2026-11-04T10:02:12.024103+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BIZIM TARLA TOMAT PASTASI 370 Q",
+        "brand": "BIZIM TARLA",
+        "retailer_sku": "30189989",
+        "barcode": "4760065711759",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/bizim-tarla-tomat-pastasi-370-q",
+        "product_image_reference_url": "https://test.bazarstore.az/images/thumbs/0006435_bizim-tarla-tomat-pastasi-370-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:12.024103+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "5201360543700",
+        "name": "7 DAYS KRUASSAN 200 Q VANİLLİ",
+        "brand": "7 DAYS",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/7-days-kruassan-200-q-vanilli",
+        "retrievedAt": "2026-11-04T10:02:18.089966+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "7 DAYS KRUASSAN 200 Q VANİLLİ",
+        "brand": "7 DAYS",
+        "retailer_sku": "30005381",
+        "barcode": "5201360543700",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Keks biskvit"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/7-days-kruassan-200-q-vanilli",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0000952_7-days-kruassan-200-q-vanilli_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:18.089966+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081600020",
+        "name": "MİLLA SÜD AZ YAĞLI 1,5% 1 LT",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-sud-1-l-az-yagli-1-5",
+        "retrievedAt": "2026-11-04T10:02:18.656306+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA SÜD AZ YAĞLI 1,5% 1 LT",
+        "brand": "MILLA",
+        "retailer_sku": "30036204",
+        "barcode": "4760081600020",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-sud-1-l-az-yagli-1-5",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0000861_milla-sud-az-yagli-15-1-lt_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:18.656306+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760095106365",
+        "name": "AZƏRSÜD SÜD 1 L ÇİYƏLƏK",
+        "brand": "AZERSUD",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/azersud-sud-1-l-ciyelek",
+        "retrievedAt": "2026-11-04T10:02:25.119413+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "AZƏRSÜD SÜD 1 L ÇİYƏLƏK",
+        "brand": "AZERSUD",
+        "retailer_sku": "30197374",
+        "barcode": "4760095106365",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/azersud-sud-1-l-ciyelek",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0004425_azersud-sud-1-l-ciyelek_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:25.119413+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760081604615",
+        "name": "MİLLA YOQURT 115 Q QARA GAVALI",
+        "brand": "MILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/milla-yoqurt-115-q-qara-gavali",
+        "retrievedAt": "2026-11-04T10:02:25.192120+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "MİLLA YOQURT 115 Q QARA GAVALI",
+        "brand": "MILLA",
+        "retailer_sku": "30189963",
+        "barcode": "4760081604615",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/milla-yoqurt-115-q-qara-gavali",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0021444_milla-yoqurt-115-q-qara-gavali_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:25.192120+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4870206416112",
+        "name": "DANONE YOQURT 110 Q ŞAFTALI MARAKUYA",
+        "brand": "DANONE",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/danone-yoqurt-110-q-saftali-marakuya",
+        "retrievedAt": "2026-11-04T10:02:32.556347+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "DANONE YOQURT 110 Q ŞAFTALI MARAKUYA",
+        "brand": "DANONE",
+        "retailer_sku": "30206778",
+        "barcode": "4870206416112",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🥛Süd, Səhər yeməyi",
+          "Yoqurt",
+          "Meyvəli yoqurt"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/danone-yoqurt-110-q-saftali-marakuya",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:32.556347+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8076800000061",
+        "name": "BARILLA MAKARON 500 Q MAFALDINE",
+        "brand": "BARILLA",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/barilla-makaron-500-q-mafaldine",
+        "retrievedAt": "2026-11-04T10:02:32.649968+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BARILLA MAKARON 500 Q MAFALDINE",
+        "brand": "BARILLA",
+        "retailer_sku": "30035635",
+        "barcode": "8076800000061",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "Bütün məhsullar"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/barilla-makaron-500-q-mafaldine",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0005089_barilla-makaron-500-q-mafaldine_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:32.649968+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8696362804695",
+        "name": "HEINZ KETÇUP TOMAT 342 Q",
+        "brand": "HEINZ",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/heinz-ketcup-tomat-342-q",
+        "retrievedAt": "2026-11-04T10:02:39.010314+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "HEINZ KETÇUP TOMAT 342 Q",
+        "brand": "HEINZ",
+        "retailer_sku": "30204183",
+        "barcode": "8696362804695",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Souslar",
+          "Mayonez"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/heinz-ketcup-tomat-342-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:39.010314+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "8690526962115",
+        "name": "ETI BENIMO KOMBO 56 Q",
+        "brand": "ETI",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/eti-benimo-kombo-56-q",
+        "retrievedAt": "2026-11-04T10:02:38.737867+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "ETI BENIMO KOMBO 56 Q",
+        "brand": "ETI",
+        "retailer_sku": "30207554",
+        "barcode": "8690526962115",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Peçenye və piroqlar",
+          "Peçenye"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/eti-benimo-kombo-56-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/default-image_510.png",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:38.737867+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "4760065708957",
+        "name": "BİZİM TARLA SOYULMUŞ POMİDOR 640 Q",
+        "brand": "BIZIM TARLA",
+        "quantity": "",
+        "ingredients": "Pomidor,duz",
+        "ingredientsLanguage": "az",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/bizim-tarla-soyulmus-pomidor-640-q",
+        "retrievedAt": "2026-11-04T10:02:45.042211+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "WEB_TEXT_REQUIRES_REVIEW",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "https://bazarstore.az/bizim-tarla-soyulmus-pomidor-640-q",
+          "ingredientSectionAsReported": "Pomidor,duz.Tərkibində GMO yoxdur",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "Ingredient candidate excludes trailing non-ingredient GMO statement/punctuation; original extracted section retained separately."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "BİZİM TARLA SOYULMUŞ POMİDOR 640 Q",
+        "brand": "BIZIM TARLA",
+        "retailer_sku": "10002973",
+        "barcode": "4760065708957",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍚Təməl qida",
+          "Konserva",
+          "Konservlər"
+        ],
+        "ingredients_language": "az",
+        "ingredients_source_url": "https://bazarstore.az/bizim-tarla-soyulmus-pomidor-640-q",
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/bizim-tarla-soyulmus-pomidor-640-q",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0006431_bizim-tarla-soyulmus-pomidor-640-q_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:45.042211+00:00",
+        "ingredients_text_sha256": "cde644fcc4ef975e82d292d15e4ca774369333705065f10d436193dea437abcb",
+        "notes": [
+          "Ingredient candidate excludes trailing non-ingredient GMO statement/punctuation; original extracted section retained separately."
+        ],
+        "ingredient_section_as_reported": "Pomidor,duz.Tərkibində GMO yoxdur",
+        "ingredients_text_candidate": "Pomidor,duz",
+        "extraction_review_status": "NEEDS_HUMAN_REVIEW",
+        "image_files_downloaded": false
+      }
+    },
+    {
+      "product": {
+        "barcode": "5201360543472",
+        "name": "7 DAYS KRUASSAN 200 Q QATILAŞMIŞ SÜDLÜ",
+        "brand": "7 DAYS",
+        "quantity": "",
+        "ingredients": "",
+        "ingredientsLanguage": "",
+        "nutriScore": "",
+        "nutrients": {},
+        "allergens": [],
+        "traces": [],
+        "source": "BAZARSTORE",
+        "sourceUrl": "https://bazarstore.az/7-days-kruassan-200-q-qatilasmis-sudlu",
+        "retrievedAt": "2026-11-04T10:02:45.225701+00:00",
+        "sourceUpdatedAt": "",
+        "demo": false,
+        "evidence": {
+          "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+          "ingredientsStatus": "MISSING",
+          "labelPhotoChecked": false,
+          "ingredientsSourceUrl": "",
+          "ingredientSectionAsReported": "",
+          "declaredAllergenStatement": "",
+          "notes": [
+            "No ingredient list found in this product page; do not infer ingredients from the product name."
+          ],
+          "externalCandidateAvailable": false
+        }
+      },
+      "sourceRecord": {
+        "name_az": "7 DAYS KRUASSAN 200 Q QATILAŞMIŞ SÜDLÜ",
+        "brand": "7 DAYS",
+        "retailer_sku": "30005380",
+        "barcode": "5201360543472",
+        "barcode_check_digit_valid": true,
+        "identifier_status": "GTIN_CHECK_DIGIT_VALID_UNVERIFIED",
+        "categories_as_reported": [
+          "🍪Atışdırmalıq",
+          "Keks biskvit"
+        ],
+        "ingredients_language": null,
+        "ingredients_source_url": null,
+        "declared_allergen_statement_as_reported": null,
+        "product_source_url": "https://bazarstore.az/7-days-kruassan-200-q-qatilasmis-sudlu",
+        "product_image_reference_url": "https://bazarstore.az/images/thumbs/0000951_7-days-kruassan-200-q-qatilasmis-sudlu_510.jpeg",
+        "source_type": "RETAILER_WEBPAGE",
+        "review_status": "WEB_SOURCED_UNVERIFIED",
+        "label_photo_checked": false,
+        "captured_at": "2026-11-04T10:02:45.225701+00:00",
+        "ingredients_text_sha256": null,
+        "notes": [
+          "No ingredient list found in this product page; do not infer ingredients from the product name."
+        ],
+        "ingredient_section_as_reported": null,
+        "ingredients_text_candidate": null,
+        "extraction_review_status": "NO_INGREDIENT_TEXT_FOUND",
+        "image_files_downloaded": false
+      }
+    }
+  ]
+}

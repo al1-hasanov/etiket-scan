@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Etiket API" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="az.etiket.backend.EtiketApplication" />
+    <module name="EtiketScanner.backend.main" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <method v="2"><option name="Make" enabled="true" /></method>
+  </configuration>
+</component>

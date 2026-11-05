@@ -1,0 +1,10 @@
+.gradle
+**/build
+**/.idea
+app
+dist
+data
+.env
+.git
+*.zip
+*.apk

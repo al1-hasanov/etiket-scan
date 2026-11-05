@@ -1,0 +1,89 @@
+{
+  "version": "0.2.0",
+  "suites": [
+    {
+      "module": "core",
+      "suite": "az.etiket.core.BarcodeTest",
+      "tests": 8,
+      "failures": 0
+    },
+    {
+      "module": "backend",
+      "suite": "az.etiket.backend.CatalogueApiTest",
+      "tests": 7,
+      "failures": 0
+    },
+    {
+      "module": "backend",
+      "suite": "az.etiket.backend.LegacyDatabaseTest",
+      "tests": 2,
+      "failures": 0
+    },
+    {
+      "module": "backend",
+      "suite": "az.etiket.backend.PostgresCatalogueTest",
+      "tests": 2,
+      "failures": 0
+    },
+    {
+      "module": "backend",
+      "suite": "az.etiket.backend.ProductApiTest",
+      "tests": 11,
+      "failures": 0
+    },
+    {
+      "module": "app",
+      "suite": "az.etiket.mobile.ApiClientTest",
+      "tests": 3,
+      "failures": 0
+    },
+    {
+      "module": "app",
+      "suite": "az.etiket.mobile.AppFlowTest",
+      "tests": 10,
+      "failures": 0
+    }
+  ],
+  "totalChecks": 43,
+  "lintIssues": [],
+  "runtimeSmoke": [
+    {
+      "run": 1,
+      "health": {
+        "version": "0.2.0",
+        "status": "UP"
+      },
+      "summary": {
+        "products": 77,
+        "missingIngredients": 67,
+        "labelVerified": 0,
+        "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+        "withIngredients": 10,
+        "dataset": "bazarstore-starter"
+      },
+      "known": 200,
+      "partial": 200,
+      "unknown": 404,
+      "invalid": 400
+    },
+    {
+      "run": 2,
+      "health": {
+        "version": "0.2.0",
+        "status": "UP"
+      },
+      "summary": {
+        "missingIngredients": 67,
+        "products": 77,
+        "dataset": "bazarstore-starter",
+        "withIngredients": 10,
+        "reviewStatus": "WEB_SOURCED_UNVERIFIED",
+        "labelVerified": 0
+      },
+      "known": 200,
+      "partial": 200,
+      "unknown": 404,
+      "invalid": 400
+    }
+  ]
+}
