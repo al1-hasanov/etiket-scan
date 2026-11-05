@@ -6,10 +6,12 @@ COPY core/ core/
 COPY backend/ backend/
 RUN chmod +x gradlew && ./gradlew -PbackendOnly :backend:bootJar --no-daemon
 
-FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:25-jre-noble
 WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-aze tesseract-ocr-tur tesseract-ocr-rus tesseract-ocr-deu tesseract-ocr-eng && rm -rf /var/lib/apt/lists/*
+ENV OMP_THREAD_LIMIT=1
 RUN mkdir /app/data && chown -R 10001:10001 /app
-COPY --from=build --chown=10001:10001 /src/backend/build/libs/etiket-backend-0.4.0.jar /app/etiket.jar
+COPY --from=build --chown=10001:10001 /src/backend/build/libs/etiket-backend-0.5.0.jar /app/etiket.jar
 USER 10001:10001
 ENV SERVER_ADDRESS=0.0.0.0
 EXPOSE 8080

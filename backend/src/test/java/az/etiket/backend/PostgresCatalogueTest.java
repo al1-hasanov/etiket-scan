@@ -38,7 +38,7 @@ class PostgresCatalogueTest {
         assertEquals(10, catalogue.summary().get("withIngredients"));
         catalogue.importBundledCatalogue();
         assertEquals(77, db.queryForObject("SELECT COUNT(*) FROM catalogue_products", Integer.class));
-        assertEquals(2, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
+        assertEquals(3, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
     }
     @Test void unicodeAndPartialProductSurviveDatabaseRoundTrip() {
         assertTrue(products.lookup("4760177560085").ingredients().contains("inək südü"));

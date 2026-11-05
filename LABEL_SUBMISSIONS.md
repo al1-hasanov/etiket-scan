@@ -1,5 +1,7 @@
 # Label submission API and storage
 
+For the 0.5 optional nutrition photo, OCR audit and explicit nutrition basis, see [OCR_AND_NUTRITION.md](OCR_AND_NUTRITION.md). The original three-photo request remains supported.
+
 ## Public routes
 
 | Method / route | Contract |
@@ -62,11 +64,11 @@ A pending item can be approved or rejected once. Re-review or stale versions ret
 - Migration V2 adds `label_submissions`, `submission_photos`, `reviewed_products` and `submission_guard`. It leaves V1 and the starter source records unchanged.
 - Photo bytes and metadata are committed in the same transaction as the submission. A receipt is returned only after commit.
 - A repeated request ID with the same normalised metadata/photo fingerprint returns its existing receipt. Reusing that ID for different data returns 409. This makes retrying a draft after a lost connection safe.
-- A database guard serialises capacity checks. The server permits two image-processing requests at a time, 2 MiB per source file, a 7 MiB multipart request and at most 20 million decoded source pixels. Stored photos are JPEG, at most 2048 pixels on the longest side, with source metadata discarded.
+- A database guard serialises capacity checks. The server permits two image-processing requests at a time, 2 MiB per source file, a 9 MiB multipart request and at most 20 million decoded source pixels. Stored photos are JPEG, at most 2048 pixels on the longest side, with source metadata discarded.
 - Approval and publication are atomic. Row locks plus the unique published barcode prevent conflicting first approvals; the losing request stays pending.
 - Lookup priority is fictional demo fixture, reviewed product, starter sample, then the optional provider/cache. The submission endpoint rejects fictional fixture barcodes.
 - Catalogue pages/counts merge reviewed records over the starter set without duplicate barcodes. Counts are calculated in one SQL statement. Seed re-import does not touch reviewed records or photos.
-- Reviewed products use source `REVIEWED_LABEL`, `LABEL_PHOTO_REVIEWED` evidence and `labelPhotoChecked=true`. Nutrients, grade and structured allergen lists remain unknown. The reviewer's exact allergen wording is kept separately.
+- Reviewed products use source `REVIEWED_LABEL`, `LABEL_PHOTO_REVIEWED` evidence and `labelPhotoChecked=true`. Grade and structured allergen lists remain unknown. Nutrition values can be published from the optional nutrition photo with a separate confirmation; omitted values remain unknown. The reviewer's exact allergen wording is kept separately.
 - Public source links are relative to the API origin. Android resolves them against the receiving server before caching/saving the product, preserving the source origin even if Settings later changes.
 
 ## Expected errors

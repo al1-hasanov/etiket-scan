@@ -1,50 +1,62 @@
 {
-  "version": "0.4.0",
-  "validatedOn": "2026-11-05",
-  "sourceBaseCommit": "18da96b824d0dc1c67d87c700427f6b8dc3ad6fa",
-  "uploadedDevZipMatchedGitHub": true,
-  "modules": {
+  "release": "0.5.0",
+  "validatedDate": "2026-11-05",
+  "suites": {
     "core": {
-      "tests": 20,
+      "tests": 26,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     },
     "backend": {
-      "tests": 39,
+      "tests": 47,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     },
-    "app": {
-      "tests": 26,
+    "android": {
+      "tests": 29,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     }
   },
-  "totalTests": 85,
-  "lintErrors": 0,
-  "lintWarnings": 0,
-  "browserChecks": [
-    "Pending photos are private and review requires authentication",
-    "Browser review submits CSRF-protected approval",
-    "Approved source page and JPEG photos work without reviewer credentials on mobile",
-    "Rejection leaves published catalogue unchanged and user text is rendered without HTML execution",
-    "Review layout fits desktop and mobile without JavaScript errors",
-    "Approved data, rejection and exact photo bytes survive a full backend process restart"
-  ],
-  "browserChecksPassed": true,
-  "browser": "Chrome Headless Shell 157",
-  "postgresql": "Native embedded PostgreSQL 17.11; bytea photos, approval, lookup and seed re-import tested",
-  "processRestartPersistence": "Packaged JAR stopped and restarted with the same H2 file; reviewed payload and exact photo bytes retained",
-  "apkVersionCode": 4,
-  "apkVersionName": "0.4.0-labels",
-  "apkSigningCertificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
-  "apkSigningCertificateMatches03": true,
-  "starterAssetsAndV1Unchanged": true,
-  "githubWorkflowUnchanged": true,
-  "cloudDeploymentPerformed": false,
-  "physicalCameraTestPerformed": false,
-  "dockerImageRun": false
+  "androidLint": {
+    "issues": 0
+  },
+  "apk": {
+    "applicationId": "az.etiket.scanner.demo",
+    "versionCode": 5,
+    "versionName": "0.5.0-ocr",
+    "certificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
+    "sha256": "afc670337ced83e7ae09b84db287a3c0755d191b94839a297d737c4fdf2837e9"
+  },
+  "starterData": "unchanged",
+  "productionModified": false,
+  "totalTests": 102,
+  "packagedCheck": {
+    "packagedJar": "0.5.0",
+    "realOcrJobs": 2,
+    "nutritionValues": {
+      "basis": "PER_100_ML",
+      "values": {
+        "fiber": 0.0,
+        "sugars": 4.0,
+        "protein": 3.0,
+        "energyKcal": 60.0,
+        "carbohydrates": 5.0,
+        "fat": 3.0,
+        "salt": 0.1
+      }
+    },
+    "reviewBrowser": "passed",
+    "viewports": [
+      1440,
+      390
+    ],
+    "horizontalOverflow": false,
+    "browserErrors": [],
+    "persistenceAfterRestart": "passed",
+    "testData": "synthetic fixtures, isolated H2; no production requests"
+  }
 }

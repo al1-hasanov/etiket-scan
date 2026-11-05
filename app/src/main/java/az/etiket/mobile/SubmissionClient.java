@@ -10,6 +10,7 @@ import org.json.*;
 /** Public submission API only. Reviewer credentials never belong in the Android app. */
 final class SubmissionClient {
     static final String[] ROLES = {"front", "barcode", "ingredients"};
+    static final String[] PHOTO_ROLES = {"front", "barcode", "ingredients", "nutrition"};
     private SubmissionClient() { }
 
     static JSONObject submit(String base, JSONObject metadata, Map<String, File> photos) throws ApiClient.Failure {
@@ -17,9 +18,10 @@ final class SubmissionClient {
         try {
             String boundary = "etiket-" + UUID.randomUUID();
             List<byte[]> headers = new ArrayList<>();
+            List<String> roles=new ArrayList<>(Arrays.asList(ROLES));if(photos.containsKey("nutrition"))roles.add("nutrition");
             byte[] first = ("--" + boundary + "\r\nContent-Disposition: form-data; name=\"metadata\"\r\nContent-Type: application/json; charset=utf-8\r\n\r\n" + metadata + "\r\n").getBytes(StandardCharsets.UTF_8);
             long length = first.length;
-            for (String role : ROLES) {
+            for (String role : roles) {
                 File file = photos.get(role);
                 if (file == null || !file.isFile()) throw new ApiClient.Failure("PHOTOS_REQUIRED");
                 if (file.length() > 2 * 1024 * 1024) throw new ApiClient.Failure("PHOTO_TOO_LARGE");
@@ -32,9 +34,9 @@ final class SubmissionClient {
             connection.setFixedLengthStreamingMode(length);
             try (OutputStream out = connection.getOutputStream()) {
                 out.write(first);
-                for (int i = 0; i < ROLES.length; i++) {
+                for (int i = 0; i < roles.size(); i++) {
                     out.write(headers.get(i));
-                    try (InputStream in = new FileInputStream(photos.get(ROLES[i]))) {
+                    try (InputStream in = new FileInputStream(photos.get(roles.get(i)))) {
                         byte[] buffer = new byte[8192]; int read;
                         while ((read = in.read(buffer)) != -1) out.write(buffer, 0, read);
                     }

@@ -2,6 +2,7 @@ package az.etiket.mobile;
 
 import az.etiket.core.Product;
 import az.etiket.core.ProductEvidence;
+import az.etiket.core.NutritionLabel;
 import java.util.*;
 import org.json.*;
 
@@ -23,7 +24,7 @@ final class ProductJson {
             o.optString("quantity"), o.optString("ingredients"), o.optString("ingredientsLanguage"),
             o.optString("nutriScore"), nutrients, list(o.optJSONArray("allergens")), list(o.optJSONArray("traces")),
             o.optString("source"), o.optString("sourceUrl"), o.optString("retrievedAt"), o.optString("sourceUpdatedAt"),
-            o.optBoolean("demo"), evidence);
+            o.optBoolean("demo"), evidence, null, nutrition(o.optJSONObject("nutrition")));
     }
     static JSONObject write(Product p) throws JSONException {
         ProductEvidence e = p.evidence();
@@ -37,7 +38,13 @@ final class ProductJson {
             .put("nutrients", new JSONObject(p.nutrients())).put("allergens", new JSONArray(p.allergens()))
             .put("traces", new JSONArray(p.traces())).put("source", p.source()).put("sourceUrl", p.sourceUrl())
             .put("retrievedAt", p.retrievedAt()).put("sourceUpdatedAt", p.sourceUpdatedAt()).put("demo", p.demo())
-            .put("evidence", evidence);
+            .put("evidence", evidence).put("nutrition",new JSONObject().put("basis",p.nutrition().basis()).put("values",new JSONObject(p.nutrition().values())));
+    }
+    static NutritionLabel nutrition(JSONObject value){
+        if(value==null)return null;
+        Map<String,Double> numbers=new LinkedHashMap<>();JSONObject values=value.optJSONObject("values");
+        if(values!=null)for(String key:NutritionLabel.KEYS)if(values.has(key))numbers.put(key,values.optDouble(key,Double.NaN));
+        try{return new NutritionLabel(value.optString("basis"),numbers);}catch(RuntimeException e){return NutritionLabel.empty();}
     }
     private static List<String> list(JSONArray array) {
         List<String> result = new ArrayList<>();

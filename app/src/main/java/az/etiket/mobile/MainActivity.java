@@ -304,15 +304,15 @@ public class MainActivity extends ComponentActivity {
         full(body, score); gap(body, 14);
         }
         LinearLayout nutrition = card(WHITE); full(nutrition, text(t("Qida dəyərləri", "Nutrition"), 20, DARK, true));
-        full(nutrition, text(t("Mənbədə 100 q üçün göstərilən miqdar", "Amounts reported per 100 g by the source"), 12, MUTED, false)); gap(nutrition, 10);
+        full(nutrition, text(p.nutrition().basis().equals("PER_100_ML") ? t("Mənbədə 100 ml üçün göstərilən miqdar", "Amounts reported per 100 ml by the source") : t("Mənbədə 100 q üçün göstərilən miqdar", "Amounts reported per 100 g by the source"), 12, MUTED, false)); gap(nutrition, 10);
         String[][] values = {{"energyKcal", "Enerji", "Energy", "kcal"}, {"fat", "Yağ", "Fat", "g"},
             {"saturatedFat", "Doymuş yağ", "Saturated fat", "g"}, {"carbohydrates", "Karbohidrat", "Carbohydrates", "g"},
             {"sugars", "Şəkərlər", "Sugars", "g"}, {"fiber", "Lif", "Fibre", "g"}, {"protein", "Zülal", "Protein", "g"}, {"salt", "Duz", "Salt", "g"}};
-        if (p.nutrients().isEmpty()) full(nutrition, text(t("Bu mənbədə qida dəyərləri verilməyib.", "This source does not provide nutrition values."), 14, MUTED, false));
+        if (p.nutrition().values().isEmpty()) full(nutrition, text(t("Bu mənbədə qida dəyərləri verilməyib.", "This source does not provide nutrition values."), 14, MUTED, false));
         else for (String[] nutrient : values) {
             LinearLayout line = row(); line.setPadding(0, dp(8), 0, dp(8));
             line.addView(text(t(nutrient[1], nutrient[2]), 14, MUTED, false), new LinearLayout.LayoutParams(0, -2, 1));
-            Double number = p.nutrients().get(nutrient[0]);
+            Double number = p.nutrition().values().get(nutrient[0]);
             String amount = number == null ? t("Məlum deyil", "Unknown") : String.format(Locale.ROOT, "%.2f", number).replaceAll("0+$", "").replaceAll("\\.$", "") + " " + nutrient[3];
             line.addView(text(amount, 14, DARK, true)); full(nutrition, line);
         }

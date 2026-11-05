@@ -7,4 +7,13 @@
     <item name="submission_ingredients" type="id" />
     <item name="submission_allergens" type="id" />
     <item name="submission_consent" type="id" />
+    <item name="nutrition_basis" type="id" />
+    <item name="nutrition_energy" type="id" />
+    <item name="nutrition_fat" type="id" />
+    <item name="nutrition_saturated" type="id" />
+    <item name="nutrition_carbs" type="id" />
+    <item name="nutrition_sugars" type="id" />
+    <item name="nutrition_fibre" type="id" />
+    <item name="nutrition_protein" type="id" />
+    <item name="nutrition_salt" type="id" />
 </resources>
