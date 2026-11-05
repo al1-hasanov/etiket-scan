@@ -1,20 +1,20 @@
-# Etiket 0.4 — Label photo submissions and review
+# Etiket 0.5 — Read ingredient and nutrition photos
 
-This increment adds Android package-photo submissions, a private reviewer page, and publication of reviewed product ingredients. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
+This increment adds OCR drafts and reviewed nutrition to the existing Android package-photo and private-review flow. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
 
 The unchanged starter sample has **77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks**. Its records remain `WEB_SOURCED_UNVERIFIED`. Reviewed submissions are additional evidence with separate storage, source photos and review dates. No synthetic review fixture is published by default.
 
-## New in 0.4
+## New in 0.5
 
-- **Add product information / Submit label photos** from Home, missing products and real product pages. Take photos or choose them from the gallery; text transcription is optional.
-- Three bounded package photos, explicit consent for publication, metadata removal, duplicate-request handling and device receipt tracking.
-- **My submissions** with confirmed pending, approved and rejected states. A lost upload confirmation is kept distinct from a confirmed pending review.
-- A protected `/review` page with photo comparison, original-language transcription, approval/rejection and stale-decision protection. Set `REVIEW_ADMIN_PASSWORD` on the server to enable it; the Android app never receives that password.
-- Approved records override the same starter barcode and appear in live catalogue pages/counts. New barcodes increase the catalogue size. Pending/rejected information does not alter product lookup.
-- Live catalogue refresh and a per-server offline snapshot; saved reviewed products retain their source origin and explanations.
-- Additive Flyway migration V2. No new cloud service is required: this bounded pilot stores sanitised JPEGs in the existing database.
+- Ingredient-photo and nutrition-photo OCR through a local Tesseract worker. The Docker image includes Azerbaijani, Turkish, Russian, English and German language packs; no external OCR key is needed.
+- The Android form shows the original recognised text and uncertain words. Applying a draft is an explicit action and corrected text remains editable. Taking a new photo clears its old analysis reference.
+- An optional fourth nutrition-table photo, explicit per-100-g / per-100-ml reference amount, and eight partial nutrition fields. Empty fields remain unknown; zero remains zero.
+- Conservative nutrition suggestions only for unambiguous, explicitly labelled single-column values. Portions, unclear units, inequalities and multiple columns require manual entry.
+- Private expiring background jobs, bounded retries/leases, resumable polling, duplicate-request protection and a separate raw OCR audit snapshot for reviewers.
+- Reviewers must confirm nutrition against its photo before publishing values. Ingredient and nutrition drafts never publish themselves.
+- Additive migration V3; migrations V1/V2 and all starter records are unchanged. Older clients see per-100-g legacy nutrition only; per-100-ml values are available through the new explicit nutrition object.
 
-Start with [V0_4_UPDATE.md](V0_4_UPDATE.md) for applying, deploying and testing. [LABEL_SUBMISSIONS.md](LABEL_SUBMISSIONS.md) describes the API and storage contract.
+Start with [V0_5_UPDATE.md](V0_5_UPDATE.md) for applying, deploying and testing. [OCR_AND_NUTRITION.md](OCR_AND_NUTRITION.md) describes the new API and limits. The 0.4 submission/review flow remains supported; its history is in [V0_4_UPDATE.md](V0_4_UPDATE.md).
 
 ## Ingredient explanations retained from 0.3
 
@@ -24,13 +24,13 @@ Start with [V0_4_UPDATE.md](V0_4_UPDATE.md) for applying, deploying and testing.
 - Empty lists stay empty. The croissant's foreign candidate is still not used as a recipe. Other source languages are not silently translated.
 - Original ingredient text, declared allergens, source URLs and review status are preserved. These descriptions do not calculate a health score or certify suitability.
 - The API adds `ingredientAnalysis` to the existing product JSON. Existing 0.2 clients ignore the new field. The 0.3 Android client derives descriptions from its bundled shared dictionary, so it also works against the 0.2 API and older saved products.
-- Dictionary changes require rebuilding the backend and Android app. The dictionary itself is unchanged in 0.4.
+- Dictionary changes require rebuilding the backend and Android app. The dictionary itself is unchanged in 0.5.
 
 See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, reference sources and editing rules, and [V0_3_UPDATE.md](V0_3_UPDATE.md) for applying this update to the existing Git repository.
 
 ## 1. Try the app without a server
 
-1. Install the separately supplied **Etiket_Demo_v0.4.apk**, or build `:app:assembleDebug` and install `app/build/outputs/apk/debug/app-debug.apk`, on Android 8.0 or newer. It keeps the existing application ID and development signing key. The old `dist/` binaries are historical 0.2 builds.
+1. Install the separately supplied **Etiket_Demo_v0.5.apk**, or build `:app:assembleDebug` and install `app/build/outputs/apk/debug/app-debug.apk`, on Android 8.0 or newer. It keeps the existing application ID and development signing key. The old `dist/` binaries are historical 0.2 builds.
 2. Open **Etiket Demo**. The default mode is **Offline catalogue**. Existing installations retain their API/language settings. A previously refreshed catalogue is also available offline.
 3. Open **Kataloq / Catalogue**. Search by product name, brand or barcode.
 4. Enter or scan the following codes. These expectations describe the unchanged starter snapshot before real approvals. Manual entry avoids needing the scanner module's first download.
@@ -45,14 +45,14 @@ See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, refer
 
 You can save products and reopen them from **Seçilmişlər / Saved**. Evidence flags and source links survive saving/restarting. The ingredient text stays in the source language; changing the UI to English does not translate it. The home screen also links to the old, clearly fictional engineering samples.
 
-Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet; manual entry is available. Label photos use your camera app or the system document picker. Physical camera/provider behavior still needs your phone check. OCR is not implemented.
+Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet; manual entry is available. Label photos use your camera app or the system document picker. Physical camera/provider behavior still needs your phone check. Automatic label reading needs the 0.5 API and its Tesseract installation. The Docker image supplies the engine; local Windows runs need a separate Tesseract installation or can use manual transcription.
 
 ## 2. Start the Java API on Windows
 
 1. Apply the changed-files ZIP to your existing project root containing `settings.gradle`, `backend/`, `app/` and `run-backend.bat`.
 2. Install JDK 25. Check `java -version`, or configure `JAVA_HOME` to that JDK.
 3. Run `gradlew.bat -PbackendOnly :backend:bootJar`, then double-click **run-backend.bat**. The script runs the newly built JAR from `backend/build/libs/`.
-4. Open [health](http://127.0.0.1:8080/api/v1/health). Expect `{"status":"UP","version":"0.4.0"}`; field order can differ.
+4. Open [health](http://127.0.0.1:8080/api/v1/health). Expect `{"status":"UP","version":"0.5.0"}`; field order can differ.
 5. Open [catalogue summary](http://127.0.0.1:8080/api/v1/catalogue/summary). Expect 77 products, 10 with ingredients, 67 missing, 0 label-verified.
 6. Open [N1 lookup](http://127.0.0.1:8080/api/v1/products/4760177560085) and [croissant lookup](http://127.0.0.1:8080/api/v1/products/5201360553457).
 
@@ -96,7 +96,7 @@ $env:DB_PASSWORD='YOUR_LOCAL_DATABASE_PASSWORD'
 
 Use a JDBC URL, not a bare `postgres://` URL. The same migrations/importer run on PostgreSQL and H2. PostgreSQL integration tests start a real temporary database process without Docker; the first test run downloads its test binary. See `VALIDATION.md` for the actual tested versions and results.
 
-The Dockerfile builds the 0.4 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and add `REVIEW_ADMIN_PASSWORD` to the application service. Applying files locally does not deploy them. Use PostgreSQL for hosted data and photos; the container's local H2 file is for local development.
+The Dockerfile builds the 0.5 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and add `REVIEW_ADMIN_PASSWORD` to the application service. Applying files locally does not deploy them. Use PostgreSQL for hosted data and photos; the container's local H2 file is for local development.
 
 ## 5. Open and build the source
 
@@ -109,7 +109,7 @@ gradlew.bat -PbackendOnly :core:test :backend:test :backend:bootJar
 gradlew.bat :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.4.0.jar` under `backend/build/libs/`; the start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
+Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.5.0.jar` under `backend/build/libs/`; the start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
 
 ## 6. Understand the API and data
 
@@ -150,4 +150,4 @@ The retained experimental adapter can be enabled using `OFF_ENABLED=true` and a 
 
 ## What comes after this increment
 
-Use the phone acceptance checks in `V0_4_UPDATE.md`, then collect and genuinely review the first ten current Azerbaijan-market package labels through this workflow. A later increment can assist transcription with OCR while retaining the same review/publication boundary. Test with a small group of users before expanding the catalogue or upload volume.
+Use the phone acceptance checks in `V0_5_UPDATE.md`, then collect and genuinely review the first ten current Azerbaijan-market package labels through the OCR and nutrition workflow. Record recognition mistakes before the next translation/scoring increment. Test with a small group of users before expanding the catalogue or upload volume.

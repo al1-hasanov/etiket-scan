@@ -20,15 +20,16 @@ final class SubmissionService {
     private final JdbcTemplate db;
     private final TransactionTemplate tx;
     private final LabelPhotos images;
+    private final LabelAnalysis analysis;
     private final int maximum, pendingMaximum;
     private final boolean configured;
     private final Semaphore processing = new Semaphore(2);
     private final JsonMapper json = JsonMapper.builder().build();
 
-    SubmissionService(JdbcTemplate db, TransactionTemplate tx, LabelPhotos images,
+    SubmissionService(JdbcTemplate db, TransactionTemplate tx, LabelPhotos images, LabelAnalysis analysis,
             @Value("${review.password:}") String password, @Value("${submissions.max-total:100}") int maximum,
             @Value("${submissions.max-pending:25}") int pendingMaximum) {
-        this.db = db; this.tx = tx; this.images = images; this.maximum = maximum;
+        this.db = db; this.tx = tx; this.images = images; this.analysis = analysis; this.maximum = maximum;
         this.pendingMaximum = pendingMaximum; this.configured = !password.isBlank();
     }
 
@@ -39,6 +40,8 @@ final class SubmissionService {
         try {
             Map<String, LabelPhotos.Stored> photos = new LinkedHashMap<>();
             for (String role : ROLES) photos.put(role, images.sanitize(files.get(role)));
+            if(files.containsKey("nutrition"))photos.put("nutrition",images.sanitize(files.get("nutrition")));
+            if(!draft.nutrition().values().isEmpty()&&!photos.containsKey("nutrition"))throw new SubmissionException(400,"NUTRITION_PHOTO_REQUIRED");
             String submitted = json.writeValueAsString(draft);
             String digest = LabelPhotos.sha256((submitted + photos.values().stream().map(LabelPhotos.Stored::sha256)
                 .reduce("", String::concat)).getBytes(StandardCharsets.UTF_8));
@@ -47,20 +50,24 @@ final class SubmissionService {
                 var previous = rows(draft.clientRequestId());
                 if (!previous.isEmpty()) {
                     Row existing = previous.getFirst();
-                    if (!digest.equals(existing.fingerprint())) throw new SubmissionException(409, "SUBMISSION_ID_CONFLICT");
+                    if (!digest.equals(existing.fingerprint()) && !sameExistingUpload(existing,draft,photos)) throw new SubmissionException(409, "SUBMISSION_ID_CONFLICT");
                     return receipt(existing);
                 }
                 int total = db.queryForObject("SELECT COUNT(*) FROM label_submissions", Integer.class);
                 int pending = db.queryForObject("SELECT COUNT(*) FROM label_submissions WHERE status='PENDING'", Integer.class);
                 if (total >= maximum || pending >= pendingMaximum) throw new SubmissionException(429, "SUBMISSION_QUEUE_FULL");
+                Map<String,LabelAnalysis.Snapshot> snapshots=analysis.snapshots(input.analysis(),photos);
                 long now = System.currentTimeMillis();
                 db.update("INSERT INTO label_submissions(id,barcode,submitted_payload,fingerprint,status,submitted_at) VALUES (?,?,?,?,'PENDING',?)",
                     draft.clientRequestId(), draft.barcode(), submitted, digest, now);
                 for (var photo : photos.entrySet()) {
                     var p = photo.getValue();
-                    db.update("INSERT INTO submission_photos(submission_id,role,photo_data,sha256,width,height) VALUES (?,?,?,?,?,?)",
+                    if(photo.getKey().equals("nutrition"))db.update("INSERT INTO submission_nutrition_photos(submission_id,photo_data,sha256,width,height) VALUES (?,?,?,?,?)",
+                        draft.clientRequestId(),p.bytes(),p.sha256(),p.width(),p.height());
+                    else db.update("INSERT INTO submission_photos(submission_id,role,photo_data,sha256,width,height) VALUES (?,?,?,?,?,?)",
                         draft.clientRequestId(), photo.getKey(), p.bytes(), p.sha256(), p.width(), p.height());
                 }
+                for(var entry:snapshots.entrySet())db.update("INSERT INTO submission_ocr(submission_id,role,snapshot) VALUES (?,?,?)",draft.clientRequestId(),entry.getKey(),json.writeValueAsString(entry.getValue()));
                 return new Receipt(draft.clientRequestId(), draft.barcode(), "PENDING", iso(now), "", "");
             });
         } finally { processing.release(); }
@@ -80,7 +87,7 @@ final class SubmissionService {
     Detail detail(String id) {
         Row row = row(id);
         return new Detail(receipt(row), row.version(), json.readValue(row.submitted(), Draft.class),
-            photoMetadata(id, true), publishedId(row.barcode()), row.reviewed() == null ? null : json.readValue(row.reviewed(), Product.class));
+            photoMetadata(id, true), publishedId(row.barcode()), row.reviewed() == null ? null : json.readValue(row.reviewed(), Product.class),ocrSnapshots(id));
     }
 
     Product approve(String id, Approval input, String reviewer) {
@@ -91,6 +98,9 @@ final class SubmissionService {
         String language = language(input.ingredientsLanguage());
         String allergen = text(input.declaredAllergenStatement(), 2000, false);
         String expected = input.expectedPublishedSubmissionId() == null ? "" : input.expectedPublishedSubmissionId();
+        NutritionLabel nutrition=nutrition(input.nutrition());
+        if(!nutrition.values().isEmpty()&&(!input.nutritionPhotoChecked()||db.queryForObject("SELECT COUNT(*) FROM submission_nutrition_photos WHERE submission_id=?",Integer.class,id)==0))
+            throw new SubmissionException(400,"NUTRITION_PHOTO_REVIEW_REQUIRED");
         final String submissionId = id;
         try {
             return tx.execute(status -> {
@@ -106,7 +116,7 @@ final class SubmissionService {
                     "/api/v1/labels/" + submissionId + "/photos/ingredients", ingredients, allergen,
                     List.of("Compared by a reviewer with submitted package photos; check the current package for changes."), false);
                 Product product = new Product(row.barcode(), name, brand, quantity, ingredients, language, "",
-                    Map.of(), List.of(), List.of(), "REVIEWED_LABEL", source, iso(row.submittedAt()), iso(now), false, evidence);
+                    Map.of(), List.of(), List.of(), "REVIEWED_LABEL", source, iso(row.submittedAt()), iso(now), false, evidence, null, nutrition);
                 String payload = json.writeValueAsString(product);
                 if (actual.isEmpty()) db.update("INSERT INTO reviewed_products(barcode,name,has_ingredients,payload,submission_id) VALUES (?,?,TRUE,?,?)",
                     row.barcode(), name, payload, submissionId);
@@ -145,16 +155,27 @@ final class SubmissionService {
 
     byte[] photo(String id, String role, boolean reviewer) {
         id = id(id);
-        if (!ROLES.contains(role)) throw new SubmissionException(404, "PHOTO_NOT_FOUND");
+        if (!ROLES.contains(role)&&!role.equals("nutrition")) throw new SubmissionException(404, "PHOTO_NOT_FOUND");
         if (!reviewer && !row(id).status().equals("APPROVED")) throw new SubmissionException(404, "PHOTO_NOT_FOUND");
+        if(role.equals("nutrition"))return db.query("SELECT photo_data FROM submission_nutrition_photos WHERE submission_id=?",(rs,i)->rs.getBytes(1),id).stream().findFirst().orElseThrow(()->new SubmissionException(404,"PHOTO_NOT_FOUND"));
         return db.query("SELECT photo_data FROM submission_photos WHERE submission_id=? AND role=?",
             (rs, i) -> rs.getBytes(1), id, role).stream().findFirst().orElseThrow(() -> new SubmissionException(404, "PHOTO_NOT_FOUND"));
     }
 
     private List<Photo> photoMetadata(String id, boolean reviewer) {
         String prefix = reviewer ? "/api/v1/review/submissions/" : "/api/v1/labels/";
-        return db.query("SELECT role,width,height,sha256 FROM submission_photos WHERE submission_id=? ORDER BY role",
-            (rs, i) -> new Photo(rs.getString(1), prefix + id + "/photos/" + rs.getString(1), rs.getInt(2), rs.getInt(3), rs.getString(4)), id);
+        return db.query("SELECT role,width,height,sha256 FROM submission_photos WHERE submission_id=? UNION ALL SELECT 'nutrition',width,height,sha256 FROM submission_nutrition_photos WHERE submission_id=? ORDER BY role",
+            (rs, i) -> new Photo(rs.getString(1), prefix + id + "/photos/" + rs.getString(1), rs.getInt(2), rs.getInt(3), rs.getString(4)), id,id);
+    }
+    private Map<String,LabelAnalysis.Snapshot> ocrSnapshots(String id){
+        Map<String,LabelAnalysis.Snapshot> result=new LinkedHashMap<>();
+        db.query("SELECT role,snapshot FROM submission_ocr WHERE submission_id=?",rs->{result.put(rs.getString(1),json.readValue(rs.getString(2),LabelAnalysis.Snapshot.class));},id);
+        return result;
+    }
+    private boolean sameExistingUpload(Row existing,Draft draft,Map<String,LabelPhotos.Stored> photos){
+        if(!validate(json.readValue(existing.submitted(),Draft.class)).equals(draft))return false;
+        var previous=photoMetadata(existing.id(),true);
+        return previous.size()==photos.size()&&previous.stream().allMatch(p->photos.containsKey(p.role())&&photos.get(p.role()).sha256().equals(p.sha256()));
     }
 
     private String publishedId(String barcode) {
@@ -208,6 +229,10 @@ final class SubmissionService {
         if (DemoCatalog.products().stream().anyMatch(p -> p.barcode().equals(barcode))) throw new SubmissionException(400, "DEMO_SUBMISSION_NOT_ALLOWED");
         return new Draft(id(draft.clientRequestId()), barcode, text(draft.name(), 200, true), text(draft.brand(), 200, false),
             text(draft.quantity(), 80, false), text(draft.ingredients(), 10000, false), language(draft.ingredientsLanguage()),
-            text(draft.declaredAllergenStatement(), 2000, false), true);
+            text(draft.declaredAllergenStatement(), 2000, false), true, nutrition(draft.nutrition()), Map.of());
+    }
+    private static NutritionLabel nutrition(NutritionLabel input){
+        try{return input==null?NutritionLabel.empty():new NutritionLabel(input.basis(),input.values());}
+        catch(RuntimeException e){throw new SubmissionException(400,"NUTRITION_VALUES_INVALID");}
     }
 }

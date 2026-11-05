@@ -35,7 +35,7 @@ class ReviewSecurity {
             .anyRequest().permitAll());
         http.httpBasic(Customizer.withDefaults());
         http.requestCache(cache -> cache.disable());
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/v1/submissions"));
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/v1/submissions", "/api/v1/analysis-jobs"));
         http.headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives(
             "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'")));
         http.addFilterBefore(new OncePerRequestFilter() {

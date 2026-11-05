@@ -112,7 +112,7 @@ public class SubmissionFlowTest {
                 assertSame("An in-flight upload must retain its ViewModel",state,new ViewModelProvider(controller.get()).get(SubmissionState.class));
                 assertEquals(id,new ViewModelProvider(controller.get()).get(SubmissionState.class).id);
                 long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(8);
-                while(SubmissionClient.receipts(prefs).stream().noneMatch(r->r.optString("status").equals("PENDING"))&&System.nanoTime()<deadline){Thread.sleep(20);Shadows.shadowOf(Looper.getMainLooper()).idle();}
+                while((SubmissionClient.receipts(prefs).stream().noneMatch(r->r.optString("status").equals("PENDING"))||ShadowAlertDialog.getLatestDialog()==null)&&System.nanoTime()<deadline){Thread.sleep(20);Shadows.shadowOf(Looper.getMainLooper()).idle();}
                 Shadows.shadowOf(Looper.getMainLooper()).idle();
                 assertEquals("Only one upload should reach the server",1,server.getRequestCount());
                 assertEquals("Device receipt should be stored; event="+state.event.getValue(),1,SubmissionClient.receipts(prefs).size());

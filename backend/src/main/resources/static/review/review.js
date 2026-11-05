@@ -39,10 +39,27 @@ async function open(id){
   const language=field(fields,'ingredientsLanguage','Label language code (az, en, ru, tr…)',data.submitted.ingredientsLanguage);language.required=true;language.pattern='[a-z]{2,3}(-[A-Z]{2})?';language.maxLength=12;
   const ingredients=field(fields,'ingredients','Ingredients — exact transcription',data.submitted.ingredients,true);ingredients.required=true;ingredients.maxLength=10000;
   const allergens=field(fields,'declaredAllergenStatement','Allergen / trace statement — exact wording, leave blank if unknown',data.submitted.declaredAllergenStatement,true);allergens.maxLength=2000;
-  const consent=el('label',undefined,'check');const checked=el('input');checked.type='checkbox';checked.required=true;consent.append(checked,el('span','I compared all three photos and confirmed the barcode, pack variant and Azerbaijan market version. The transcription matches the label, and these photos can be published as its source.'));form.append(consent);
+  for(const [role,analysis] of Object.entries(data.analysis||{})){
+    const audit=el('details',undefined,'wide');audit.append(el('summary','Original automatic reading — '+role));
+    audit.append(el('p','Unreviewed machine output. Compare it with the photo and the edited fields.','notice'),el('pre',analysis.rawText));
+    if(analysis.uncertainWords?.length)audit.append(el('p','Words to check: '+analysis.uncertainWords.join(', '),'muted'));
+    form.append(audit);
+  }
+  const nutritionTitle=el('h3','Nutrition — exact label values');form.append(nutritionTitle);
+  const nutritionGrid=el('div',undefined,'fields');form.append(nutritionGrid);
+  const basisWrap=el('div');const basis=el('select');basis.id='nutrition-basis';
+  for(const [value,title] of [['','Unknown / no values'],['PER_100_G','Per 100 g'],['PER_100_ML','Per 100 ml']]){const option=el('option',title);option.value=value;basis.append(option);}
+  basis.value=data.submitted.nutrition?.basis||'';const basisLabel=el('label','Reference amount printed on the label');basisLabel.htmlFor=basis.id;basisWrap.append(basisLabel,basis);nutritionGrid.append(basisWrap);
+  const nutritionFields={};
+  for(const [key,label] of [['energyKcal','Energy (kcal)'],['fat','Fat (g)'],['saturatedFat','Saturated fat (g)'],['carbohydrates','Carbohydrates (g)'],['sugars','Sugars (g)'],['fiber','Fibre (g)'],['protein','Protein (g)'],['salt','Salt (g)']]){
+    const input=field(nutritionGrid,key,label,String(data.submitted.nutrition?.values?.[key]??''));input.type='number';input.min='0';input.max=key==='energyKcal'?'2000':'200';input.step='any';nutritionFields[key]=input;
+  }
+  form.append(el('p','Keep unknown values blank. Preserve 100 g versus 100 ml. Do not copy a per-serving column or convert sodium to salt automatically.','muted'));
+  const nutritionCheck=el('input');nutritionCheck.type='checkbox';const nutritionConsent=el('label',undefined,'check');nutritionConsent.append(nutritionCheck,el('span','I compared the nutrition-table photo, reference amount, units and every entered value.'));form.append(nutritionConsent);
+  const consent=el('label',undefined,'check');const checked=el('input');checked.type='checkbox';checked.required=true;consent.append(checked,el('span','I compared the package photos and confirmed the barcode, pack variant and Azerbaijan market version. The transcription matches the label, and these photos can be published as its source.'));form.append(consent);
   const actions=el('div',undefined,'actions');const approve=el('button','Approve and publish','primary');approve.type='submit';actions.append(approve);form.append(actions);
   form.onsubmit=async event=>{event.preventDefault();if(busy||!form.reportValidity())return;busy=true;approve.disabled=true;
-    try{await api('/api/v1/review/submissions/'+id+'/approve',{version:data.version,name:name.value,brand:brand.value,quantity:quantity.value,ingredients:ingredients.value,ingredientsLanguage:language.value,declaredAllergenStatement:allergens.value,expectedPublishedSubmissionId:data.currentPublishedSubmissionId,photosChecked:checked.checked});message('Published. A new scan and catalogue refresh will return the reviewed ingredients.');await loadQueue();await open(id);}catch(e){message(e.message,true);}finally{busy=false;approve.disabled=false;}};
+    try{const values={};for(const [key,input] of Object.entries(nutritionFields))if(input.value.trim()!=='')values[key]=Number(input.value);if(Object.keys(values).length&&(!basis.value||!nutritionCheck.checked))throw new Error('Confirm the nutrition reference amount and photo comparison.');await api('/api/v1/review/submissions/'+id+'/approve',{version:data.version,name:name.value,brand:brand.value,quantity:quantity.value,ingredients:ingredients.value,ingredientsLanguage:language.value,declaredAllergenStatement:allergens.value,expectedPublishedSubmissionId:data.currentPublishedSubmissionId,photosChecked:checked.checked,nutrition:{basis:basis.value,values},nutritionPhotoChecked:nutritionCheck.checked});message('Published. A new scan and catalogue refresh will return the reviewed ingredients.');await loadQueue();await open(id);}catch(e){message(e.message,true);}finally{busy=false;approve.disabled=false;}};
   section.append(form);
   const rejectSection=el('div');rejectSection.append(el('h3','Reject this submission'));
   const note=el('textarea');note.placeholder='Explain what needs a clearer photo or correction.';note.maxLength=1000;note.setAttribute('aria-label','Rejection reason');rejectSection.append(note);

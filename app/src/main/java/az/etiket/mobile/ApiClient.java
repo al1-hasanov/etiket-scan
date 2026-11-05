@@ -98,7 +98,7 @@ final class ApiClient {
         var evidence = new ProductEvidence(e.reviewStatus(), e.ingredientsStatus(), e.labelPhotoChecked(), resolveSource(base, e.ingredientsSourceUrl()),
             e.ingredientSectionAsReported(), e.declaredAllergenStatement(), e.notes(), e.externalCandidateAvailable());
         return new Product(p.barcode(), p.name(), p.brand(), p.quantity(), p.ingredients(), p.ingredientsLanguage(), p.nutriScore(),
-            p.nutrients(), p.allergens(), p.traces(), p.source(), resolveSource(base, p.sourceUrl()), p.retrievedAt(), p.sourceUpdatedAt(), p.demo(), evidence);
+            p.nutrients(), p.allergens(), p.traces(), p.source(), resolveSource(base, p.sourceUrl()), p.retrievedAt(), p.sourceUpdatedAt(), p.demo(), evidence, null, p.nutrition());
     }
     static String resolveSource(String base, String source) {
         if (source == null || source.isEmpty()) return "";

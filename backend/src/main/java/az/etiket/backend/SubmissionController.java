@@ -17,8 +17,11 @@ final class SubmissionController {
 
     @PostMapping(path="/api/v1/submissions", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<Receipt> submit(@RequestPart("metadata") Draft draft, @RequestPart("front") MultipartFile front,
-            @RequestPart("barcode") MultipartFile barcode, @RequestPart("ingredients") MultipartFile ingredients) {
-        return ResponseEntity.status(201).body(service.create(draft, Map.of("front", front, "barcode", barcode, "ingredients", ingredients)));
+            @RequestPart("barcode") MultipartFile barcode, @RequestPart("ingredients") MultipartFile ingredients,
+            @RequestPart(value="nutrition", required=false) MultipartFile nutrition) {
+        Map<String,MultipartFile> files=new LinkedHashMap<>(Map.of("front",front,"barcode",barcode,"ingredients",ingredients));
+        if(nutrition!=null&&!nutrition.isEmpty())files.put("nutrition",nutrition);
+        return ResponseEntity.status(201).body(service.create(draft, files));
     }
     @GetMapping("/api/v1/submissions/{id}/status") Receipt status(@PathVariable String id) { return service.status(id); }
     @GetMapping("/api/v1/review/csrf") Map<String, String> csrf(CsrfToken token) {
