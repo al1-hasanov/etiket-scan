@@ -1,10 +1,13 @@
 package az.etiket.mobile;
 
 import az.etiket.core.Product;
+import az.etiket.core.ProductEvidence;
+import az.etiket.core.Barcode;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import org.json.JSONObject;
+import org.json.*;
+import java.util.*;
 
 final class ApiClient {
     static final class Failure extends Exception {
@@ -49,7 +52,7 @@ final class ApiClient {
                     if (bytes.size() + read > 1_000_000) throw new Failure("SOURCE_UNAVAILABLE");
                     bytes.write(buffer, 0, read);
                 }
-                Product product = ProductJson.read(new JSONObject(bytes.toString(StandardCharsets.UTF_8.name())));
+                Product product = readProduct(new JSONObject(bytes.toString(StandardCharsets.UTF_8.name())), base);
                 if (!product.barcode().equals(barcode)) throw new Failure("SOURCE_UNAVAILABLE");
                 return product;
             }
@@ -57,5 +60,52 @@ final class ApiClient {
         } catch (org.json.JSONException e) { throw new Failure("SOURCE_UNAVAILABLE");
         } catch (Exception e) { throw new Failure("CONNECTION_FAILED");
         } finally { if (connection != null) connection.disconnect(); }
+    }
+    static List<Product> catalogue(String base) throws Failure {
+        List<Product> result = new ArrayList<>(); Set<String> codes = new HashSet<>();
+        for (int page = 0; page < 20; page++) {
+            HttpURLConnection connection = null;
+            try {
+                connection = (HttpURLConnection) URI.create(validateBase(base) + "/api/v1/catalogue/products?size=100&page=" + page).toURL().openConnection();
+                connection.setConnectTimeout(5000); connection.setReadTimeout(12000); connection.setInstanceFollowRedirects(false);
+                connection.setRequestProperty("Accept", "application/json");
+                if (connection.getResponseCode() != 200) throw new Failure("SOURCE_UNAVAILABLE");
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                try (InputStream in = connection.getInputStream()) {
+                    byte[] buffer = new byte[4096]; int n;
+                    while ((n = in.read(buffer)) != -1) { if (bytes.size() + n > 3_000_000) throw new Failure("SOURCE_UNAVAILABLE"); bytes.write(buffer, 0, n); }
+                }
+                JSONObject data = new JSONObject(bytes.toString(StandardCharsets.UTF_8.name()));
+                JSONArray items = data.getJSONArray("items"); int total = data.getInt("total");
+                if (total < 0 || total > 2000 || items.length() > 100 || data.optInt("page", -1) != page) throw new Failure("SOURCE_UNAVAILABLE");
+                for (int i = 0; i < items.length(); i++) {
+                    Product product = readProduct(items.getJSONObject(i), base);
+                    if (!product.barcode().equals(Barcode.normalize(product.barcode())) || !codes.add(product.barcode())) throw new Failure("SOURCE_UNAVAILABLE");
+                    result.add(product);
+                }
+                if (result.size() == total) return List.copyOf(result);
+                if (items.length() == 0 || result.size() > total) throw new Failure("SOURCE_UNAVAILABLE");
+            } catch (Failure e) { throw e;
+            } catch (Exception e) { throw new Failure("CONNECTION_FAILED");
+            } finally { if (connection != null) connection.disconnect(); }
+        }
+        throw new Failure("SOURCE_UNAVAILABLE");
+    }
+    private static Product readProduct(JSONObject data, String base) throws JSONException {
+        Product p = ProductJson.read(data);
+        if (!"REVIEWED_LABEL".equals(p.source())) return p;
+        ProductEvidence e = p.evidence();
+        var evidence = new ProductEvidence(e.reviewStatus(), e.ingredientsStatus(), e.labelPhotoChecked(), resolveSource(base, e.ingredientsSourceUrl()),
+            e.ingredientSectionAsReported(), e.declaredAllergenStatement(), e.notes(), e.externalCandidateAvailable());
+        return new Product(p.barcode(), p.name(), p.brand(), p.quantity(), p.ingredients(), p.ingredientsLanguage(), p.nutriScore(),
+            p.nutrients(), p.allergens(), p.traces(), p.source(), resolveSource(base, p.sourceUrl()), p.retrievedAt(), p.sourceUpdatedAt(), p.demo(), evidence);
+    }
+    static String resolveSource(String base, String source) {
+        if (source == null || source.isEmpty()) return "";
+        if (source.startsWith("/") && !source.startsWith("//")) return validateBase(base) + source;
+        URI uri = URI.create(source);
+        if (uri.getUserInfo() != null || uri.getHost() == null) throw new IllegalArgumentException("SOURCE_URL_INVALID");
+        if ("https".equals(uri.getScheme()) || "http".equals(uri.getScheme()) && localHost(uri.getHost())) return source;
+        throw new IllegalArgumentException("SOURCE_URL_INVALID");
     }
 }

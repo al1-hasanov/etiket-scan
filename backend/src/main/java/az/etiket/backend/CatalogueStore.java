@@ -19,6 +19,9 @@ import tools.jackson.databind.json.JsonMapper;
 @DependsOnDatabaseInitialization
 final class CatalogueStore implements InitializingBean {
     static final String DATASET = "bazarstore-starter";
+    private static final String VISIBLE = "(SELECT barcode,name,has_ingredients,payload,TRUE AS label_reviewed FROM reviewed_products UNION ALL "
+        + "SELECT c.barcode,c.name,c.has_ingredients,c.payload,FALSE AS label_reviewed FROM catalogue_products c "
+        + "WHERE NOT EXISTS (SELECT 1 FROM reviewed_products r WHERE r.barcode=c.barcode)) visible_products";
     private final JdbcTemplate db;
     private final TransactionTemplate transactions;
     private final JsonMapper json = JsonMapper.builder().build();
@@ -75,16 +78,19 @@ final class CatalogueStore implements InitializingBean {
     }
 
     Map<String, Object> summary() {
-        int total = db.queryForObject("SELECT COUNT(*) FROM catalogue_products", Integer.class);
-        int ingredients = db.queryForObject("SELECT COUNT(*) FROM catalogue_products WHERE has_ingredients=TRUE", Integer.class);
+        var counts = db.queryForMap("SELECT COUNT(*) AS total, COUNT(CASE WHEN has_ingredients THEN 1 END) AS with_ingredients, "
+            + "COUNT(CASE WHEN label_reviewed THEN 1 END) AS verified FROM " + VISIBLE);
+        int total = ((Number) counts.get("total")).intValue();
+        int ingredients = ((Number) counts.get("with_ingredients")).intValue();
+        int verified = ((Number) counts.get("verified")).intValue();
         return Map.of("products", total, "withIngredients", ingredients, "missingIngredients", total - ingredients,
-            "labelVerified", 0, "reviewStatus", "WEB_SOURCED_UNVERIFIED", "dataset", DATASET);
+            "labelVerified", verified, "reviewStatus", verified == 0 ? "WEB_SOURCED_UNVERIFIED" : "MIXED_EVIDENCE", "dataset", DATASET);
     }
 
     Map<String, Object> page(int page, int size) {
         if (page < 0 || page > 100000 || size < 1 || size > 100)
             throw new InvalidCataloguePageException();
-        List<Product> products = db.query("SELECT payload FROM catalogue_products ORDER BY name,barcode LIMIT ? OFFSET ?",
+        List<Product> products = db.query("SELECT payload FROM " + VISIBLE + " ORDER BY name,barcode LIMIT ? OFFSET ?",
             (rs, row) -> json.readValue(rs.getString(1), Product.class), size, (long) page * size);
         return Map.of("items", products, "page", page, "size", size, "total", summary().get("products"));
     }

@@ -31,7 +31,8 @@ public class MainActivity extends ComponentActivity {
     private String tab = "scan";
     private Product current;
     private LinearLayout root, body;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newFixedThreadPool(2);
+    private boolean refreshingCatalogue;
     private long requestId;
     private boolean loading;
     private boolean scannerBusy, cameraOpen;
@@ -43,6 +44,8 @@ public class MainActivity extends ComponentActivity {
         super.onCreate(state);
         prefs = getSharedPreferences("etiket", MODE_PRIVATE); store = new ProductStore(prefs);
         catalogue = StarterCatalogue.load(this);
+        List<Product> cached = store.cachedCatalogue(prefs.getString("base", "http://10.0.2.2:8080"));
+        if (!cached.isEmpty()) catalogue = cached;
         az = prefs.getBoolean("az", true);
         if (state != null) {
             tab = state.getString("tab", "scan");
@@ -64,6 +67,42 @@ public class MainActivity extends ComponentActivity {
     }
     @Override protected void onDestroy() {
         requestId++; scannerBusy = false; cleanupScannerInstall(); executor.shutdownNow(); super.onDestroy();
+    }
+    @Override protected void onResume() {
+        super.onResume();
+        if (prefs != null && prefs.getBoolean("live", false)) refreshCatalogue(false);
+    }
+    private void refreshCatalogue(boolean showError) {
+        if (refreshingCatalogue) return;
+        refreshingCatalogue = true;
+        String base = prefs.getString("base", "http://10.0.2.2:8080");
+        executor.execute(() -> {
+            try {
+                List<Product> products = ApiClient.catalogue(base);
+                runOnUiThread(() -> {
+                    refreshingCatalogue = false;
+                    if (isDestroyed() || !base.equals(prefs.getString("base", ""))) return;
+                    catalogue = products; store.cacheCatalogue(base, products);
+                    if (current == null && !loading) render();
+                });
+            } catch (ApiClient.Failure e) {
+                runOnUiThread(() -> {
+                    refreshingCatalogue = false;
+                    if (!isDestroyed() && showError) message(t("Kataloq yenilənmədi. Son saxlanmış məhsullar göstərilir.", "Could not refresh the catalogue. Showing the last saved products."));
+                });
+            }
+        });
+    }
+    private String catalogueSummary() {
+        long with = catalogue.stream().filter(p -> !p.ingredients().isBlank()).count();
+        long verified = catalogue.stream().filter(p -> p.evidence().labelPhotoChecked()).count();
+        return catalogue.size() + t(" məhsul • ", " products • ") + with + t(" tərkib mətni • ", " ingredient lists • ")
+            + verified + t(" etiket yoxlaması", " label checks");
+    }
+    private void submitLabel(String barcode, Product product) {
+        Intent intent = new Intent(this, SubmissionActivity.class); intent.putExtra("barcode", barcode);
+        if (product != null) intent.putExtra("name", product.name()).putExtra("brand", product.brand()).putExtra("quantity", product.quantity());
+        startActivity(intent);
     }
     private void handleBack() {
         if (current != null || !tab.equals("scan") || loading) { requestId++; loading = false; current = null; tab = "scan"; render(); }
@@ -122,7 +161,7 @@ public class MainActivity extends ComponentActivity {
         header.addView(language, new LinearLayout.LayoutParams(dp(60), dp(46))); full(root, header); gap(root, 10);
         LinearLayout status = row();
         boolean live = prefs.getBoolean("live", false);
-        TextView mode = text(live ? t("● Canlı API", "● Live API") : t("● Offline test kataloqu", "● Offline test catalogue"), 12, MUTED, false);
+        TextView mode = text(live ? t("● Canlı API", "● Live API") : t("● Offline kataloq", "● Offline catalogue"), 12, MUTED, false);
         status.addView(mode, new LinearLayout.LayoutParams(0, -2, 1));
         TextView settings = text(t("Parametrlər", "Settings"), 13, GREEN, true); settings.setPadding(dp(12), dp(10), 0, dp(10));
         settings.setOnClickListener(v -> settings()); status.addView(settings); full(root, status);
@@ -156,16 +195,17 @@ public class MainActivity extends ComponentActivity {
         View artwork = new BarcodeArt(this); hero.addView(artwork, new LinearLayout.LayoutParams(-1, dp(100))); full(body, hero); gap(body, 16);
         full(body, button(t("Barkodu kamerayla skan et", "Scan a barcode"), true, this::scan)); gap(body, 10);
         full(body, button(t("Barkodu əl ilə yaz", "Enter barcode manually"), false, this::manual)); gap(body, 24);
-        full(body, button(t("77 məhsullu test kataloqunu aç", "Browse 77 test products"), false,
-            () -> { tab = "catalogue"; current = null; render(); })); gap(body, 18);
+        full(body, button(t("Məhsul kataloqunu aç", "Browse products"), false,
+            () -> { tab = "catalogue"; current = null; render(); if (prefs.getBoolean("live", false)) refreshCatalogue(true); })); gap(body, 10);
+        full(body, button(t("Məhsul məlumatı əlavə et", "Add product information"), false, () -> submitLabel("", null))); gap(body, 10);
+        full(body, button(t("Göndərdiklərim", "My submissions"), false, () -> startActivity(new Intent(this, MySubmissionsActivity.class)))); gap(body, 18);
         full(body, text(t("İlk məhsulları yoxlayın", "Try the first products"), 20, DARK, true)); gap(body, 5);
-        full(body, text(t("10 məhsulda sayt tərkibi var • 67 məhsulda yoxdur\nQablaşdırma ilə hələ yoxlanmayıb.",
-            "10 have web ingredient lists • 67 are missing\nNot checked against package labels."), 12, MUTED, false)); gap(body, 10);
+        full(body, text(catalogueSummary(), 12, MUTED, false)); gap(body, 10);
         for (String code : new String[]{"4760177560085", "8076809576130", "5201360553457"})
             for (Product p : catalogue) if (p.barcode().equals(code)) productCard(p);
         gap(body, 6);
-        full(body, text(t("Bu kataloq offline işləyir. Canlı bazanı yoxlamaq üçün Parametrlərdə API-ni qoşun.",
-            "The bundled catalogue works offline. Connect your API in Settings to test the database."), 12, MUTED, false)); gap(body, 12);
+        full(body, text(t("Saxlanmış kataloq offline işləyir. Yeni yoxlanmış etiketlər üçün canlı axtarışı qoşub kataloqu yeniləyin.",
+            "The saved catalogue works offline. Enable live lookup and refresh it for newly reviewed labels."), 12, MUTED, false)); gap(body, 12);
         full(body, button(t("Uydurma demo nümunələri", "Fictional demo samples"), false,
             () -> { tab = "fixtures"; current = null; render(); }));
     }
@@ -174,8 +214,11 @@ public class MainActivity extends ComponentActivity {
         for (Product p : DemoCatalog.products()) productCard(p);
     }
     private void cataloguePage() {
-        full(body, text(t("Test kataloqu", "Test catalogue"), 27, DARK, true)); gap(body, 6);
-        full(body, text(t("77 məhsul • 10 tərkib mətni • 0 etiket yoxlaması", "77 products • 10 ingredient lists • 0 label checks"), 12, MUTED, false)); gap(body, 12);
+        full(body, text(t("Məhsul kataloqu", "Product catalogue"), 27, DARK, true)); gap(body, 6);
+        full(body, text(catalogueSummary(), 12, MUTED, false)); gap(body, 12);
+        if (prefs.getBoolean("live", false)) {
+            full(body, button(t("Kataloqu yenilə", "Refresh catalogue"), false, () -> refreshCatalogue(true))); gap(body, 10);
+        }
         EditText search = new EditText(this); search.setSingleLine(); search.setTextSize(15);
         search.setHint(t("Ad, brend və ya barkod", "Name, brand or barcode")); full(body, search); gap(body, 12);
         LinearLayout results = column(); full(body, results);
@@ -236,11 +279,16 @@ public class MainActivity extends ComponentActivity {
         TextView back = text(t("‹ Geri", "‹ Back"), 15, GREEN, true); back.setPadding(0, dp(8), 0, dp(14));
         back.setOnClickListener(v -> { current = null; render(); }); full(body, back);
         boolean retailer = "BAZARSTORE".equals(p.source());
-        pill(body, p.demo() ? t("UYDURMA NÜMUNƏ", "FICTIONAL SAMPLE") : retailer ? "BAZARSTORE · TEST" : "OPEN FOOD FACTS", PALE, GREEN); gap(body, 12);
+        boolean reviewed = "REVIEWED_LABEL".equals(p.source()) && p.evidence().labelPhotoChecked();
+        pill(body, p.demo() ? t("UYDURMA NÜMUNƏ", "FICTIONAL SAMPLE") : reviewed ? t("YOXLANMIŞ ETİKET FOTOSU", "REVIEWED LABEL PHOTO") : retailer ? "BAZARSTORE · TEST" : "OPEN FOOD FACTS", PALE, GREEN); gap(body, 12);
         full(body, text(name(p), 29, DARK, true)); gap(body, 4);
         full(body, text(p.brand() + (p.quantity().isEmpty() ? "" : "  •  " + p.quantity()), 14, MUTED, false)); gap(body, 4);
         full(body, text(p.barcode(), 12, MUTED, false)); gap(body, 18);
-        if (retailer) {
+        if (reviewed) {
+            LinearLayout status = card(PALE); full(status, text(t("Etiket fotosu ilə yoxlanıb", "Checked against label photos"), 17, DARK, true)); gap(status, 5);
+            full(status, text(t("Tərkib göndərilmiş qablaşdırma fotoları ilə müqayisə edilib. Aldığınız məhsulun cari etiketini də yoxlayın.",
+                "Ingredients were compared with submitted package photos. Also check the current label on the product you buy."), 13, MUTED, false)); full(body, status); gap(body, 14);
+        } else if (retailer) {
             LinearLayout status = card(0xFFFFF3DA);
             full(status, text(t("Qablaşdırma ilə yoxlanmayıb", "Not checked against package labels"), 17, DARK, true)); gap(status, 5);
             full(status, text(t("Mənbə mağazanın saytıdır. Tərkibi cari qablaşdırma ilə müqayisə etmək lazımdır.",
@@ -295,6 +343,7 @@ public class MainActivity extends ComponentActivity {
         full(body, ingredients); gap(body, 14);
         ingredientExplanations(p);
         full(body, nutrition); gap(body, 14);
+        if (!p.demo()) { full(body, button(t("Etiket fotosu göndər", "Submit label photos"), false, () -> submitLabel(p.barcode(), p))); gap(body, 14); }
         full(body, button(store.contains("saved", p) ? t("Seçilmişlərdən çıxar", "Remove from saved") : t("Məhsulu yadda saxla", "Save product"), true,
             () -> { store.toggleSaved(p); render(); })); gap(body, 14);
         if (p.demo()) full(body, text(t("Nümunə məhsul və rəqəmlər uydurmadır. Real məhsul haqqında nəticə deyil.",
@@ -304,9 +353,9 @@ public class MainActivity extends ComponentActivity {
                 "Check the package label. Online data may be incomplete or out of date."), 12, MUTED, false)); gap(body, 7);
             if (!p.retrievedAt().isEmpty()) full(body, text(t("Alınma tarixi: ", "Retrieved: ") + p.retrievedAt().substring(0, Math.min(10, p.retrievedAt().length())), 11, MUTED, false));
             gap(body, 7);
-            full(body, button(retailer ? t("Bazarstore mənbəsini aç", "Open Bazarstore source") : t("Open Food Facts mənbəsini aç", "Open source on Open Food Facts"), false,
-                () -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(p.sourceUrl())))));
-            gap(body, 7); full(body, text(retailer ? t("Mənbə: bazarstore.az • test üçün sayt məlumatları", "Source: bazarstore.az • web data for prototype testing")
+            full(body, button(reviewed ? t("Yoxlanmış etiket fotolarını aç", "Open reviewed label photos") : retailer ? t("Bazarstore mənbəsini aç", "Open Bazarstore source") : t("Open Food Facts mənbəsini aç", "Open source on Open Food Facts"), false,
+                () -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ApiClient.resolveSource(prefs.getString("base", "http://10.0.2.2:8080"), p.sourceUrl()))))));
+            gap(body, 7); full(body, text(reviewed ? t("Mənbə: yoxlanmış qablaşdırma fotoları", "Source: reviewed package photos") : retailer ? t("Mənbə: bazarstore.az • test üçün sayt məlumatları", "Source: bazarstore.az • web data for prototype testing")
                 : "Data © Open Food Facts contributors • ODbL 1.0", 11, MUTED, false));
         }
     }
@@ -377,10 +426,11 @@ public class MainActivity extends ComponentActivity {
         for (Product p : DemoCatalog.products()) if (p.barcode().equals(code)) { open(p); return; }
         if (!prefs.getBoolean("live", false)) {
             for (Product p : catalogue) if (p.barcode().equals(code)) { open(p); return; }
-            new AlertDialog.Builder(this).setTitle(t("API bağlantısı lazımdır", "Connect your API"))
-                .setMessage(t("Bu barkod 77 məhsullu test kataloqunda yoxdur. Canlı bazanı yoxlamaq üçün API-ni qoşun.",
-                    "This barcode is not in the 77-product test catalogue. Connect your API to check the live database."))
-                .setPositiveButton(t("Parametrlər", "Settings"), (d, w) -> settings()).setNegativeButton("OK", null).show(); return;
+            new AlertDialog.Builder(this).setTitle(t("Məhsul tapılmadı", "Product not found"))
+                .setMessage(t("Bu barkod saxlanmış kataloqda yoxdur. Etiket fotosu göndərə və ya canlı axtarışı qoşa bilərsiniz.",
+                    "This barcode is not in the saved catalogue. Submit label photos or enable live lookup."))
+                .setPositiveButton(t("Etiket fotosu göndər", "Submit label photos"), (d, w) -> submitLabel(code, null))
+                .setNeutralButton(t("Parametrlər", "Settings"), (d, w) -> settings()).setNegativeButton("OK", null).show(); return;
         }
         long token = ++requestId; loading = true; current = null; render();
         String base = prefs.getString("base", "http://10.0.2.2:8080");
@@ -398,7 +448,9 @@ public class MainActivity extends ComponentActivity {
                         case "CONNECTION_FAILED" -> t("API-yə qoşulmaq mümkün olmadı. Backend-i və Parametrlərdəki ünvanı yoxlayın.", "Could not connect to your API. Check that the backend is running and the address in Settings is correct.");
                         default -> t("Mənbə hazırda cavab vermir. Bir az sonra yenidən sınayın.", "The data source is temporarily unavailable. Please try again later.");
                     };
-                    message(error);
+                    if (e.code.equals("PRODUCT_NOT_FOUND")) new AlertDialog.Builder(this).setMessage(error)
+                        .setPositiveButton(t("Etiket fotosu göndər", "Submit label photos"), (d, w) -> submitLabel(code, null)).setNegativeButton("OK", null).show();
+                    else message(error);
                 });
             }
         });
@@ -460,21 +512,21 @@ public class MainActivity extends ComponentActivity {
         base.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI); full(panel, base); gap(panel, 8);
         full(panel, text(t("Emulator: 10.0.2.2:8080\nUSB + adb reverse: 127.0.0.1:8080\nİctimai server üçün HTTPS istifadə edin.",
             "Emulator: 10.0.2.2:8080\nUSB + adb reverse: 127.0.0.1:8080\nUse HTTPS for a public server."), 12, MUTED, false)); gap(panel, 14);
-        full(panel, text(t("Tarixçə və seçilmişlər cihazda qalır. API-yə yalnız axtarılan barkod göndərilir.",
-            "History and saved products stay on this device. Only the requested barcode is sent to your API."), 12, MUTED, false)); gap(panel, 12);
-        full(panel, text("Etiket 0.2.0 • Android / Java • Spring Boot API\nTest catalogue: bazarstore.az • 77 products\nOptional provider: Open Food Facts (ODbL 1.0)", 11, MUTED, false));
+        full(panel, text(t("Tarixçə və seçilmişlər cihazda qalır. Foto göndərmə yalnız Yoxlamaya göndər düyməsini seçəndə edilir.",
+            "History and saved products stay on this device. Photos are uploaded only when you choose Submit for review."), 12, MUTED, false)); gap(panel, 12);
+        full(panel, text("Etiket " + BuildConfig.VERSION_NAME + "\nStarter catalogue: bazarstore.az\nOptional provider: Open Food Facts (ODbL 1.0)", 11, MUTED, false));
         AlertDialog dialog = new AlertDialog.Builder(this).setTitle(t("Parametrlər", "Settings")).setView(panel)
             .setPositiveButton(t("Saxla", "Save"), null).setNegativeButton(t("Bağla", "Close"), null)
             .setNeutralButton(t("Yerli məlumatı sil", "Clear local data"), (d, w) -> {
-                new AlertDialog.Builder(this).setMessage(t("Tarixçə və seçilmiş məhsullar silinsin?", "Clear history and saved products?"))
-                    .setPositiveButton(t("Sil", "Clear"), (dd, ww) -> { store.clear(); current = null; render(); })
+                new AlertDialog.Builder(this).setMessage(t("Bu cihazdakı tarixçə, seçilmişlər, kataloq və göndərmə qəbzləri silinsin? Serverdəki göndərmələr qalır.", "Clear device history, saved products, catalogue and submission receipts? Server submissions remain."))
+                    .setPositiveButton(t("Sil", "Clear"), (dd, ww) -> { store.clear(); catalogue = StarterCatalogue.load(this); current = null; render(); })
                     .setNegativeButton(t("Ləğv et", "Cancel"), null).show();
             }).create();
         dialog.setOnShowListener(v -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(b -> {
             try {
                 String address = ApiClient.validateBase(base.getText().toString());
                 prefs.edit().putString("base", address).putBoolean("live", live.isChecked()).apply();
-                requestId++; loading = false; dialog.dismiss(); render();
+                requestId++; loading = false; dialog.dismiss(); render(); if (live.isChecked()) refreshCatalogue(true);
             } catch (IllegalArgumentException e) { base.setError(t("Tam ünvan yazın: http://10.0.2.2:8080", "Use a full address: http://10.0.2.2:8080 (HTTP is for local addresses only).")); }
         })); dialog.show();
     }
