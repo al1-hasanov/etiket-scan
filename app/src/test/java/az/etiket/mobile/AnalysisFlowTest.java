@@ -66,6 +66,92 @@ public class AnalysisFlowTest {
             }
         }
     }
+    @Test public void firstReadUsesTheStraightenedCropAndRejectsAnIncompleteDraft() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start(InetAddress.getByName("127.0.0.1"), 0);
+            String base = ApiClient.validateBase(server.url("/").toString());
+            context.getSharedPreferences("etiket", Context.MODE_PRIVATE).edit().putString("base", base).commit();
+            server.setDispatcher(new Dispatcher() {
+                @Override public MockResponse dispatch(RecordedRequest request) {
+                    try {
+                        String body = request.getBody().clone().readString(StandardCharsets.UTF_8);
+                        int start = body.indexOf('{');
+                        String id = new JSONObject(body.substring(start, body.indexOf('}', start) + 1)).getString("clientRequestId");
+                        return new MockResponse().setResponseCode(202).setBody(new JSONObject().put("id", id)
+                            .put("status", "RETAKE").put("result", result()).toString());
+                    } catch (Exception e) {
+                        return new MockResponse().setResponseCode(400);
+                    }
+                }
+            });
+            try (var parent = Robolectric.buildActivity(SubmissionActivity.class).setup()) {
+                SubmissionState state = new ViewModelProvider(parent.get()).get(SubmissionState.class);
+                File original = new File(state.directory(), "ingredients.jpg");
+                Bitmap label = Bitmap.createBitmap(800, 450, Bitmap.Config.ARGB_8888);
+                label.eraseColor(Color.WHITE);
+                Canvas canvas = new Canvas(label);
+                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                paint.setColor(0xfff5d36c);
+                canvas.drawRect(100, 100, 700, 350, paint);
+                paint.setColor(Color.BLACK);
+                paint.setTextSize(34);
+                canvas.drawText("Zutaten: Wasser, Zucker, Fruktose", 148, 225, paint);
+                LabelPhotoProcessor.writeJpeg(label, original, 95);
+                label.recycle();
+                byte[] originalBytes = java.nio.file.Files.readAllBytes(original.toPath());
+                state.photos.put("ingredients", original);
+                EditText ingredients = parent.get().findViewById(R.id.submission_ingredients);
+                ingredients.setText("My corrected ingredients");
+                ((Spinner) parent.get().findViewById(R.id.submission_language)).setSelection(4);
+
+                parent.get().findViewById(R.id.read_ingredients).performClick();
+                var started = Shadows.shadowOf(parent.get()).getNextStartedActivityForResult();
+                assertEquals(LabelCropActivity.class.getName(), started.intent.getComponent().getClassName());
+                assertEquals(0, server.getRequestCount());
+                try (var editor = Robolectric.buildActivity(LabelCropActivity.class, started.intent).setup()) {
+                    float[] selected = {.16f, .28f, .84f, .24f, .83f, .72f, .18f, .68f};
+                    LabelCropView view = editor.get().findViewById(R.id.label_crop_canvas);
+                    view.restore(selected, null);
+                    assertTrue(view.toggleZoom());
+                    editor.recreate();
+                    view = editor.get().findViewById(R.id.label_crop_canvas);
+                    assertArrayEquals(selected, view.corners(), .001f);
+                    assertTrue(view.window().width() < 1);
+                    capture(editor.get().getWindow().getDecorView(), "label-crop-en.png");
+                    editor.get().findViewById(R.id.label_crop_use).performClick();
+                    await(() -> editor.get().isFinishing());
+                    var finished = Shadows.shadowOf(editor.get());
+                    assertEquals(android.app.Activity.RESULT_OK, finished.getResultCode());
+                    parent.get().getActivityResultRegistry().dispatchResult(started.requestCode,
+                        finished.getResultCode(), finished.getResultIntent());
+                }
+                await(() -> !state.busy && state.analysisResults.containsKey("ingredients"));
+                assertTrue(state.hasCrop("ingredients"));
+                assertArrayEquals(originalBytes, java.nio.file.Files.readAllBytes(
+                    new File(state.directory(), "ingredients-original.jpg").toPath()));
+                assertFalse(Arrays.equals(originalBytes, java.nio.file.Files.readAllBytes(original.toPath())));
+                RecordedRequest request = server.takeRequest(2, TimeUnit.SECONDS);
+                assertNotNull(request);
+                String body = request.getBody().readString(StandardCharsets.UTF_8);
+                int metadata = body.indexOf('{');
+                assertEquals("de", new JSONObject(body.substring(metadata, body.indexOf('}', metadata) + 1)).getString("language"));
+                assertFalse(parent.get().findViewById(R.id.use_ocr_ingredients).isEnabled());
+                assertEquals(0, state.references(base).length());
+                assertEquals("My corrected ingredients", ingredients.getText().toString());
+            }
+        }
+    }
+
+    private void await(java.util.function.BooleanSupplier condition) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (!condition.getAsBoolean() && System.nanoTime() < deadline) {
+            Thread.sleep(20);
+            Shadows.shadowOf(Looper.getMainLooper()).idle();
+        }
+        Shadows.shadowOf(Looper.getMainLooper()).idle();
+        assertTrue(condition.getAsBoolean());
+    }
+
     @Test public void nutritionReferenceAndUnknownFieldsSurviveSavingAndRotation()throws Exception{
         var intent=new Intent(context,SubmissionActivity.class).putExtra("barcode","5201360553457").putExtra("name","Synthetic test package");
         try(var controller=Robolectric.buildActivity(SubmissionActivity.class,intent).setup()){

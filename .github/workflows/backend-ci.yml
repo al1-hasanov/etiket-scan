@@ -26,9 +26,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
 
       - name: Install OCR engine for integration checks
-        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr tesseract-ocr-aze tesseract-ocr-tur tesseract-ocr-rus tesseract-ocr-eng tesseract-ocr-deu
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+
+      - name: Install pinned OCR models
+        run: sh scripts/install-ocr-models.sh "$RUNNER_TEMP/etiket-tessdata"
 
       - name: Test and build backend
         env:
           ETIKET_OCR_ENGINE_TEST: "true"
+          TESSDATA_PREFIX: ${{ runner.temp }}/etiket-tessdata
         run: bash ./gradlew --no-daemon -PbackendOnly :core:test :backend:test :backend:bootJar

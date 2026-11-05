@@ -3,6 +3,7 @@ package az.etiket.backend;
 import az.etiket.core.NutritionLabel;
 import static az.etiket.backend.SubmissionModels.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,15 +20,18 @@ class AnalysisApiTest {
     @Autowired SubmissionService submissions;
     @Autowired JdbcTemplate db;
     static final AtomicInteger failures=new AtomicInteger();
+    static final AtomicBoolean incomplete=new AtomicBoolean();
     @TestConfiguration static class Config {
         @Bean @Primary OcrEngine deterministic(){return (bytes,lang)->{
             if(failures.getAndDecrement()>0)throw new java.io.IOException("Transient test failure");
-            return new OcrEngine.Text("Per 100 ml\nEnergy 60 kcal\nFat 3 g\nProtein 4 g\nSalt 0 g",94,List.of(),0);
+            return new OcrEngine.Text("Per 100 ml\nEnergy 60 kcal\nFat 3 g\nProtein 4 g\nSalt 0 g",94,List.of(),0,
+                incomplete.get()?List.of("RETAKE_INCOMPLETE_TEXT"):List.of());
         };}
     }
     @BeforeEach void reset(){
         for(String table:List.of("reviewed_products","submission_ocr","submission_nutrition_photos","submission_photos","label_submissions","label_analysis_jobs"))db.update("DELETE FROM "+table);
         failures.set(0);
+        incomplete.set(false);
     }
     LabelAnalysis.Request request(){return new LabelAnalysis.Request(UUID.randomUUID().toString(),UUID.randomUUID().toString().replace("-","")+"testsecret","nutrition","en");}
     MockMultipartFile image(){return new MockMultipartFile("photo","label.png","image/png",SubmissionFixtures.photo());}
@@ -39,6 +43,18 @@ class AnalysisApiTest {
         assertEquals("PER_100_ML",result.result().nutrition().basis());assertEquals(0,db.queryForObject("SELECT COUNT(*) FROM reviewed_products",Integer.class));
         assertNull(db.queryForObject("SELECT photo_data FROM label_analysis_jobs WHERE id=?",byte[].class,r.clientRequestId()));
     }
+    @Test void incompleteReadsCannotSuggestNutritionValues() {
+        incomplete.set(true);
+        var request = request();
+        analysis.create(request, image());
+        analysis.runNext();
+        var result = analysis.get(request.clientRequestId(), request.token());
+        assertEquals("RETAKE", result.status());
+        assertTrue(result.result().rawText().contains("Fat 3 g"));
+        assertTrue(result.result().nutrition().values().isEmpty());
+        assertTrue(result.result().warnings().contains("RETAKE_INCOMPLETE_TEXT"));
+    }
+
     @Test void queueLimitsConflictingRequestsAndUnsupportedLanguagesAreHandled(){
         var r=request();analysis.create(r,image());analysis.create(request(),image());
         assertEquals(429,assertThrows(SubmissionException.class,()->analysis.create(request(),image())).status);

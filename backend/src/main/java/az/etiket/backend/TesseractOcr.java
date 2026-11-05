@@ -1,75 +1,198 @@
 package az.etiket.backend;
 
+import az.etiket.core.OcrQuality;
 import java.awt.image.BufferedImage;
-import java.nio.file.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Runs a bounded local executable, with fixed language/CLI arguments and no shell. */
+/** Runs a bounded local executable with fixed language and image options. */
 @Component
 final class TesseractOcr implements OcrEngine {
+    static final Map<String, String> LANGUAGES = Map.of(
+        "az", "aze", "tr", "tur", "ru", "rus", "en", "eng", "de", "deu", "und", "aze+tur+rus+eng");
+    private static final double MIN_COVERAGE = .60;
     private final String executable;
     private final int timeout;
-    static final Map<String, String> LANGUAGES = Map.of("az", "aze+eng", "tr", "tur+eng", "ru", "rus+eng", "en", "eng", "de", "deu+eng", "und", "aze+tur+rus+eng");
+
     TesseractOcr(@Value("${ocr.command:tesseract}") String executable, @Value("${ocr.timeout-seconds:35}") int timeout) {
-        this.executable = executable; this.timeout = Math.max(1, Math.min(timeout, 60));
+        this.executable = executable;
+        this.timeout = Math.clamp(timeout, 1, 60);
     }
-    @Override public Text recognize(byte[] image, String language) throws Exception {
-        if (!LANGUAGES.containsKey(language)) throw new SubmissionException(400, "OCR_LANGUAGE_UNSUPPORTED");
+
+    @Override
+    public Text recognize(byte[] image, String language) throws Exception {
+        String model = LANGUAGES.get(language);
+        if (model == null) throw new SubmissionException(400, "OCR_LANGUAGE_UNSUPPORTED");
+
+        BufferedImage original = ImageIO.read(new ByteArrayInputStream(image));
+        if (original == null) throw new IOException("PHOTO_INVALID");
         Path directory = Files.createTempDirectory("etiket-ocr-");
         long deadline = System.nanoTime() + Duration.ofSeconds(timeout).toNanos();
+        Candidate best = null;
         try {
-            BufferedImage original = ImageIO.read(new java.io.ByteArrayInputStream(image));
-            Text best = new Text("", 0, List.of(), 0);
-            for (int angle : new int[]{0, 90, 180, 270}) {
-                if (System.nanoTime() >= deadline) { if (!best.text().isBlank()) break; throw new java.util.concurrent.TimeoutException(); }
-                BufferedImage prepared = rotate(original, angle);
-                Path input = directory.resolve("input.png"), output = directory.resolve("result.tsv"), error = directory.resolve("error.log");
-                ImageIO.write(prepared, "png", input.toFile()); if (prepared != original) prepared.flush();
-                ProcessBuilder builder = new ProcessBuilder(executable, input.toString(), "stdout", "-l", LANGUAGES.get(language), "--psm", "6", "-c", "tessedit_create_tsv=1");
-                builder.environment().put("OMP_THREAD_LIMIT", "1"); builder.redirectOutput(output.toFile()); builder.redirectError(error.toFile());
-                Process process = builder.start();
-                try {
-                    if (!process.waitFor(Math.max(1, deadline - System.nanoTime()), TimeUnit.NANOSECONDS)) throw new java.util.concurrent.TimeoutException();
-                    if (process.exitValue() != 0) throw new IllegalStateException("OCR_ENGINE_UNAVAILABLE");
-                } finally { if (process.isAlive()) { process.destroyForcibly(); process.waitFor(2, TimeUnit.SECONDS); } }
-                if (Files.size(output) > 2_000_000) throw new IllegalStateException("OCR_OUTPUT_TOO_LARGE");
-                Text result = parse(Files.readString(output), angle);
-                if (quality(result) > quality(best)) best = result;
-                if (best.confidence() >= 80 && best.text().length() >= 12) break;
+            var grayscale = OcrImages.prepare(original, false);
+            try {
+                best = read(directory, grayscale.image(), model, 6, 2, grayscale.angle(), deadline);
+                if (best.strong()) return best.result();
+            } finally {
+                grayscale.image().flush();
             }
-            original.flush(); return best;
+
+            var enhanced = OcrImages.prepare(original, true);
+            try {
+                best = better(best, read(directory, enhanced.image(), model, 6, 2, enhanced.angle(), deadline));
+                if (best.strong()) return best.result();
+                best = better(best, read(directory, enhanced.image(), model, 3, 2, enhanced.angle(), deadline));
+                if (best.usable()) return best.result();
+
+                for (int angle : new int[]{90, 270, 180}) {
+                    BufferedImage rotated = OcrImages.rotate(enhanced.image(), angle);
+                    try {
+                        best = better(best, read(directory, rotated, model, 6, 2, enhanced.angle() + angle, deadline));
+                        if (best.strong()) break;
+                    } finally {
+                        rotated.flush();
+                    }
+                }
+            } finally {
+                enhanced.image().flush();
+            }
+            return best.result();
+        } catch (TimeoutException e) {
+            if (best != null && best.usable()) return best.result();
+            throw e;
         } finally {
-            try (var files = Files.walk(directory)) { for (Path path : files.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(path); }
+            original.flush();
+            try (var files = Files.walk(directory)) {
+                for (Path path : files.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
         }
     }
-    private static double quality(Text result) { return result.confidence() * Math.min(1, result.text().length() / 20d); }
+
+    private Candidate read(Path directory, BufferedImage image, String model, int psm, int threshold,
+                           int rotation, long deadline) throws Exception {
+        if (System.nanoTime() >= deadline) throw new TimeoutException();
+        Path input = directory.resolve("input.png");
+        Path output = directory.resolve("result.tsv");
+        ImageIO.write(image, "png", input.toFile());
+        if (System.nanoTime() >= deadline) throw new TimeoutException();
+        ProcessBuilder builder = new ProcessBuilder(executable, input.toString(), "stdout",
+            "-l", model, "--oem", "1", "--psm", String.valueOf(psm),
+            "-c", "thresholding_method=" + threshold, "-c", "tessedit_create_tsv=1");
+        builder.environment().put("OMP_THREAD_LIMIT", "1");
+        builder.redirectOutput(output.toFile()).redirectError(ProcessBuilder.Redirect.DISCARD);
+        Process process = builder.start();
+        try {
+            if (!process.waitFor(Math.max(1, deadline - System.nanoTime()), TimeUnit.NANOSECONDS))
+                throw new TimeoutException();
+            if (process.exitValue() != 0) throw new IllegalStateException("OCR_ENGINE_UNAVAILABLE");
+        } finally {
+            if (process.isAlive()) {
+                process.destroyForcibly();
+                process.waitFor(2, TimeUnit.SECONDS);
+            }
+        }
+        if (Files.size(output) > 2_000_000) throw new IllegalStateException("OCR_OUTPUT_TOO_LARGE");
+        return parseCandidate(Files.readString(output), Math.floorMod(rotation, 360), image);
+    }
+
+    private record Candidate(Text text, OcrQuality.Assessment assessment, double coverage) {
+        boolean usable() { return assessment.readable() && coverage >= MIN_COVERAGE; }
+        boolean strong() { return usable() && coverage >= .85 && text.confidence() >= 88; }
+
+        double score() {
+            return (usable() ? 200 : 0) + (assessment.readable() ? 30 : 0)
+                + text.confidence() * .35 + Math.min(30, assessment.words()) * 1.5 + coverage * 35;
+        }
+
+        Text result() {
+            String warning = !assessment.readable() ? "RETAKE_UNREADABLE_TEXT"
+                : coverage < MIN_COVERAGE ? "RETAKE_INCOMPLETE_TEXT" : "";
+            return warning.isEmpty() ? text
+                : new Text(text.text(), text.confidence(), text.uncertainWords(), text.rotation(), List.of(warning));
+        }
+    }
+
+    private static Candidate better(Candidate first, Candidate second) {
+        return second.score() > first.score() ? second : first;
+    }
+
     static Text parse(String tsv, int rotation) {
-        StringBuilder text = new StringBuilder(); List<String> uncertain = new ArrayList<>();
-        String previous = ""; double confidence = 0; int count = 0;
+        return parseCandidate(tsv, rotation, null).text();
+    }
+
+    private static Candidate parseCandidate(String tsv, int rotation, BufferedImage image) {
+        StringBuilder text = new StringBuilder();
+        List<String> uncertain = new ArrayList<>();
+        BitSet recognized = new BitSet();
+        String previous = "";
+        double confidence = 0;
+        int characters = 0;
         for (String line : tsv.split("\\R")) {
             String[] parts = line.split("\\t", 12);
             if (parts.length != 12 || !parts[0].equals("5") || parts[11].isBlank()) continue;
             double value;
-            try { value = Double.parseDouble(parts[10]); } catch (NumberFormatException e) { continue; }
-            if (value < 0) continue;
+            try {
+                value = Double.parseDouble(parts[10]);
+            } catch (NumberFormatException e) {
+                continue;
+            }
+            if (!Double.isFinite(value) || value < 0 || value > 100) continue;
+            String word = parts[11];
             String group = String.join(":", parts[1], parts[2], parts[3], parts[4]);
             if (!text.isEmpty()) text.append(previous.equals(group) ? ' ' : '\n');
-            text.append(parts[11]); previous = group; confidence += value; count++;
-            if (value < 70 && uncertain.size() < 50) uncertain.add(parts[11].substring(0,Math.min(80,parts[11].length())));
-            if (text.length() > 10000) break;
+            text.append(word);
+            previous = group;
+            int weight = Math.max(1, (int) word.codePoints().filter(Character::isLetterOrDigit).count());
+            confidence += value * weight;
+            characters += weight;
+            if (value < 70 && uncertain.size() < 50) uncertain.add(word.substring(0, Math.min(80, word.length())));
+            if (image != null) markWord(recognized, parts, image.getWidth(), image.getHeight());
+            if (text.length() >= 10_000) break;
         }
-        return new Text(text.substring(0, Math.min(10000, text.length())), count == 0 ? 0 : Math.round(confidence / count * 10) / 10d, List.copyOf(uncertain), rotation);
+        String raw = text.substring(0, Math.min(10_000, text.length()));
+        double average = characters == 0 ? 0 : Math.round(confidence / characters * 10) / 10d;
+        Text result = new Text(raw, average, List.copyOf(uncertain), rotation);
+        return new Candidate(result, OcrQuality.assess(raw, average), image == null ? 1 : coverage(image, recognized));
     }
-    private static BufferedImage rotate(BufferedImage image, int angle) {
-        if (angle == 0) return image;
-        boolean sideways = angle == 90 || angle == 270;
-        BufferedImage result = new BufferedImage(sideways ? image.getHeight() : image.getWidth(), sideways ? image.getWidth() : image.getHeight(), BufferedImage.TYPE_INT_RGB);
-        var g = result.createGraphics(); g.translate(result.getWidth() / 2d, result.getHeight() / 2d);
-        g.rotate(Math.toRadians(angle)); g.drawImage(image, -image.getWidth() / 2, -image.getHeight() / 2, null); g.dispose(); return result;
+
+    private static void markWord(BitSet recognized, String[] columns, int width, int height) {
+        try {
+            long left = Integer.parseInt(columns[6]);
+            long top = Integer.parseInt(columns[7]);
+            int x = (int) Math.clamp(left, 0, width);
+            int y = (int) Math.clamp(top, 0, height);
+            int right = (int) Math.clamp(left + Integer.parseInt(columns[8]), x, width);
+            int bottom = (int) Math.clamp(top + Integer.parseInt(columns[9]), y, height);
+            for (int row = y; row < bottom; row++) recognized.set(row * width + x, row * width + right);
+        } catch (NumberFormatException ignored) {
+            // Invalid boxes contribute no coverage.
+        }
+    }
+
+    private static double coverage(BufferedImage image, BitSet recognized) {
+        byte[] pixels = OcrImages.pixels(image);
+        int threshold = OcrImages.inkThreshold(pixels);
+        int ink = 0;
+        int covered = 0;
+        for (int i = 0; i < pixels.length; i++) {
+            if ((pixels[i] & 255) > threshold) continue;
+            ink++;
+            if (recognized.get(i)) covered++;
+        }
+        return ink == 0 ? 0 : covered / (double) ink;
     }
 }
