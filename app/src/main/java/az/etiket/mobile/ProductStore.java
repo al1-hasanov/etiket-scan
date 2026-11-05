@@ -34,7 +34,9 @@ final class ProductStore {
         rows.removeIf(p -> p.barcode().equals(product.barcode())); rows.add(0, product);
         save(key, rows.subList(0, Math.min(limit, rows.size())));
     }
-    void clear() { prefs.edit().remove("history").remove("saved").apply(); }
+    List<Product> cachedCatalogue(String base) { return base.equals(prefs.getString("catalogueBase", "")) ? list("catalogue") : List.of(); }
+    void cacheCatalogue(String base, List<Product> products) { save("catalogue", products); prefs.edit().putString("catalogueBase", base).apply(); }
+    void clear() { prefs.edit().remove("history").remove("saved").remove("catalogue").remove("catalogueBase").remove("submissions").apply(); }
     private void save(String key, List<Product> rows) {
         JSONArray array = new JSONArray();
         try {

@@ -1,0 +1,10 @@
+<resources>
+    <item name="submission_barcode" type="id" />
+    <item name="submission_name" type="id" />
+    <item name="submission_brand" type="id" />
+    <item name="submission_quantity" type="id" />
+    <item name="submission_language" type="id" />
+    <item name="submission_ingredients" type="id" />
+    <item name="submission_allergens" type="id" />
+    <item name="submission_consent" type="id" />
+</resources>

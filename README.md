@@ -1,10 +1,22 @@
-# Etiket 0.3 — Azerbaijani ingredient explanations
+# Etiket 0.4 — Label photo submissions and review
 
-This increment adds a shared, exact-alias ingredient dictionary to the native Android Java app and Java 25 / Spring Boot API. Scan or enter a barcode, read the original ingredient list, then read **Tərkibin sadə izahı** underneath it. The dictionary works offline and with the API. Its Azerbaijani text is an editorial draft, separate from the product's evidence status.
+This increment adds Android package-photo submissions, a private reviewer page, and publication of reviewed product ingredients. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
 
-**77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks.** These are sampled records, not Bazarstore's full inventory. Every real record is `WEB_SOURCED_UNVERIFIED`. A valid barcode check digit does not confirm the formulation or GS1 ownership.
+The unchanged starter sample has **77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks**. Its records remain `WEB_SOURCED_UNVERIFIED`. Reviewed submissions are additional evidence with separate storage, source photos and review dates. No synthetic review fixture is published by default.
 
-## New in 0.3
+## New in 0.4
+
+- **Add product information / Submit label photos** from Home, missing products and real product pages. Take photos or choose them from the gallery; text transcription is optional.
+- Three bounded package photos, explicit consent for publication, metadata removal, duplicate-request handling and device receipt tracking.
+- **My submissions** with confirmed pending, approved and rejected states. A lost upload confirmation is kept distinct from a confirmed pending review.
+- A protected `/review` page with photo comparison, original-language transcription, approval/rejection and stale-decision protection. Set `REVIEW_ADMIN_PASSWORD` on the server to enable it; the Android app never receives that password.
+- Approved records override the same starter barcode and appear in live catalogue pages/counts. New barcodes increase the catalogue size. Pending/rejected information does not alter product lookup.
+- Live catalogue refresh and a per-server offline snapshot; saved reviewed products retain their source origin and explanations.
+- Additive Flyway migration V2. No new cloud service is required: this bounded pilot stores sanitised JPEGs in the existing database.
+
+Start with [V0_4_UPDATE.md](V0_4_UPDATE.md) for applying, deploying and testing. [LABEL_SUBMISSIONS.md](LABEL_SUBMISSIONS.md) describes the API and storage contract.
+
+## Ingredient explanations retained from 0.3
 
 - Recognised ingredient names receive a short Azerbaijani description. A count shows how many entries have descriptions.
 - Known additive groups are split without treating their internal commas as new top-level ingredients. E1422, E1442, pectin and xanthan gum are recognised inside thickener groups.
@@ -12,16 +24,16 @@ This increment adds a shared, exact-alias ingredient dictionary to the native An
 - Empty lists stay empty. The croissant's foreign candidate is still not used as a recipe. Other source languages are not silently translated.
 - Original ingredient text, declared allergens, source URLs and review status are preserved. These descriptions do not calculate a health score or certify suitability.
 - The API adds `ingredientAnalysis` to the existing product JSON. Existing 0.2 clients ignore the new field. The 0.3 Android client derives descriptions from its bundled shared dictionary, so it also works against the 0.2 API and older saved products.
-- No database migration or additional paid service is needed. Dictionary changes require rebuilding the backend and Android app.
+- Dictionary changes require rebuilding the backend and Android app. The dictionary itself is unchanged in 0.4.
 
 See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, reference sources and editing rules, and [V0_3_UPDATE.md](V0_3_UPDATE.md) for applying this update to the existing Git repository.
 
 ## 1. Try the app without a server
 
-1. Install the separately supplied **Etiket_Demo_v0.3.apk**, or build `:app:assembleDebug` and install `app/build/outputs/apk/debug/app-debug.apk`, on Android 8.0 or newer. It uses the same application ID and development signing key as 0.2, so it can update that demo. The old `dist/` binaries are historical 0.2 builds.
-2. Open **Etiket Demo**. The default mode is **Offline test catalogue**. Existing installations retain their previous API/language settings; turn live lookup off in Settings if you want the bundled snapshot.
+1. Install the separately supplied **Etiket_Demo_v0.4.apk**, or build `:app:assembleDebug` and install `app/build/outputs/apk/debug/app-debug.apk`, on Android 8.0 or newer. It keeps the existing application ID and development signing key. The old `dist/` binaries are historical 0.2 builds.
+2. Open **Etiket Demo**. The default mode is **Offline catalogue**. Existing installations retain their API/language settings. A previously refreshed catalogue is also available offline.
 3. Open **Kataloq / Catalogue**. Search by product name, brand or barcode.
-4. Enter or scan the following codes. Manual entry avoids needing the scanner module's first download.
+4. Enter or scan the following codes. These expectations describe the unchanged starter snapshot before real approvals. Manual entry avoids needing the scanner module's first download.
 
 | Barcode | Expected result |
 | --- | --- |
@@ -33,14 +45,14 @@ See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, refer
 
 You can save products and reopen them from **Seçilmişlər / Saved**. Evidence flags and source links survive saving/restarting. The ingredient text stays in the source language; changing the UI to English does not translate it. The home screen also links to the old, clearly fictional engineering samples.
 
-The camera uses Google Code Scanner through Google Play services. The first scanner-module download requires internet; manual entry is available. Physical camera behavior still needs testing on your phone. No package-photo upload or OCR workflow is implemented yet.
+Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet; manual entry is available. Label photos use your camera app or the system document picker. Physical camera/provider behavior still needs your phone check. OCR is not implemented.
 
 ## 2. Start the Java API on Windows
 
-1. Extract this entire ZIP into a normal folder. The root contains `settings.gradle`, `backend/`, `app/`, `dist/` and `run-backend.bat`.
+1. Apply the changed-files ZIP to your existing project root containing `settings.gradle`, `backend/`, `app/` and `run-backend.bat`.
 2. Install JDK 25. Check `java -version`, or configure `JAVA_HOME` to that JDK.
 3. Run `gradlew.bat -PbackendOnly :backend:bootJar`, then double-click **run-backend.bat**. The script runs the newly built JAR from `backend/build/libs/`.
-4. Open [health](http://127.0.0.1:8080/api/v1/health). Expect `{"status":"UP","version":"0.3.0"}`; field order can differ.
+4. Open [health](http://127.0.0.1:8080/api/v1/health). Expect `{"status":"UP","version":"0.4.0"}`; field order can differ.
 5. Open [catalogue summary](http://127.0.0.1:8080/api/v1/catalogue/summary). Expect 77 products, 10 with ingredients, 67 missing, 0 label-verified.
 6. Open [N1 lookup](http://127.0.0.1:8080/api/v1/products/4760177560085) and [croissant lookup](http://127.0.0.1:8080/api/v1/products/5201360553457).
 
@@ -48,7 +60,7 @@ Linux/macOS: run `sh run-backend.sh`. Stop with Ctrl+C. `PORT` changes the defau
 
 The default database is a persistent H2 file at `data/etiket`. Flyway creates/migrates the schema, then an atomic importer inserts the seed. Restarting does not duplicate the catalogue or change its import timestamp when its content is unchanged. The captured source record, original ingredient section and foreign candidate remain in the database for review. No runtime scraping occurs.
 
-The first migration can adopt the earlier 0.1 cache schema using baseline version 0. The starter importer only maintains `catalogue_products`; it does not overwrite the separate provider cache. Future reviewed submissions should use separate storage and an explicit promotion workflow.
+The first migration can adopt the earlier 0.1 cache schema using baseline version 0. Migration V2 adds reviewed-submission storage. The starter importer only maintains `catalogue_products`; it does not overwrite the separate provider cache, submitted photos or reviewed products.
 
 ## 3. Connect your phone to the API
 
@@ -58,7 +70,7 @@ The first migration can adopt the earlier 0.1 cache schema using baseline versio
 
 **Private Wi-Fi:** in Windows PowerShell, run `$env:SERVER_ADDRESS='0.0.0.0'`, then `./run-backend.bat`. Permit the port on your private-network firewall. Set the app's API address to your PC's LAN address, such as `http://192.168.1.20:8080`. A public endpoint needs HTTPS.
 
-In live mode, opening a real catalogue card or scanning a real code calls the API, even for a bundled product. Connection failures remain visible; the app does not silently replace a failed API request with the offline snapshot. Previously saved records remain available locally. The catalogue browser itself lists the bundled snapshot in both modes; it is not a live inventory browser.
+In live mode, opening a real catalogue card or scanning a code calls the API. The app also refreshes the catalogue on resume, and Catalogue offers **Refresh catalogue**. The last successfully fetched list is cached per server; a failed refresh keeps that snapshot and shows an error on an explicit refresh. Failed live product lookups remain visible. Saved products open their saved evidence offline.
 
 Repeat the N1 and croissant checks in live mode, stop the server and check that live lookup reports a connection problem, then disable live lookup and confirm the same products work offline.
 
@@ -84,7 +96,7 @@ $env:DB_PASSWORD='YOUR_LOCAL_DATABASE_PASSWORD'
 
 Use a JDBC URL, not a bare `postgres://` URL. The same migrations/importer run on PostgreSQL and H2. PostgreSQL integration tests start a real temporary database process without Docker; the first test run downloads its test binary. See `VALIDATION.md` for the actual tested versions and results.
 
-The Dockerfile provides a portable Java 25 container for Railway/AWS. It builds the 0.3 backend from source and works with the existing Railway PostgreSQL variables. Applying local files does not deploy them: the configured Railway branch must receive the change. Use PostgreSQL rather than the container's local H2 file for persistent hosted data.
+The Dockerfile builds the 0.4 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and add `REVIEW_ADMIN_PASSWORD` to the application service. Applying files locally does not deploy them. Use PostgreSQL for hosted data and photos; the container's local H2 file is for local development.
 
 ## 5. Open and build the source
 
@@ -97,7 +109,7 @@ gradlew.bat -PbackendOnly :core:test :backend:test :backend:bootJar
 gradlew.bat :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.3.0.jar` under `backend/build/libs/`; the start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
+Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.4.0.jar` under `backend/build/libs/`; the start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
 
 ## 6. Understand the API and data
 
@@ -106,8 +118,12 @@ Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs
 | `GET /api/v1/health` | Version and API availability |
 | `GET /api/v1/catalogue/summary` | Dataset counts and review status |
 | `GET /api/v1/catalogue/products?page=0&size=20` | Stable pagination; maximum size 100 |
-| `GET /api/v1/products/{barcode}` | Barcode validation, starter-catalogue lookup, optional provider fallback |
+| `GET /api/v1/products/{barcode}` | Barcode validation, reviewed product before starter sample, optional provider fallback |
 | `GET /api/v1/products/demo` | Three clearly fictional legacy fixtures |
+| `POST /api/v1/submissions` | Three package photos and metadata; pending review |
+| `GET /api/v1/submissions/{id}/status` | Device receipt tracking without exposing private photos |
+| `GET /review` | Reviewer authentication, transcription and decisions |
+| `GET /sources/labels/{id}` | Approved package-photo source page |
 
 Products include `evidence.reviewStatus`, `ingredientsStatus`, `labelPhotoChecked`, source URLs, original ingredient section, notes and `externalCandidateAvailable`. Empty ingredients/nutrition/allergen fields mean **unknown**, not zero or allergen-free. No health score is calculated. An empty `quantity` means no structured size was captured; size text in product names is retained as reported.
 
@@ -134,4 +150,4 @@ The retained experimental adapter can be enabled using `OFF_ENABLED=true` and a 
 
 ## What comes after this increment
 
-Use the five barcode checks above on your actual phone. Then collect current package-label photos for a small set of these products and implement a reviewed submission workflow: capture → extract → compare → approve → publish. OCR and Azerbaijani explanations should use that evidence. They should not invent a missing recipe from a product name.
+Use the phone acceptance checks in `V0_4_UPDATE.md`, then collect and genuinely review the first ten current Azerbaijan-market package labels through this workflow. A later increment can assist transcription with OCR while retaining the same review/publication boundary. Test with a small group of users before expanding the catalogue or upload volume.

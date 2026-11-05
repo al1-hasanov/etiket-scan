@@ -1,7 +1,7 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "validatedOn": "2026-11-05",
-  "sourceBaseCommit": "af3c4ce632a2cf7324a43c5c742c6e2808f7123e",
+  "sourceBaseCommit": "18da96b824d0dc1c67d87c700427f6b8dc3ad6fa",
   "uploadedDevZipMatchedGitHub": true,
   "modules": {
     "core": {
@@ -11,34 +11,40 @@
       "skipped": 0
     },
     "backend": {
-      "tests": 23,
+      "tests": 39,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     },
     "app": {
-      "tests": 17,
+      "tests": 26,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     }
   },
-  "totalTests": 60,
-  "lintIssues": [
-    {
-      "id": "NewerVersionAvailable",
-      "severity": "Warning",
-      "message": "A newer version of com.squareup.okhttp3:mockwebserver than 4.12.0 is available: 5.5.1"
-    }
+  "totalTests": 85,
+  "lintErrors": 0,
+  "lintWarnings": 0,
+  "browserChecks": [
+    "Pending photos are private and review requires authentication",
+    "Browser review submits CSRF-protected approval",
+    "Approved source page and JPEG photos work without reviewer credentials on mobile",
+    "Rejection leaves published catalogue unchanged and user text is rendered without HTML execution",
+    "Review layout fits desktop and mobile without JavaScript errors",
+    "Approved data, rejection and exact photo bytes survive a full backend process restart"
   ],
-  "backendBootJar": "passed",
-  "androidDebugApk": "passed",
-  "catalogueAssetsUnchanged": true,
+  "browserChecksPassed": true,
+  "browser": "Chrome Headless Shell 157",
+  "postgresql": "Native embedded PostgreSQL 17.11; bytea photos, approval, lookup and seed re-import tested",
+  "processRestartPersistence": "Packaged JAR stopped and restarted with the same H2 file; reviewed payload and exact photo bytes retained",
+  "apkVersionCode": 4,
+  "apkVersionName": "0.4.0-labels",
   "apkSigningCertificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
-  "apkSigningCertificateMatches02": true,
-  "limits": [
-    "No physical-device camera test for this new build.",
-    "Docker image not run locally.",
-    "This update has not been pushed to GitHub or deployed to Railway."
-  ]
+  "apkSigningCertificateMatches03": true,
+  "starterAssetsAndV1Unchanged": true,
+  "githubWorkflowUnchanged": true,
+  "cloudDeploymentPerformed": false,
+  "physicalCameraTestPerformed": false,
+  "dockerImageRun": false
 }

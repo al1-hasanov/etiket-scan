@@ -34,7 +34,7 @@ class LegacyDatabaseTest {
     @Test void populatedLegacyDatabaseGetsCatalogueWithoutLosingCache() {
         assertEquals(77, catalogue.summary().get("products"));
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM product_cache", Integer.class));
-        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals("2", flyway.info().current().getVersion().toString());
     }
     @Test void oldProductJsonWithoutEvidenceRemainsReadable() {
         var p = service.lookup("3017620422003");

@@ -10,7 +10,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 /** Real temporary PostgreSQL process; no Docker and no production services. */
-@SpringBootTest
+@SpringBootTest(properties={"review.password=only-for-local-tests"})
 class PostgresCatalogueTest {
     static final EmbeddedPostgres postgres;
     static {
@@ -29,6 +29,7 @@ class PostgresCatalogueTest {
     @Autowired CatalogueStore catalogue;
     @Autowired ProductService products;
     @Autowired JdbcTemplate db;
+    @Autowired SubmissionService submissions;
     @AfterAll static void stop() throws Exception { postgres.close(); }
 
     @Test void migrationsAndIdempotentImportWorkOnPostgres() throws Exception {
@@ -37,7 +38,7 @@ class PostgresCatalogueTest {
         assertEquals(10, catalogue.summary().get("withIngredients"));
         catalogue.importBundledCatalogue();
         assertEquals(77, db.queryForObject("SELECT COUNT(*) FROM catalogue_products", Integer.class));
-        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
+        assertEquals(2, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
     }
     @Test void unicodeAndPartialProductSurviveDatabaseRoundTrip() {
         assertTrue(products.lookup("4760177560085").ingredients().contains("inək südü"));
@@ -45,5 +46,19 @@ class PostgresCatalogueTest {
         assertEquals("MISSING", missing.evidence().ingredientsStatus());
         assertEquals("", missing.ingredients());
         assertTrue(missing.evidence().externalCandidateAvailable());
+    }
+    @Test void reviewedProductsAndPhotosSurviveSeedReimportOnPostgres() throws Exception {
+        String id=null;
+        try {
+            var receipt=submissions.create(SubmissionFixtures.draft("3017620422003"),SubmissionFixtures.photos());id=receipt.id();
+            byte[] before=submissions.photo(id,"ingredients",true);
+            submissions.approve(id,SubmissionFixtures.approval(0,""),"test-reviewer");
+            catalogue.importBundledCatalogue();
+            assertArrayEquals(before,submissions.photo(id,"ingredients",false));
+            assertEquals("REVIEWED_LABEL",products.lookup("3017620422003").source());
+            assertEquals(78,catalogue.summary().get("products"));assertEquals(1,catalogue.summary().get("labelVerified"));
+        } finally {
+            if(id!=null){db.update("DELETE FROM reviewed_products WHERE submission_id=?",id);db.update("DELETE FROM submission_photos WHERE submission_id=?",id);db.update("DELETE FROM label_submissions WHERE id=?",id);}
+        }
     }
 }

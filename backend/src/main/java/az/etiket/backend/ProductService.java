@@ -12,17 +12,21 @@ final class ProductService {
     private final JdbcTemplate db;
     private final OpenFoodFactsClient source;
     private final CatalogueStore catalogue;
+    private final SubmissionService submissions;
     private final boolean externalEnabled;
     private final long cacheMillis;
     private final JsonMapper json = JsonMapper.builder().build();
-    ProductService(JdbcTemplate db, OpenFoodFactsClient source, CatalogueStore catalogue,
+    ProductService(JdbcTemplate db, OpenFoodFactsClient source, CatalogueStore catalogue, SubmissionService submissions,
             @Value("${off.cache-hours}") long hours, @Value("${off.enabled:false}") boolean externalEnabled) {
         this.db = db; this.source = source; this.catalogue = catalogue;
+        this.submissions = submissions;
         this.externalEnabled = externalEnabled; cacheMillis = Duration.ofHours(hours).toMillis();
     }
     synchronized Product lookup(String input) {
         String code = Barcode.normalize(input);
         for (Product demo : DemoCatalog.products()) if (demo.barcode().equals(code)) return demo;
+        var reviewed = submissions.findReviewed(code);
+        if (reviewed.isPresent()) return reviewed.get();
         var local = catalogue.find(code);
         if (local.isPresent()) return local.get();
         if (!externalEnabled) throw new LookupException(404, "PRODUCT_NOT_IN_CATALOGUE");
