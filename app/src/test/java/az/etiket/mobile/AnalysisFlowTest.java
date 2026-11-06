@@ -67,7 +67,7 @@ public class AnalysisFlowTest {
             }
         }
     }
-    @Test public void firstReadUsesTheStraightenedCropAndRejectsAnIncompleteDraft() throws Exception {
+    @Test public void firstReadUsesTheRectangularCropAndRejectsAnIncompleteDraft() throws Exception {
         try (MockWebServer server = new MockWebServer()) {
             server.start(InetAddress.getByName("127.0.0.1"), 0);
             String base = ApiClient.validateBase(server.url("/").toString());
@@ -110,9 +110,11 @@ public class AnalysisFlowTest {
                 assertEquals(LabelCropActivity.class.getName(), started.intent.getComponent().getClassName());
                 assertEquals(0, server.getRequestCount());
                 try (var editor = Robolectric.buildActivity(LabelCropActivity.class, started.intent).setup()) {
-                    float[] selected = {.16f, .28f, .84f, .24f, .83f, .72f, .18f, .68f};
+                    float[] oldCorners = {.16f, .28f, .84f, .24f, .83f, .72f, .18f, .68f};
+                    float[] selected = {.16f, .24f, .84f, .24f, .84f, .72f, .16f, .72f};
                     LabelCropView view = editor.get().findViewById(R.id.label_crop_canvas);
-                    view.restore(selected, null);
+                    view.restore(oldCorners, null);
+                    assertArrayEquals(selected, view.corners(), .001f);
                     assertTrue(view.toggleZoom());
                     editor.recreate();
                     view = editor.get().findViewById(R.id.label_crop_canvas);
@@ -131,6 +133,11 @@ public class AnalysisFlowTest {
                 assertArrayEquals(originalBytes, java.nio.file.Files.readAllBytes(
                     new File(state.directory(), "ingredients-original.jpg").toPath()));
                 assertFalse(Arrays.equals(originalBytes, java.nio.file.Files.readAllBytes(original.toPath())));
+                BitmapFactory.Options cropInfo = new BitmapFactory.Options();
+                cropInfo.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(original.getPath(), cropInfo);
+                assertEquals(544, cropInfo.outWidth);
+                assertEquals(216, cropInfo.outHeight);
                 RecordedRequest request = server.takeRequest(2, TimeUnit.SECONDS);
                 assertNotNull(request);
                 String body = request.getBody().readString(StandardCharsets.UTF_8);
@@ -140,6 +147,43 @@ public class AnalysisFlowTest {
                 assertEquals(0, state.references(base).length());
                 assertEquals("My corrected ingredients", ingredients.getText().toString());
             }
+        }
+    }
+
+    @Test public void nutritionSquareModeSurvivesRecreationAndSavesASquare() throws Exception {
+        String draft = UUID.randomUUID().toString();
+        File directory = new File(context.getCacheDir(), "label-drafts/" + draft);
+        assertTrue(directory.mkdirs());
+        Bitmap photo = Bitmap.createBitmap(600, 400, Bitmap.Config.ARGB_8888);
+        photo.eraseColor(0xff52265a);
+        try {
+            LabelPhotoProcessor.writeJpeg(photo, new File(directory, "nutrition.jpg"), 95);
+        } finally {
+            photo.recycle();
+        }
+        Intent intent = new Intent(context, LabelCropActivity.class)
+            .putExtra("draftId", draft).putExtra("role", "nutrition");
+        try (var editor = Robolectric.buildActivity(LabelCropActivity.class, intent).setup()) {
+            CheckBox square = editor.get().findViewById(R.id.label_crop_square);
+            assertFalse(square.isChecked());
+            square.performClick();
+            LabelCropView view = editor.get().findViewById(R.id.label_crop_canvas);
+            Rect selected = new Rect(100, 0, 500, 400);
+            assertEquals(selected, view.cropBounds());
+            editor.recreate();
+            square = editor.get().findViewById(R.id.label_crop_square);
+            view = editor.get().findViewById(R.id.label_crop_canvas);
+            assertTrue(square.isChecked());
+            assertEquals(selected, view.cropBounds());
+            capture(editor.get().getWindow().getDecorView(), "nutrition-square-crop-en.png");
+            editor.get().findViewById(R.id.label_crop_use).performClick();
+            await(() -> editor.get().isFinishing());
+            assertEquals(android.app.Activity.RESULT_OK, Shadows.shadowOf(editor.get()).getResultCode());
+            BitmapFactory.Options cropInfo = new BitmapFactory.Options();
+            cropInfo.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(new File(directory, "nutrition-crop.jpg").getPath(), cropInfo);
+            assertEquals(400, cropInfo.outWidth);
+            assertEquals(400, cropInfo.outHeight);
         }
     }
 

@@ -152,7 +152,7 @@ public class SubmissionActivity extends ComponentActivity {
             if(SubmissionState.canCrop(role)){
                 Button crop = new Button(this);
                 crop.setAllCaps(false);
-                crop.setText(t("Etiketi kəs və düzəlt", "Crop and straighten"));
+                crop.setText(t("Etiketi kəs", "Crop label"));
                 crop.setOnClickListener(view -> editPhoto(role, false));
                 form.addView(crop);
                 photoButtons.add(crop);

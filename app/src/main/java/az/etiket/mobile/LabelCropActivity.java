@@ -5,12 +5,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Insets;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -91,29 +95,41 @@ public final class LabelCropActivity extends ComponentActivity {
             root.requestApplyInsets();
         }
 
+        LinearLayout header = row(root);
+        header.setGravity(Gravity.CENTER_VERTICAL);
         TextView title = new TextView(this);
-        title.setText(t("Etiketi kəs və düzəlt", "Crop and straighten"));
+        title.setText(t("Etiketi kəs", "Crop label"));
         title.setTextColor(0xff19372a);
         title.setTextSize(22);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
-        root.addView(title);
+        header.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
+        CheckBox square = new CheckBox(this);
+        square.setId(R.id.label_crop_square);
+        square.setText(t("Kvadrat", "Square"));
+        square.setMinHeight(dp(48));
+        square.setChecked(saved != null && saved.getBoolean("square"));
+        header.addView(square);
+        actions.add(square);
         TextView guide = new TextView(this);
         guide.setTextColor(0xff19372a);
         guide.setTextSize(14);
         guide.setPadding(0, dp(4), 0, dp(6));
-        guide.setText(role.equals("nutrition")
-            ? t("Qida cədvəlini başlıqlar, sətir adları və bütün sütunlarla birlikdə kəsimdə saxlayın.",
-                "Keep the full nutrition table in the crop, including its headings, row names and columns.")
-            : t("Küncləri yalnız tərkib abzasının ətrafına çəkin. Bütün sətirlər görünsün.",
-                "Drag the corners around the ingredients paragraph. Keep every line inside."));
+        String labelGuide = role.equals("nutrition")
+            ? t("100 q və ya 100 ml başlığını və sətir adlarını saxlayın.",
+                "Keep the 100 g or 100 ml heading and the row names.")
+            : t("Tərkib siyahısını bütöv saxlayın.", "Keep the full ingredients list inside.");
+        guide.setText(String.format(Locale.ROOT,
+            t("Çərçivəni içəridən sürüşdürün. Ölçünü kənar və ya küncdən dəyişin.\n%s",
+                "Drag inside to move the box. Resize from any edge or corner.\n%s"), labelGuide));
         root.addView(guide);
 
         crop = new LabelCropView(this);
         crop.setId(R.id.label_crop_canvas);
-        crop.setContentDescription(t("Kəsim sahəsinin dörd küncü", "Four corners of the crop area"));
+        crop.setContentDescription(t("Kəsim çərçivəsi", "Crop box"));
         crop.reset(state.displayed);
         RectF window = saved == null ? null : saved.getParcelable("window");
         if (saved != null) crop.restore(saved.getFloatArray("corners"), window);
+        crop.setSquare(square.isChecked());
         root.addView(crop, new LinearLayout.LayoutParams(-1, 0, 1));
 
         LinearLayout rotation = row(root);
@@ -122,7 +138,11 @@ public final class LabelCropActivity extends ComponentActivity {
 
         LinearLayout controls = row(root);
         zoom = action(controls, "", () -> zoomText(crop.toggleZoom()));
-        zoomText(window != null && (window.width() < 1 || window.height() < 1));
+        zoomText(crop.isZoomed());
+        square.setOnCheckedChangeListener((button, checked) -> {
+            crop.setSquare(checked);
+            zoomText(crop.isZoomed());
+        });
         action(controls, t("Sıfırla", "Reset"), () -> {
             state.turnTo(0);
             crop.reset(state.displayed);
@@ -135,7 +155,7 @@ public final class LabelCropActivity extends ComponentActivity {
         root.addView(feedback);
         LinearLayout footer = row(root);
         action(footer, t("Ləğv et", "Cancel"), this::finish);
-        action(footer, t("Sahəni istifadə et", "Use selected area"), () -> state.save(crop.corners()))
+        action(footer, t("Sahəni istifadə et", "Use selected area"), () -> state.save(crop.cropBounds()))
             .setId(R.id.label_crop_use);
     }
 
@@ -171,6 +191,7 @@ public final class LabelCropActivity extends ComponentActivity {
             out.putFloatArray("corners", crop.corners());
             out.putParcelable("window", crop.window());
             out.putInt("turns", state.turns);
+            out.putBoolean("square", crop.isSquare());
         }
     }
 
@@ -209,17 +230,19 @@ public final class LabelCropActivity extends ComponentActivity {
             displayed = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), rotation, true);
         }
 
-        void save(float[] corners) {
+        void save(Rect area) {
             if (save.getValue() == Save.SAVING) return;
             Bitmap source = displayed;
             save.setValue(Save.SAVING);
             worker.execute(() -> {
                 try {
-                    Bitmap result = LabelCropView.straighten(source, corners);
+                    if (area.width() < LabelCropView.MIN_WIDTH || area.height() < LabelCropView.MIN_HEIGHT)
+                        throw new IllegalArgumentException("Crop is too small");
+                    Bitmap result = Bitmap.createBitmap(source, area.left, area.top, area.width(), area.height());
                     try {
                         LabelPhotoProcessor.writeJpeg(result, destination, 95, 85, 70);
                     } finally {
-                        result.recycle();
+                        if (result != source) result.recycle();
                     }
                     save.postValue(Save.DONE);
                 } catch (IOException | IllegalArgumentException e) {

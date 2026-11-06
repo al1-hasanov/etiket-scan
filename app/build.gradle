@@ -7,8 +7,8 @@ android {
         applicationId 'az.etiket.scanner.demo'
         minSdk 26
         targetSdk 36
-        versionCode 8
-        versionName '0.6.0-ocr'
+        versionCode 9
+        versionName '0.6.1-ocr'
     }
     compileOptions {
         coreLibraryDesugaringEnabled true
