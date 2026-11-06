@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
 set -eu
 cd "$(dirname "$0")"
-if [ ! -f backend/build/libs/etiket-backend-0.5.2.jar ]; then
+if [ ! -f backend/build/libs/etiket-backend-0.5.3.jar ]; then
   echo 'Build the backend first: ./gradlew -PbackendOnly :backend:bootJar' >&2
   exit 1
 fi
 if [ -n "${JAVA_HOME:-}" ]; then
-  exec "$JAVA_HOME/bin/java" -jar backend/build/libs/etiket-backend-0.5.2.jar
+  exec "$JAVA_HOME/bin/java" -jar backend/build/libs/etiket-backend-0.5.3.jar
 else
-  exec java -jar backend/build/libs/etiket-backend-0.5.2.jar
+  exec java -jar backend/build/libs/etiket-backend-0.5.3.jar
 fi

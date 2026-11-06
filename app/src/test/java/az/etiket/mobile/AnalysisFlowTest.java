@@ -165,6 +165,27 @@ public class AnalysisFlowTest {
         assertEquals(product,ProductJson.read(ProductJson.write(product)));
         ProductStore store=new ProductStore(context.getSharedPreferences("etiket",Context.MODE_PRIVATE));store.toggleSaved(product);assertEquals(product,store.list("saved").get(0));
     }
+    @Test public void copyNutritionRequiresActualSuggestions() throws Exception {
+        try (var controller = Robolectric.buildActivity(SubmissionActivity.class).setup()) {
+            SubmissionState state = new ViewModelProvider(controller.get()).get(SubmissionState.class);
+            Button copy = controller.get().findViewById(R.id.use_ocr_nutrition);
+            EditText fat = controller.get().findViewById(R.id.nutrition_fat);
+            fat.setText("9.8");
+            JSONObject draft = result().put("rawText", "Nährwerte in 009 in 22g\nKohlenhydrate 669");
+            draft.put("nutrition", new JSONObject().put("basis", "").put("values", new JSONObject()));
+            state.analysisResults.put("nutrition", draft);
+            state.analysisEvent.setValue(new SubmissionState.AnalysisEvent("nutrition", "COMPLETED", ""));
+            assertEquals(View.GONE, copy.getVisibility());
+            assertFalse(copy.isEnabled());
+            assertEquals("9.8", fat.getText().toString());
+
+            state.analysisResults.put("nutrition", result());
+            state.analysisEvent.setValue(new SubmissionState.AnalysisEvent("nutrition", "COMPLETED", ""));
+            assertEquals(View.VISIBLE, copy.getVisibility());
+            assertTrue(copy.isEnabled());
+        }
+    }
+
     private void capture(View view,String name)throws Exception{
         view.measure(View.MeasureSpec.makeMeasureSpec(1080,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(2400,View.MeasureSpec.EXACTLY));view.layout(0,0,1080,2400);
         Bitmap b=Bitmap.createBitmap(1080,2400,Bitmap.Config.ARGB_8888);view.draw(new Canvas(b));File folder=new File("build/qa");folder.mkdirs();try(OutputStream out=new FileOutputStream(new File(folder,name))){b.compress(Bitmap.CompressFormat.PNG,100,out);}b.recycle();

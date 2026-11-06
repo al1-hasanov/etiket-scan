@@ -1,4 +1,4 @@
-# OCR and nutrition contract — 0.5.2
+# OCR and nutrition contract — 0.5.3
 
 ## Private analysis
 
@@ -38,7 +38,7 @@ The service verifies that each referenced result belongs to the capability and t
 
 `NutritionLabel` has an explicit `basis` (`PER_100_G`, `PER_100_ML`, or empty when unknown) and a partial `values` map. Keys: `energyKcal`, `fat`, `saturatedFat`, `carbohydrates`, `sugars`, `fiber`, `protein`, `salt`. Energy uses kcal; the other fields use grams for the chosen reference amount. Missing keys are unknown; zero is retained. Negative, non-finite, unknown-key and grossly out-of-range values are rejected. Saturated fat cannot exceed total fat; sugars cannot exceed carbohydrates. Per-100-ml upper bounds allow a liquid to weigh more than 100 g.
 
-Suggestions require an explicit 100-g/100-ml reference and one unambiguous number/unit per nutrient row. Multiple columns, serving headers, percentages, inequalities, ranges, missing units and ambiguous reference amounts are left for manual entry. No kJ→kcal, sodium→salt, serving-size or density conversion is inferred. Original OCR is preserved even when no suggestions can be made.
+Suggestions require an explicit 100 g or 100 ml heading and one unambiguous number with its unit per nutrient row. A detected serving column prevents suggestions for the entire table because some rows may have lost a value during recognition. Multiple columns, serving headers, percentages, inequalities, ranges, missing units and ambiguous reference amounts are left for manual entry. No kJ→kcal, sodium→salt, serving-size or density conversion is inferred. The app keeps the original OCR draft and prompts for manual entry when there are no suggestions to copy.
 
 Submitted values need a nutrition photo. Approval adds `nutrition` plus `nutritionPhotoChecked=true`; values require the reviewer's separate confirmation and the stored nutrition photo. Old approvals with no nutrition remain supported. A photo is public only after the existing approval transaction.
 

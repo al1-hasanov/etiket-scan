@@ -165,7 +165,7 @@ public class SubmissionActivity extends ComponentActivity {
                 extracted.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
                 form.addView(extracted);analysisPreviews.put(role,extracted);
                 Button use=new Button(this);use.setAllCaps(false);use.setText(role.equals("ingredients")?t("Mətni tərkib sahəsinə köçür","Use extracted ingredient text"):t("Təklif edilən qida dəyərlərini köçür","Use suggested nutrition values"));
-                if(role.equals("ingredients"))use.setId(R.id.use_ocr_ingredients);
+                use.setId(role.equals("ingredients") ? R.id.use_ocr_ingredients : R.id.use_ocr_nutrition);
                 use.setOnClickListener(view->applyAnalysis(role));form.addView(use);applyButtons.put(role,use);
             }
         }
@@ -224,10 +224,13 @@ public class SubmissionActivity extends ComponentActivity {
             TextView preview = entry.getValue();
             JSONObject result = state.analysisResults.get(role);
             boolean readable = SubmissionState.readable(result);
+            boolean nutritionRole = "nutrition".equals(role);
+            NutritionLabel nutrition = readable && nutritionRole ? ProductJson.nutrition(result.optJSONObject("nutrition")) : null;
+            boolean canCopy = readable && (!nutritionRole || nutrition != null && !nutrition.values().isEmpty());
             boolean thisRole = job != null && role.equals(job.role());
             Button use = applyButtons.get(role);
-            use.setEnabled(readable && !state.busy);
-            use.setVisibility(readable ? View.VISIBLE : View.GONE);
+            use.setEnabled(canCopy && !state.busy);
+            use.setVisibility(canCopy ? View.VISIBLE : View.GONE);
             preview.setTextColor(0xff19372a);
             if (thisRole && state.busy && Set.of("QUEUED", "PROCESSING").contains(job.status())) {
                 preview.setText(t("Etiket mətni oxunur…", "Reading the label…"));
@@ -249,10 +252,17 @@ public class SubmissionActivity extends ComponentActivity {
                     for (int i = 0; i < Math.min(uncertain.length(), 15); i++) words.add(uncertain.optString(i));
                     text += t("\nYoxlanmalı sözlər: ", "\nWords to check: ") + String.join(", ", words);
                 }
+                if (nutritionRole && !canCopy) text += "\n\n" + manualNutritionHint();
                 preview.setText(text);
             }
         }
     }
+
+    private String manualNutritionHint() {
+        return t("Qida dəyərləri dəqiq oxunmadı. Etiketdəki 100 q və ya 100 ml sütunundan rəqəmləri əl ilə daxil edin.",
+            "Could not read reliable nutrition values. Enter the numbers from the 100 g or 100 ml column by hand.");
+    }
+
     private void applyAnalysis(String role){
         JSONObject result=state.analysisResults.get(role);
         if(state.busy || !SubmissionState.readable(result))return;
@@ -260,7 +270,7 @@ public class SubmissionActivity extends ComponentActivity {
         if(role.equals("ingredients"))apply=()->{ingredients.setText(result.optString("rawText"));optionalText.setVisibility(View.VISIBLE);};
         else {
             NutritionLabel suggestion=ProductJson.nutrition(result.optJSONObject("nutrition"));
-            if(suggestion==null||suggestion.values().isEmpty()){feedback.setText(t("Qida dəyərləri aydın müəyyən edilmədi. Əsas miqdarı və rəqəmləri foto ilə yoxlayıb əl ilə yazın.","Could not identify unambiguous nutrition values. Check the reference amount and enter the numbers manually."));return;}
+            if(suggestion==null||suggestion.values().isEmpty()){feedback.setText(manualNutritionHint());return;}
             apply=()->{nutritionBasis.setSelection(suggestion.basis().equals("PER_100_G")?1:2);for(var entry:nutritionFields.entrySet()){Double value=suggestion.values().get(entry.getKey());entry.getValue().setText(value==null?"":String.valueOf(value));}};
         }
         new AlertDialog.Builder(this).setTitle(t("Qaralamanı köçür?","Use this draft?"))
