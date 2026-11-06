@@ -16,10 +16,13 @@ import androidx.lifecycle.ViewModelProvider;
 import az.etiket.core.Barcode;
 import az.etiket.core.NutritionLabel;
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.*;
 import org.json.*;
 
 public class SubmissionActivity extends ComponentActivity {
+    private static final String[] NUTRITION_AZ = {"Enerji (kcal)", "Yağ (q)", "Doymuş yağ (q)", "Karbohidrat (q)", "Şəkərlər (q)", "Lif (q)", "Zülal (q)", "Duz (q)"};
+    private static final String[] NUTRITION_EN = {"Energy (kcal)", "Fat (g)", "Saturated fat (g)", "Carbohydrates (g)", "Sugars (g)", "Fibre (g)", "Protein (g)", "Salt (g)"};
     private SubmissionState state;
     private boolean az;
     private LinearLayout form;
@@ -163,10 +166,18 @@ public class SubmissionActivity extends ComponentActivity {
                 form.addView(read);photoButtons.add(read);
                 TextView extracted=new TextView(this);extracted.setTextSize(14);extracted.setTextIsSelectable(true);extracted.setPadding(dp(10),dp(10),dp(10),dp(10));
                 extracted.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
-                form.addView(extracted);analysisPreviews.put(role,extracted);
-                Button use=new Button(this);use.setAllCaps(false);use.setText(role.equals("ingredients")?t("Mətni tərkib sahəsinə köçür","Use extracted ingredient text"):t("Təklif edilən qida dəyərlərini köçür","Use suggested nutrition values"));
-                use.setId(role.equals("ingredients") ? R.id.use_ocr_ingredients : R.id.use_ocr_nutrition);
-                use.setOnClickListener(view->applyAnalysis(role));form.addView(use);applyButtons.put(role,use);
+                boolean nutrition = role.equals("nutrition");
+                analysisPreviews.put(role, extracted);
+                Button use = new Button(this);
+                use.setAllCaps(false);
+                use.setText(nutrition ? t("Qida dəyərləri təkliflərinə bax", "Review suggested nutrition values")
+                    : t("Mətni tərkib sahəsinə köçür", "Use extracted ingredient text"));
+                use.setId(nutrition ? R.id.use_ocr_nutrition : R.id.use_ocr_ingredients);
+                use.setOnClickListener(view -> applyAnalysis(role));
+                if (!nutrition) form.addView(extracted);
+                form.addView(use);
+                if (nutrition) form.addView(extracted);
+                applyButtons.put(role, use);
             }
         }
         Button optionalButton = new Button(this); optionalButton.setAllCaps(false); optionalButton.setText(t("Etiket mətnini də yaz (istəyə görə)","Add label text (optional)"));
@@ -176,11 +187,9 @@ public class SubmissionActivity extends ComponentActivity {
         addText(t("Yalnız etiketdə göstərilənləri yazın. Boş sahə məlum deyil deməkdir. Porsiya üçün verilən rəqəmləri bura köçürməyin.","Enter only values shown on the label. Leave unknown fields blank. These fields accept per-100-g or per-100-ml values, not per-serving amounts."),14,false);
         nutritionBasis=new Spinner(this);nutritionBasis.setId(R.id.nutrition_basis);nutritionBasis.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{t("Əsas miqdar seçilməyib","Reference amount unknown"),"100 g","100 ml"}));form.addView(nutritionBasis);
         if(saved!=null)nutritionBasis.setSelection(saved.getInt("nutritionBasis",0));
-        String[] azLabels={"Enerji (kcal)","Yağ (q)","Doymuş yağ (q)","Karbohidrat (q)","Şəkərlər (q)","Lif (q)","Zülal (q)","Duz (q)"};
-        String[] enLabels={"Energy (kcal)","Fat (g)","Saturated fat (g)","Carbohydrates (g)","Sugars (g)","Fibre (g)","Protein (g)","Salt (g)"};
         int[] ids={R.id.nutrition_energy,R.id.nutrition_fat,R.id.nutrition_saturated,R.id.nutrition_carbs,R.id.nutrition_sugars,R.id.nutrition_fibre,R.id.nutrition_protein,R.id.nutrition_salt};
         for(int i=0;i<NutritionLabel.KEYS.size();i++){
-            String key=NutritionLabel.KEYS.get(i);EditText input=field(t(azLabels[i],enLabels[i]),saved==null?"":saved.getString("nutrition-"+key,""),ids[i],false);
+            String key=NutritionLabel.KEYS.get(i);EditText input=field(t(NUTRITION_AZ[i],NUTRITION_EN[i]),saved==null?"":saved.getString("nutrition-"+key,""),ids[i],false);
             input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER|android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(10)});nutritionFields.put(key,input);
         }
         consent = new CheckBox(this);consent.setId(R.id.submission_consent);consent.setText(t("Yoxlamadan sonra bu məhsul məlumatlarının və qablaşdırma fotolarının mənbə kimi açıq göstərilməsinə razıyam.",
@@ -252,7 +261,18 @@ public class SubmissionActivity extends ComponentActivity {
                     for (int i = 0; i < Math.min(uncertain.length(), 15); i++) words.add(uncertain.optString(i));
                     text += t("\nYoxlanmalı sözlər: ", "\nWords to check: ") + String.join(", ", words);
                 }
-                if (nutritionRole && !canCopy) text += "\n\n" + manualNutritionHint();
+                if (nutritionRole) {
+                    String hint = manualNutritionHint();
+                    if (canCopy) {
+                        String basis = nutritionReference(nutrition);
+                        int count = nutrition.values().size();
+                        hint = t(basis + " üçün " + count + " təklif", count + " suggested values per " + basis);
+                        if (count < NutritionLabel.KEYS.size())
+                            hint += "\n" + t("Qalan dəyərləri həmin sütundan əl ilə daxil edin.",
+                                "Enter the remaining values from that column by hand.");
+                    }
+                    text = hint + "\n\n" + text;
+                }
                 preview.setText(text);
             }
         }
@@ -266,17 +286,60 @@ public class SubmissionActivity extends ComponentActivity {
     private void applyAnalysis(String role){
         JSONObject result=state.analysisResults.get(role);
         if(state.busy || !SubmissionState.readable(result))return;
-        Runnable apply;
-        if(role.equals("ingredients"))apply=()->{ingredients.setText(result.optString("rawText"));optionalText.setVisibility(View.VISIBLE);};
-        else {
-            NutritionLabel suggestion=ProductJson.nutrition(result.optJSONObject("nutrition"));
-            if(suggestion==null||suggestion.values().isEmpty()){feedback.setText(manualNutritionHint());return;}
-            apply=()->{nutritionBasis.setSelection(suggestion.basis().equals("PER_100_G")?1:2);for(var entry:nutritionFields.entrySet()){Double value=suggestion.values().get(entry.getKey());entry.getValue().setText(value==null?"":String.valueOf(value));}};
+        if (role.equals("nutrition")) {
+            reviewNutrition(ProductJson.nutrition(result.optJSONObject("nutrition")));
+            return;
         }
         new AlertDialog.Builder(this).setTitle(t("Qaralamanı köçür?","Use this draft?"))
             .setMessage(t("Bu, uyğun mətn sahələrində yazdıqlarınızı əvəz edəcək. Köçürdükdən sonra sözləri, rəqəmləri və əsas miqdarı foto ilə yoxlayın.","This replaces the corresponding fields, including any edits. After applying, check the words, numbers and reference amount against the photo."))
-            .setNegativeButton(t("Ləğv et","Cancel"),null).setPositiveButton(t("Köçür","Use draft"),(dialog,which)->apply.run()).show();
+            .setNegativeButton(t("Ləğv et","Cancel"),null).setPositiveButton(t("Köçür","Use draft"),(dialog,which)->{
+                ingredients.setText(result.optString("rawText"));
+                optionalText.setVisibility(View.VISIBLE);
+            }).show();
     }
+
+    private void reviewNutrition(NutritionLabel suggestion) {
+        if (suggestion == null || suggestion.values().isEmpty()) {
+            feedback.setText(manualNutritionHint());
+            return;
+        }
+        int basis = suggestion.basis().equals("PER_100_G") ? 1 : 2;
+        boolean changesBasis = nutritionBasis.getSelectedItemPosition() != basis;
+        String reference = nutritionReference(suggestion);
+        StringBuilder preview = new StringBuilder(t(reference + " üçün", "Per " + reference));
+        for (int i = 0; i < NutritionLabel.KEYS.size(); i++) {
+            Double value = suggestion.values().get(NutritionLabel.KEYS.get(i));
+            if (value != null) preview.append('\n').append(t(NUTRITION_AZ[i], NUTRITION_EN[i]))
+                .append("  ").append(nutritionNumber(value));
+        }
+        preview.append("\n\n").append(t("Rəqəmləri etiketdəki sütunla müqayisə edin.",
+            "Check these numbers against the printed column."));
+        boolean hasEdits = nutritionFields.values().stream().anyMatch(field -> field.length() > 0);
+        if (hasEdits) preview.append('\n').append(changesBasis
+            ? t("Əsas miqdar dəyişəcək və əvvəlki qida dəyərləri silinəcək.",
+                "This changes the reference amount and replaces the existing nutrition entries.")
+            : t("Göstərilən sahələrdə əvvəlki rəqəmlər əvəz olunacaq.", "This replaces the values in the fields shown."));
+        new AlertDialog.Builder(this).setTitle(t("Qida dəyərləri təklifləri", "Suggested nutrition values"))
+            .setMessage(preview)
+            .setNegativeButton(t("Ləğv et", "Cancel"), null)
+            .setPositiveButton(t("Köçür", "Use draft"), (dialog, which) -> {
+                nutritionBasis.setSelection(basis);
+                for (var entry : nutritionFields.entrySet()) {
+                    Double value = suggestion.values().get(entry.getKey());
+                    if (value != null) entry.getValue().setText(nutritionNumber(value));
+                    else if (changesBasis) entry.getValue().setText("");
+                }
+            }).show();
+    }
+
+    private String nutritionReference(NutritionLabel nutrition) {
+        return nutrition.basis().equals("PER_100_G") ? t("100 q", "100 g") : "100 ml";
+    }
+
+    private static String nutritionNumber(double value) {
+        return BigDecimal.valueOf(value).stripTrailingZeros().toPlainString();
+    }
+
     private void submit(){
         if(state.busy)return;
         try{

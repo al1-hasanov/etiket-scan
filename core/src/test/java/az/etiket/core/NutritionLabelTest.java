@@ -53,6 +53,8 @@ class NutritionLabelTest {
         for (String raw : List.of(
             "Nährwerte in 100g in 22g\nFett 2,1 g\ndavon Zucker 5,9 g",
             "Nährwerte in 100g\n(1Portion)\nFett 2,1 g",
+            "Nährwerte in100g 22g\nFett 2,1 g\ndavon Zucker 5,9 g",
+            "Per 100 g / per 100 g\nFat 2,1 g",
             "Per 100 g\nFat 9.8 g 2.1 g\nSugar 5.9 g")) {
             assertTrue(NutritionTextParser.parse(raw).nutrition().values().isEmpty(), raw);
         }

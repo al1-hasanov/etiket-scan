@@ -1,5 +1,6 @@
 package az.etiket.backend;
 
+import az.etiket.core.NutritionTextParser;
 import az.etiket.core.OcrQuality;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -34,6 +35,15 @@ final class TesseractOcr implements OcrEngine {
 
     @Override
     public Text recognize(byte[] image, String language) throws Exception {
+        return recognize(image, language, false);
+    }
+
+    @Override
+    public Text recognizeNutrition(byte[] image, String language) throws Exception {
+        return recognize(image, language, true);
+    }
+
+    private Text recognize(byte[] image, String language, boolean nutrition) throws Exception {
         String model = LANGUAGES.get(language);
         if (model == null) throw new SubmissionException(400, "OCR_LANGUAGE_UNSUPPORTED");
 
@@ -41,39 +51,23 @@ final class TesseractOcr implements OcrEngine {
         if (original == null) throw new IOException("PHOTO_INVALID");
         Path directory = Files.createTempDirectory("etiket-ocr-");
         long deadline = System.nanoTime() + Duration.ofSeconds(timeout).toNanos();
-        Candidate best = null;
         try {
-            var grayscale = OcrImages.prepare(original, false);
-            try {
-                best = read(directory, grayscale.image(), model, 6, 2, grayscale.angle(), deadline);
-                if (best.strong()) return best.result();
-            } finally {
-                grayscale.image().flush();
-            }
+            Scan scan = recognizeText(original, directory, model, deadline, nutrition);
+            Candidate best = scan.draft();
+            Text text = best.result();
+            if (!nutrition || !best.usable()) return text;
 
-            var enhanced = OcrImages.prepare(original, true);
-            try {
-                best = better(best, read(directory, enhanced.image(), model, 6, 2, enhanced.angle(), deadline));
-                if (best.strong()) return best.result();
-                best = better(best, read(directory, enhanced.image(), model, 3, 2, enhanced.angle(), deadline));
-                if (best.usable()) return best.result();
-
-                for (int angle : new int[]{90, 270, 180}) {
-                    BufferedImage rotated = OcrImages.rotate(enhanced.image(), angle);
-                    try {
-                        best = better(best, read(directory, rotated, model, 6, 2, enhanced.angle() + angle, deadline));
-                        if (best.strong()) break;
-                    } finally {
-                        rotated.flush();
-                    }
-                }
-            } finally {
-                enhanced.image().flush();
+            var first = scan.grayscale().table();
+            var second = scan.enhanced() == null ? null : scan.enhanced().table();
+            if (first == null && second == null && best.table() == null) return text;
+            int turn = (text.rotation() + 45) / 90 * 90 % 360;
+            NutritionTextParser.Result checked;
+            if (turn != 0 || scan.enhanced() == null) {
+                checked = verifyTable(original, directory, model, turn, best.table(), deadline);
+            } else {
+                checked = NutritionTableReader.agree(first, second);
             }
-            return best.result();
-        } catch (TimeoutException e) {
-            if (best != null && best.usable()) return best.result();
-            throw e;
+            return new Text(text.text(), text.confidence(), text.uncertainWords(), text.rotation(), text.warnings(), checked);
         } finally {
             original.flush();
             try (var files = Files.walk(directory)) {
@@ -82,8 +76,70 @@ final class TesseractOcr implements OcrEngine {
         }
     }
 
+    private record Scan(Candidate draft, Candidate grayscale, Candidate enhanced) { }
+
+    private Scan recognizeText(BufferedImage original, Path directory, String model, long deadline,
+                               boolean nutrition) throws Exception {
+        Candidate best = null;
+        Candidate first = null;
+        Candidate second = null;
+        try {
+            var grayscale = OcrImages.prepare(original, false);
+            try {
+                first = read(directory, grayscale.image(), model, 6, 2, grayscale.angle(), deadline, nutrition);
+                best = first;
+                if (best.strong()) return new Scan(best, first, null);
+            } finally {
+                grayscale.image().flush();
+            }
+
+            var enhanced = OcrImages.prepare(original, true);
+            try {
+                second = read(directory, enhanced.image(), model, 6, 2, enhanced.angle(), deadline, nutrition);
+                best = better(best, second);
+                if (best.strong()) return new Scan(best, first, second);
+                best = better(best, read(directory, enhanced.image(), model, 3, 2, enhanced.angle(), deadline, nutrition));
+                if (best.usable()) return new Scan(best, first, second);
+
+                for (int angle : new int[]{90, 270, 180}) {
+                    BufferedImage rotated = OcrImages.rotate(enhanced.image(), angle);
+                    try {
+                        best = better(best, read(directory, rotated, model, 6, 2, enhanced.angle() + angle, deadline, nutrition));
+                        if (best.strong()) break;
+                    } finally {
+                        rotated.flush();
+                    }
+                }
+            } finally {
+                enhanced.image().flush();
+            }
+            return new Scan(best, first, second);
+        } catch (TimeoutException e) {
+            if (best != null && best.usable()) return new Scan(best, first, second);
+            throw e;
+        }
+    }
+
+    private NutritionTextParser.Result verifyTable(BufferedImage original, Path directory, String model,
+            int turn, NutritionTableReader.Reading first, long deadline) throws Exception {
+        if (first == null || first.basis().isEmpty() || System.nanoTime() >= deadline)
+            return NutritionTableReader.unresolved();
+        var prepared = OcrImages.prepare(original, turn == 0);
+        BufferedImage rotated = OcrImages.rotate(prepared.image(), turn);
+        try {
+            // Check the layout using the other preprocessing variant in the same orientation.
+            Candidate checked = read(directory, rotated, model, 6, 2, prepared.angle() + turn, deadline, true);
+            return NutritionTableReader.agree(first, checked.table());
+        } catch (TimeoutException | IOException | IllegalStateException e) {
+            return NutritionTableReader.unresolved();
+        } finally {
+            if (rotated != prepared.image()) rotated.flush();
+            prepared.image().flush();
+        }
+    }
+
     private Candidate read(Path directory, BufferedImage image, String model, int psm, int threshold,
-                           int rotation, long deadline) throws Exception {
+                           int rotation, long deadline, boolean nutrition) throws Exception {
         if (System.nanoTime() >= deadline) throw new TimeoutException();
         Path input = directory.resolve("input.png");
         Path output = directory.resolve("result.tsv");
@@ -106,10 +162,11 @@ final class TesseractOcr implements OcrEngine {
             }
         }
         if (Files.size(output) > 2_000_000) throw new IllegalStateException("OCR_OUTPUT_TOO_LARGE");
-        return parseCandidate(Files.readString(output), Math.floorMod(rotation, 360), image);
+        return parseCandidate(Files.readString(output), Math.floorMod(rotation, 360), image, nutrition);
     }
 
-    private record Candidate(Text text, OcrQuality.Assessment assessment, double coverage) {
+    private record Candidate(Text text, OcrQuality.Assessment assessment, double coverage,
+                             NutritionTableReader.Reading table) {
         boolean usable() { return assessment.readable() && coverage >= MIN_COVERAGE; }
         boolean strong() { return usable() && coverage >= .85 && text.confidence() >= 88; }
 
@@ -131,12 +188,13 @@ final class TesseractOcr implements OcrEngine {
     }
 
     static Text parse(String tsv, int rotation) {
-        return parseCandidate(tsv, rotation, null).text();
+        return parseCandidate(tsv, rotation, null, false).text();
     }
 
-    private static Candidate parseCandidate(String tsv, int rotation, BufferedImage image) {
+    private static Candidate parseCandidate(String tsv, int rotation, BufferedImage image, boolean nutrition) {
         StringBuilder text = new StringBuilder();
         List<String> uncertain = new ArrayList<>();
+        List<NutritionTableReader.Word> words = nutrition ? new ArrayList<>() : null;
         BitSet recognized = new BitSet();
         String previous = "";
         double confidence = 0;
@@ -160,16 +218,18 @@ final class TesseractOcr implements OcrEngine {
             confidence += value * weight;
             characters += weight;
             if (value < 70 && uncertain.size() < 50) uncertain.add(word.substring(0, Math.min(80, word.length())));
-            if (image != null) markWord(recognized, parts, image.getWidth(), image.getHeight());
+            if (image != null) markWord(recognized, parts, image.getWidth(), image.getHeight(), words, group, value);
             if (text.length() >= 10_000) break;
         }
         String raw = text.substring(0, Math.min(10_000, text.length()));
         double average = characters == 0 ? 0 : Math.round(confidence / characters * 10) / 10d;
         Text result = new Text(raw, average, List.copyOf(uncertain), rotation);
-        return new Candidate(result, OcrQuality.assess(raw, average), image == null ? 1 : coverage(image, recognized));
+        return new Candidate(result, OcrQuality.assess(raw, average), image == null ? 1 : coverage(image, recognized),
+            words == null ? null : NutritionTableReader.read(words));
     }
 
-    private static void markWord(BitSet recognized, String[] columns, int width, int height) {
+    private static void markWord(BitSet recognized, String[] columns, int width, int height,
+                                 List<NutritionTableReader.Word> words, String group, double confidence) {
         try {
             long left = Integer.parseInt(columns[6]);
             long top = Integer.parseInt(columns[7]);
@@ -178,6 +238,8 @@ final class TesseractOcr implements OcrEngine {
             int right = (int) Math.clamp(left + Integer.parseInt(columns[8]), x, width);
             int bottom = (int) Math.clamp(top + Integer.parseInt(columns[9]), y, height);
             for (int row = y; row < bottom; row++) recognized.set(row * width + x, row * width + right);
+            if (words != null && right > x && bottom > y)
+                words.add(new NutritionTableReader.Word(group, columns[11], x, y, right, bottom, confidence));
         } catch (NumberFormatException ignored) {
             // Invalid boxes contribute no coverage.
         }

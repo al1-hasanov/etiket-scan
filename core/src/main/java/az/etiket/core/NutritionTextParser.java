@@ -13,6 +13,8 @@ public final class NutritionTextParser {
         "per\\s+serving|(?<!\\p{L})portion(?:en|sgro(?:ß|ss)e)?(?!\\p{L})|porsiyon|porsiya|на порцию|на порции");
     private static final Pattern OTHER_REFERENCE = Pattern.compile(
         "(?<!\\p{L})(?:per|pro|in|je|pour)\\h*(?!100\\h*(?:ml|мл|g|q|г)(?!\\p{L}))[0-9]+(?:[.,][0-9]+)?\\h*(?:ml|мл|g|q|г)(?!\\p{L})");
+    private static final Pattern HEADING_AMOUNT = Pattern.compile(
+        "(?<![\\p{L}\\d.,])(?:(?:per|pro|in|je|pour|на|her|fur)\\h*)?[0-9]+(?:[.,][0-9]+)?\\h*(?:ml|мл|g|q|г)(?![\\p{L}\\d.,])");
     private static final Pattern NUMBER = Pattern.compile("[0-9]+(?:[.,][0-9]+)?");
     private static final Pattern ENERGY_KJ = Pattern.compile("[0-9]+(?:[.,][0-9]+)?\\h*(?:kj|кдж)");
     private static final Pattern ENERGY_KCAL_CONTINUATION = Pattern.compile("\\(\\h*[0-9]+(?:[.,][0-9]+)?\\h*(?:kcal|ккал)\\h*\\)");
@@ -28,22 +30,37 @@ public final class NutritionTextParser {
         LABELS.put("salt", "salt|salz|duz|tuz|соль|соли");
     }
     private NutritionTextParser() { }
+
+    /** Matches the name cell of an OCR row using the same aliases as the text parser. */
+    public static String nutrientKey(String name) {
+        String label = normalize(name.split("/", 2)[0]).strip()
+            .replaceFirst("^[-–—]\\h*", "").replaceFirst(":$", "").strip();
+        for (var entry : LABELS.entrySet())
+            if (label.matches(entry.getValue())) return entry.getKey();
+        return "";
+    }
+
     public static Result parse(String raw) {
         String text = normalize(raw == null ? "" : raw)
             .replaceAll("(?m)^\\h*davon gesattigte\\h*\\R\\h*fettsauren(?=\\h|:|$)", "davon gesattigte fettsauren");
         Matcher reference = REFERENCE.matcher(text);
         boolean grams = false;
         boolean ml = false;
+        int references = 0;
         while (reference.find()) {
+            if (++references > 1) return empty("MULTIPLE_NUTRITION_COLUMNS");
             if (Set.of("ml", "мл").contains(reference.group(1))) ml = true;
             else grams = true;
         }
         if (grams == ml) return empty("CONFIRM_REFERENCE_AMOUNT_AND_ENTER_VALUES");
         if (PORTION.matcher(text).find() || OTHER_REFERENCE.matcher(text).find())
             return empty("MULTIPLE_NUTRITION_COLUMNS");
+        String[] lines = text.split("\\R");
+        for (String line : lines)
+            if (REFERENCE.matcher(line).find() && HEADING_AMOUNT.matcher(line).results().limit(2).count() > 1)
+                return empty("MULTIPLE_NUTRITION_COLUMNS");
         Map<String, Double> values = new LinkedHashMap<>();
         List<String> warnings = new ArrayList<>();
-        String[] lines = text.split("\\R");
         for (var label : LABELS.entrySet()) {
             List<Double> found = new ArrayList<>();
             Pattern prefix = Pattern.compile("^\\s*(?:" + label.getValue() + ")(?=\\s|:|/|$)\\s*:?(.*)$");

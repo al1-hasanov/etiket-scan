@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.robolectric.*;
 import org.robolectric.annotation.*;
+import org.robolectric.shadows.ShadowAlertDialog;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk=35,qualifiers="w360dp-h800dp-xxhdpi")
@@ -183,6 +184,43 @@ public class AnalysisFlowTest {
             state.analysisEvent.setValue(new SubmissionState.AnalysisEvent("nutrition", "COMPLETED", ""));
             assertEquals(View.VISIBLE, copy.getVisibility());
             assertTrue(copy.isEnabled());
+        }
+    }
+
+    @Test public void reviewsPartialSuggestionsBeforeCopyingAndKeepsEditsInTheSameBasis() throws Exception {
+        try (var controller = Robolectric.buildActivity(SubmissionActivity.class).setup()) {
+            SubmissionActivity activity = controller.get();
+            SubmissionState state = new ViewModelProvider(activity).get(SubmissionState.class);
+            Spinner basis = activity.findViewById(R.id.nutrition_basis);
+            EditText fat = activity.findViewById(R.id.nutrition_fat);
+            EditText salt = activity.findViewById(R.id.nutrition_salt);
+            Button review = activity.findViewById(R.id.use_ocr_nutrition);
+            basis.setSelection(2);
+            fat.setText("9.8");
+            salt.setText("0.2");
+            state.analysisResults.put("nutrition", result());
+            state.analysisEvent.setValue(new SubmissionState.AnalysisEvent("nutrition", "COMPLETED", ""));
+
+            review.performClick();
+            android.app.AlertDialog dialog = (android.app.AlertDialog) ShadowAlertDialog.getLatestDialog();
+            TextView message = dialog.findViewById(android.R.id.message);
+            assertTrue(message.getText().toString().contains("Per 100 ml"));
+            assertTrue(message.getText().toString().contains("Salt (g)  0"));
+            assertEquals("0.2", salt.getText().toString());
+            dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+            Shadows.shadowOf(Looper.getMainLooper()).idle();
+            assertEquals("9.8", fat.getText().toString());
+            assertEquals("0", salt.getText().toString());
+
+            basis.setSelection(1);
+            review.performClick();
+            dialog = (android.app.AlertDialog) ShadowAlertDialog.getLatestDialog();
+            message = dialog.findViewById(android.R.id.message);
+            assertTrue(message.getText().toString().contains("changes the reference amount"));
+            dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+            Shadows.shadowOf(Looper.getMainLooper()).idle();
+            assertEquals(2, basis.getSelectedItemPosition());
+            assertEquals("", fat.getText().toString());
         }
     }
 

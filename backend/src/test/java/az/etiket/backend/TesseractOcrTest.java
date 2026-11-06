@@ -75,6 +75,46 @@ class TesseractOcrTest {
         assertTrue(compact.contains("36g"), result.toString());
     }
 
+    @Test
+    @EnabledIfEnvironmentVariable(named="ETIKET_OCR_ENGINE_TEST", matches="true")
+    void readsPer100ValuesFromAWholeGermanNutritionTable() throws Exception {
+        BufferedImage label = new BufferedImage(1100, 400, BufferedImage.TYPE_INT_RGB);
+        var graphics = label.createGraphics();
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, label.getWidth(), label.getHeight());
+        graphics.setColor(Color.BLACK);
+        graphics.setFont(new Font("DejaVu Sans", Font.PLAIN, 36));
+        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        String[][] rows = {
+            {"Nährwerte", "pro 100 g", "pro 22 g"},
+            {"Brennwert", "378 kcal", "85 kcal"},
+            {"Fett", "9,8 g", "2,1 g"},
+            {"Kohlenhydrate", "66 g", "15 g"},
+            {"Eiweiß", "5,2 g", "1,1 g"},
+            {"Salz", "0,29 g", "0,06 g"}
+        };
+        for (int i = 0; i < rows.length; i++) {
+            int baseline = 52 + 57 * i;
+            graphics.drawString(rows[i][0], 35, baseline);
+            graphics.drawString(rows[i][1], 750 - graphics.getFontMetrics().stringWidth(rows[i][1]), baseline);
+            graphics.drawString(rows[i][2], 1040 - graphics.getFontMetrics().stringWidth(rows[i][2]), baseline);
+        }
+        graphics.dispose();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ImageIO.write(label, "png", bytes);
+        label.flush();
+
+        var result = new TesseractOcr("tesseract", 35).recognizeNutrition(bytes.toByteArray(), "de");
+        assertTrue(result.warnings().isEmpty(), result.toString());
+        assertTrue(result.text().replace(" ", "").contains("85kcal"), result.toString());
+        assertNotNull(result.tableNutrition(), result.toString());
+        var nutrition = result.tableNutrition().nutrition();
+        assertEquals("PER_100_G", nutrition.basis(), result.toString());
+        assertEquals(378d, nutrition.values().get("energyKcal"));
+        var expected = Map.of("energyKcal", 378d, "fat", 9.8d, "carbohydrates", 66d, "protein", 5.2d, "salt", .29d);
+        nutrition.values().forEach((key, value) -> assertEquals(expected.get(key), value, key));
+    }
+
     private byte[] image(String text,boolean rotate)throws Exception{
         BufferedImage image=new BufferedImage(1800,250,BufferedImage.TYPE_INT_RGB);var g=image.createGraphics();g.setColor(Color.WHITE);g.fillRect(0,0,1800,250);g.setColor(Color.BLACK);g.setFont(new Font("DejaVu Sans",Font.PLAIN,42));g.drawString(text,40,100);g.dispose();
         if(rotate){BufferedImage next=new BufferedImage(250,1800,BufferedImage.TYPE_INT_RGB);var r=next.createGraphics();r.translate(250,0);r.rotate(Math.PI/2);r.drawImage(image,0,0,null);r.dispose();image=next;}
