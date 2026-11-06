@@ -46,5 +46,28 @@
     "ingredientCropSeconds": 3.65,
     "exactTranscription": false,
     "database": "isolated H2"
+  },
+  "backendHotfix": {
+    "release": "0.5.2",
+    "suites": {
+      "core": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "backend": {
+        "tests": 49,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "totalTests": 77,
+    "darkLabelBefore": "RETAKE",
+    "darkLabelAfter": "COMPLETED",
+    "liptonCrop": "COMPLETED",
+    "liptonFull": "RETAKE",
+    "androidApkVersion": "0.5.1-ocr"
   }
 }

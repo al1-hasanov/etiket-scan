@@ -35,6 +35,7 @@ final class OcrImages {
             int luma = (77 * ((color >> 16) & 255) + 150 * ((color >> 8) & 255) + 29 * (color & 255)) >> 8;
             levels[i] = (byte) (channel < 0 ? luma : (color >> channel) & 255);
         }
+        normalizePolarity(levels);
         if (enhanceColour) flattenLighting(levels, width, height);
         stretchContrast(levels);
 
@@ -95,6 +96,16 @@ final class OcrImages {
         }
     }
 
+    private static void normalizePolarity(byte[] levels) {
+        int[] histogram = histogram(levels);
+        int threshold = inkThreshold(histogram, levels.length);
+        int dark = 0;
+        for (int level = 0; level <= threshold; level++) dark += histogram[level];
+        // A tight crop is mostly the label background. Keep the letter strokes dark.
+        if (dark * 3L < levels.length * 2L) return;
+        for (int i = 0; i < levels.length; i++) levels[i] = (byte) (255 - (levels[i] & 255));
+    }
+
     private static void stretchContrast(byte[] gray) {
         int[] histogram = histogram(gray);
         int low = percentile(histogram, gray.length, .01);
@@ -122,7 +133,10 @@ final class OcrImages {
     }
 
     static int inkThreshold(byte[] levels) {
-        int[] histogram = histogram(levels);
+        return inkThreshold(histogram(levels), levels.length);
+    }
+
+    private static int inkThreshold(int[] histogram, int pixelCount) {
         long total = 0;
         for (int i = 0; i < 256; i++) total += (long) i * histogram[i];
         long darkSum = 0;
@@ -132,7 +146,7 @@ final class OcrImages {
         for (int i = 0; i < 255; i++) {
             darkCount += histogram[i];
             darkSum += (long) i * histogram[i];
-            int lightCount = levels.length - darkCount;
+            int lightCount = pixelCount - darkCount;
             if (darkCount == 0 || lightCount == 0) continue;
             double difference = darkSum / (double) darkCount - (total - darkSum) / (double) lightCount;
             double score = (double) darkCount * lightCount * difference * difference;

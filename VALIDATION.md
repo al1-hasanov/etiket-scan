@@ -1,4 +1,14 @@
-# Etiket 0.5.1 validation
+# Etiket validation
+
+## 0.5.2 backend
+
+All 77 automated core and backend tests passed with the native OCR engine enabled. The new regression test uses light print on a dark blue nutrition table. The old reader rejects that fixture, and the updated reader returns a draft containing the reference amount, energy and sugar.
+
+We also ran both packaged backends locally against the biscuit preview extracted from the submitted screenshot. Version 0.5.1 returned RETAKE. Version 0.5.2 returned COMPLETED with a draft in both photo roles. OCR still misread some numbers and units in this preview. The nutrition parser returned no suggested values. The earlier Lipton ingredient crop produced a draft, and the full bottle still returned RETAKE.
+
+Deploy this backend over 0.5.1 and keep the existing Android APK. Verify version 0.5.2 at the health endpoint. Select the biscuit photo again in the nutrition section for a fresh result.
+
+## 0.5.1 Android and backend
 
 The backend JAR and signed demo APK were built from the supplied 0.5 source. Java 25, Gradle 9.1.0, Android SDK 36 and Tesseract 5.5.0 were used.
 

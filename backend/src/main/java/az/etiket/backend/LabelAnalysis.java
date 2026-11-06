@@ -108,7 +108,7 @@ final class LabelAnalysis {
                 ||text.warnings().stream().anyMatch(warning->warning.startsWith("RETAKE_"));
             if(retake)warnings.add("RETAKE_CLEAR_CLOSE_UP");
             else if(!text.uncertainWords().isEmpty())warnings.add("CHECK_UNCERTAIN_WORDS");
-            var snapshot=new Snapshot("Tesseract/Etiket-0.5.1",claimed.language(),text.text(),text.confidence(),
+            var snapshot=new Snapshot("Tesseract/Etiket-0.5.2",claimed.language(),text.text(),text.confidence(),
                 text.uncertainWords(),text.rotation(),retake?NutritionLabel.empty():parsed.nutrition(),List.copyOf(warnings));
             db.update("UPDATE label_analysis_jobs SET status=?,output=?,error_code='',photo_data=NULL WHERE id=? AND status='PROCESSING' AND attempts=?",
                 retake?"RETAKE":"COMPLETED",json.writeValueAsString(snapshot),claimed.id(),claimed.attempts());
