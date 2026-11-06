@@ -1,8 +1,12 @@
-# Etiket 0.5.1 — Read ingredient and nutrition photos
+# Etiket 0.5.2 — Read ingredient and nutrition photos
 
 Etiket reads ingredient and nutrition labels into editable drafts for the Android package-photo and private review flow. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
 
 The unchanged starter sample has **77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks**. Its records remain `WEB_SOURCED_UNVERIFIED`. Reviewed submissions are additional evidence with separate storage, source photos and review dates. No synthetic review fixture is published by default.
+
+## Backend 0.5.2
+
+The reader now handles light print on dark labels. Deploy the backend update and keep the 0.5.1 APK. Select the photo again to start a fresh OCR job.
 
 ## New in 0.5.1
 
@@ -50,14 +54,14 @@ See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, refer
 
 You can save products and reopen them from **Seçilmişlər / Saved**. Evidence flags and source links survive saving/restarting. The ingredient text stays in the source language; changing the UI to English does not translate it. The home screen also links to the old, clearly fictional engineering samples.
 
-Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet; manual entry is available. Label photos use your camera app or the system document picker. Physical camera/provider behavior still needs your phone check. Deploy the 0.5.1 API for the improved reader. The Docker image supplies the engine; local Windows runs need a separate Tesseract installation or can use manual transcription.
+Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet; manual entry is available. Label photos use your camera app or the system document picker. Physical camera/provider behavior still needs your phone check. Deploy the 0.5.2 API for the improved reader. The Docker image supplies the engine; local Windows runs need a separate Tesseract installation or can use manual transcription.
 
 ## 2. Start the Java API on Windows
 
 1. Apply the changed-files ZIP to your existing project root containing `settings.gradle`, `backend/`, `app/` and `run-backend.bat`.
 2. Install JDK 25. Check `java -version`, or configure `JAVA_HOME` to that JDK.
 3. Run `gradlew.bat -PbackendOnly :backend:bootJar`, then double-click **run-backend.bat**. The script runs the newly built JAR from `backend/build/libs/`.
-4. Open [health](http://127.0.0.1:8080/api/v1/health). Expect `{"status":"UP","version":"0.5.1"}`; field order can differ.
+4. Open [health](http://127.0.0.1:8080/api/v1/health). Expect `{"status":"UP","version":"0.5.2"}`; field order can differ.
 5. Open [catalogue summary](http://127.0.0.1:8080/api/v1/catalogue/summary). Expect 77 products, 10 with ingredients, 67 missing, 0 label-verified.
 6. Open [N1 lookup](http://127.0.0.1:8080/api/v1/products/4760177560085) and [croissant lookup](http://127.0.0.1:8080/api/v1/products/5201360553457).
 
@@ -101,7 +105,7 @@ $env:DB_PASSWORD='YOUR_LOCAL_DATABASE_PASSWORD'
 
 Use a JDBC URL, not a bare `postgres://` URL. The same migrations/importer run on PostgreSQL and H2. PostgreSQL integration tests start a real temporary database process without Docker; the first test run downloads its test binary. See `VALIDATION.md` for the actual tested versions and results.
 
-The Dockerfile builds the 0.5.1 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and add `REVIEW_ADMIN_PASSWORD` to the application service. Applying files locally does not deploy them. Use PostgreSQL for hosted data and photos; the container's local H2 file is for local development.
+The Dockerfile builds the 0.5.2 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and add `REVIEW_ADMIN_PASSWORD` to the application service. Applying files locally does not deploy them. Use PostgreSQL for hosted data and photos; the container's local H2 file is for local development.
 
 ## 5. Open and build the source
 
@@ -114,7 +118,7 @@ gradlew.bat -PbackendOnly :core:test :backend:test :backend:bootJar
 gradlew.bat :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.5.1.jar` under `backend/build/libs/`; the start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
+Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.5.2.jar` under `backend/build/libs/`; the start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
 
 ## 6. Understand the API and data
 

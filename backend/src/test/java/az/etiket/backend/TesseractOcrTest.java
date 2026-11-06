@@ -38,6 +38,43 @@ class TesseractOcrTest {
         assertTrue(blank.text().isBlank());
         assertTrue(blank.warnings().contains("RETAKE_UNREADABLE_TEXT"));
     }
+    @Test
+    @EnabledIfEnvironmentVariable(named="ETIKET_OCR_ENGINE_TEST", matches="true")
+    void readsLightNutritionTextInsideADarkLabel() throws Exception {
+        BufferedImage label = new BufferedImage(600, 260, BufferedImage.TYPE_INT_RGB);
+        var graphics = label.createGraphics();
+        graphics.setColor(new Color(24, 42, 79));
+        graphics.fillRect(0, 0, label.getWidth(), label.getHeight());
+        graphics.setColor(new Color(247, 239, 221));
+        graphics.drawRect(16, 14, 568, 231);
+        graphics.drawLine(16, 62, 584, 62);
+        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        graphics.setFont(new Font("DejaVu Sans", Font.PLAIN, 24));
+        graphics.drawString("Nährwerte pro", 28, 45);
+        graphics.drawString("100 g", 492, 45);
+        graphics.drawString("Energie", 28, 95);
+        graphics.drawString("418 kcal", 468, 95);
+        graphics.drawString("Fett", 28, 131);
+        graphics.drawString("21 g", 508, 131);
+        graphics.drawString("davon Zucker", 28, 167);
+        graphics.drawString("36 g", 508, 167);
+        graphics.drawString("Salz", 28, 203);
+        graphics.drawString("0,90 g", 480, 203);
+        graphics.dispose();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ImageIO.write(label, "jpeg", bytes);
+        label.flush();
+
+        var result = new TesseractOcr("tesseract", 35).recognize(bytes.toByteArray(), "de");
+
+        assertTrue(result.warnings().isEmpty(), result.toString());
+        String compact = result.text().replace(" ", "");
+        assertTrue(compact.contains("100g"), result.toString());
+        assertTrue(compact.contains("418kcal"), result.toString());
+        assertTrue(result.text().contains("Zucker"), result.toString());
+        assertTrue(compact.contains("36g"), result.toString());
+    }
+
     private byte[] image(String text,boolean rotate)throws Exception{
         BufferedImage image=new BufferedImage(1800,250,BufferedImage.TYPE_INT_RGB);var g=image.createGraphics();g.setColor(Color.WHITE);g.fillRect(0,0,1800,250);g.setColor(Color.BLACK);g.setFont(new Font("DejaVu Sans",Font.PLAIN,42));g.drawString(text,40,100);g.dispose();
         if(rotate){BufferedImage next=new BufferedImage(250,1800,BufferedImage.TYPE_INT_RGB);var r=next.createGraphics();r.translate(250,0);r.rotate(Math.PI/2);r.drawImage(image,0,0,null);r.dispose();image=next;}
