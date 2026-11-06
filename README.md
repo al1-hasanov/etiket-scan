@@ -8,7 +8,9 @@ The unchanged starter sample has **77 products · 10 web ingredient lists · 67 
 
 For nutrition photos, crop around the full table, including both headings and every row name. The reader can separate the 100 g or 100 ml column from a serving column when it can locate both headings and two OCR passes agree on the value and unit. Unreadable cells stay available for manual entry.
 
-Deploy backend 0.6.0 and install the 0.6.0 debug build over the existing demo. In the nutrition photo section, select the photo again for a fresh read. Use **Review suggested nutrition values** to check the reference amount and values before copying.
+Install Android 0.6.1 over the existing demo and connect to backend 0.6.0. In the nutrition photo section, select the photo again for a fresh read. Use **Review suggested nutrition values** to check the reference amount and values before copying.
+
+In **Crop label**, drag inside the rectangle to move it and drag any edge or corner to resize. Turn on **Square** to lock the crop to a 1:1 shape.
 
 ## New in 0.5.1
 
