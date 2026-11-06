@@ -21,10 +21,14 @@ class AnalysisApiTest {
     @Autowired JdbcTemplate db;
     static final AtomicInteger failures=new AtomicInteger();
     static final AtomicBoolean incomplete=new AtomicBoolean();
+    static final AtomicBoolean multiColumnNutrition=new AtomicBoolean();
     @TestConfiguration static class Config {
         @Bean @Primary OcrEngine deterministic(){return (bytes,lang)->{
             if(failures.getAndDecrement()>0)throw new java.io.IOException("Transient test failure");
-            return new OcrEngine.Text("Per 100 ml\nEnergy 60 kcal\nFat 3 g\nProtein 4 g\nSalt 0 g",94,List.of(),0,
+            String raw = multiColumnNutrition.get()
+                ? "Nährwerte in 100 g in 22 g\nBrennwert 378 kcal 85 kcal\nFett 2,1 g\nKohlenhydrate 66 g 15 g"
+                : "Per 100 ml\nEnergy 60 kcal\nFat 3 g\nProtein 4 g\nSalt 0 g";
+            return new OcrEngine.Text(raw,94,List.of(),0,
                 incomplete.get()?List.of("RETAKE_INCOMPLETE_TEXT"):List.of());
         };}
     }
@@ -32,6 +36,7 @@ class AnalysisApiTest {
         for(String table:List.of("reviewed_products","submission_ocr","submission_nutrition_photos","submission_photos","label_submissions","label_analysis_jobs"))db.update("DELETE FROM "+table);
         failures.set(0);
         incomplete.set(false);
+        multiColumnNutrition.set(false);
     }
     LabelAnalysis.Request request(){return new LabelAnalysis.Request(UUID.randomUUID().toString(),UUID.randomUUID().toString().replace("-","")+"testsecret","nutrition","en");}
     MockMultipartFile image(){return new MockMultipartFile("photo","label.png","image/png",SubmissionFixtures.photo());}
@@ -53,6 +58,18 @@ class AnalysisApiTest {
         assertTrue(result.result().rawText().contains("Fat 3 g"));
         assertTrue(result.result().nutrition().values().isEmpty());
         assertTrue(result.result().warnings().contains("RETAKE_INCOMPLETE_TEXT"));
+    }
+
+    @Test void servingColumnRemainsInTheDraftWithoutCopyableSuggestions() {
+        multiColumnNutrition.set(true);
+        var request = request();
+        analysis.create(request, image());
+        analysis.runNext();
+        var result = analysis.get(request.clientRequestId(), request.token());
+        assertEquals("COMPLETED", result.status());
+        assertTrue(result.result().rawText().contains("Fett 2,1 g"));
+        assertTrue(result.result().nutrition().values().isEmpty());
+        assertTrue(result.result().warnings().contains("MULTIPLE_NUTRITION_COLUMNS"));
     }
 
     @Test void queueLimitsConflictingRequestsAndUnsupportedLanguagesAreHandled(){

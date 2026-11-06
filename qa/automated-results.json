@@ -1,54 +1,55 @@
 {
-  "release": "0.5.1",
-  "validatedDate": "2026-11-05",
+  "release": "0.5.3",
+  "validatedDate": "2026-11-06",
   "suites": {
     "core": {
-      "tests": 28,
+      "tests": 30,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     },
     "backend": {
-      "tests": 48,
+      "tests": 50,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     },
     "android": {
-      "tests": 30,
+      "tests": 31,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     }
   },
-  "totalTests": 106,
+  "totalTests": 111,
   "androidLint": {
-    "errors": 0,
-    "warnings": [
-      "AndroidGradlePluginVersion"
-    ]
+    "issues": []
   },
   "apk": {
     "applicationId": "az.etiket.scanner.demo",
-    "versionCode": 6,
-    "versionName": "0.5.1-ocr",
+    "versionCode": 7,
+    "versionName": "0.5.3-ocr",
     "certificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
-    "sha256": "7eb28f815f34dd825c10c1d80b44cf844e1c55a0a44654de0ebd7256e331a959"
+    "sha256": "bf2c7fd086a29210a37638d7830eb543d82b76dfa2cb96868565207af3330f58"
   },
-  "starterData": "unchanged",
-  "productionModified": false,
   "packagedCheck": {
-    "packagedJar": "0.5.1",
-    "realPhotos": 1,
-    "privateJobAccess": "passed",
-    "fullPhotoStatus": "RETAKE",
-    "ingredientCropStatus": "COMPLETED",
-    "ingredientCropSeconds": 3.65,
-    "exactTranscription": false,
-    "database": "isolated H2"
+    "oneColumnValues": {
+      "energyKcal": 378,
+      "fat": 9.8,
+      "saturatedFat": 3.3,
+      "carbohydrates": 66,
+      "sugars": 27,
+      "fiber": 2.7,
+      "protein": 5.2,
+      "salt": 0.29
+    },
+    "twoColumns": "COMPLETED_WITHOUT_VALUES",
+    "screenshot": "COMPLETED_WITHOUT_VALUES"
   },
-  "backendHotfix": {
-    "release": "0.5.2",
+  "productionModified": false,
+  "previousRelease": {
+    "release": "0.5.1",
+    "validatedDate": "2026-11-05",
     "suites": {
       "core": {
         "tests": 28,
@@ -57,17 +58,66 @@
         "skipped": 0
       },
       "backend": {
-        "tests": 49,
+        "tests": 48,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "android": {
+        "tests": 30,
         "failures": 0,
         "errors": 0,
         "skipped": 0
       }
     },
-    "totalTests": 77,
-    "darkLabelBefore": "RETAKE",
-    "darkLabelAfter": "COMPLETED",
-    "liptonCrop": "COMPLETED",
-    "liptonFull": "RETAKE",
-    "androidApkVersion": "0.5.1-ocr"
+    "totalTests": 106,
+    "androidLint": {
+      "errors": 0,
+      "warnings": [
+        "AndroidGradlePluginVersion"
+      ]
+    },
+    "apk": {
+      "applicationId": "az.etiket.scanner.demo",
+      "versionCode": 6,
+      "versionName": "0.5.1-ocr",
+      "certificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
+      "sha256": "7eb28f815f34dd825c10c1d80b44cf844e1c55a0a44654de0ebd7256e331a959"
+    },
+    "starterData": "unchanged",
+    "productionModified": false,
+    "packagedCheck": {
+      "packagedJar": "0.5.1",
+      "realPhotos": 1,
+      "privateJobAccess": "passed",
+      "fullPhotoStatus": "RETAKE",
+      "ingredientCropStatus": "COMPLETED",
+      "ingredientCropSeconds": 3.65,
+      "exactTranscription": false,
+      "database": "isolated H2"
+    },
+    "backendHotfix": {
+      "release": "0.5.2",
+      "suites": {
+        "core": {
+          "tests": 28,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "backend": {
+          "tests": 49,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "totalTests": 77,
+      "darkLabelBefore": "RETAKE",
+      "darkLabelAfter": "COMPLETED",
+      "liptonCrop": "COMPLETED",
+      "liptonFull": "RETAKE",
+      "androidApkVersion": "0.5.1-ocr"
+    }
   }
 }

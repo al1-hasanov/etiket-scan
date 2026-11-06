@@ -1,5 +1,11 @@
 # Etiket validation
 
+## 0.5.3 nutrition suggestions
+
+All 111 tests passed across core, backend and Android. The tests cover German row names, a wrapped saturated fat label, separate printed kJ and kcal values, a serving column with missing cells, and Android hiding the copy action when the result has no suggestions. The native Tesseract tests ran with the production language models. Android lint passed.
+
+The packaged backend returned all eight expected nutrition values for a clear synthetic German table with a single 100 g column. The synthetic two-column table returned a text draft and no suggested values. The crop from the user's purple label screenshot also returned a draft with no suggested values. Some digits and units in that screenshot remain inaccurate and require manual entry. The APK signature matches the previous demo.
+
 ## 0.5.2 backend
 
 All 77 automated core and backend tests passed with the native OCR engine enabled. The new regression test uses light print on a dark blue nutrition table. The old reader rejects that fixture, and the updated reader returns a draft containing the reference amount, energy and sugar.
