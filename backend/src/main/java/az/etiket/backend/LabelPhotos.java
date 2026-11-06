@@ -16,8 +16,19 @@ import org.springframework.web.multipart.MultipartFile;
 final class LabelPhotos {
     static final int MAX_BYTES = 2 * 1024 * 1024;
     record Stored(byte[] bytes, int width, int height, String sha256) { }
+    record AnalysisPhoto(byte[] bytes, String evidenceHash) { }
+    private record Sanitized(Stored evidence, byte[] analysisBytes) { }
 
     Stored sanitize(MultipartFile file) {
+        return sanitize(file, false).evidence();
+    }
+
+    AnalysisPhoto sanitizeForAnalysis(MultipartFile file, boolean preserveDetail) {
+        Sanitized photo = sanitize(file, preserveDetail);
+        return new AnalysisPhoto(photo.analysisBytes(), photo.evidence().sha256());
+    }
+
+    private Sanitized sanitize(MultipartFile file, boolean preserveDetail) {
         if (file == null || file.isEmpty()) throw new SubmissionException(400, "PHOTOS_REQUIRED");
         if (file.getSize() > MAX_BYTES) throw new SubmissionException(413, "PHOTO_TOO_LARGE");
         try (InputStream raw = file.getInputStream(); ImageInputStream input = ImageIO.createImageInputStream(raw)) {
@@ -47,13 +58,28 @@ final class LabelPhotos {
             graphics.setColor(Color.WHITE); graphics.fillRect(0, 0, width, height);
             graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             graphics.drawImage(original, 0, 0, width, height, null); graphics.dispose(); original.flush();
-            byte[] jpeg = encode(clean, .9f);
-            if (jpeg.length > MAX_BYTES) jpeg = encode(clean, .75f);
-            clean.flush();
-            if (jpeg.length > MAX_BYTES) throw new SubmissionException(413, "PHOTO_TOO_LARGE");
-            return new Stored(jpeg, width, height, sha256(jpeg));
+            try {
+                byte[] jpeg = encode(clean, .9f);
+                if (jpeg.length > MAX_BYTES) jpeg = encode(clean, .75f);
+                if (jpeg.length > MAX_BYTES) throw new SubmissionException(413, "PHOTO_TOO_LARGE");
+                Stored evidence = new Stored(jpeg, width, height, sha256(jpeg));
+                return new Sanitized(evidence, preserveDetail ? losslessScan(clean, jpeg) : jpeg);
+            } finally {
+                clean.flush();
+            }
         } catch (SubmissionException e) { throw e;
         } catch (IOException | RuntimeException e) { throw new SubmissionException(400, "PHOTO_INVALID"); }
+    }
+
+    private static byte[] losslessScan(BufferedImage image, byte[] jpeg) {
+        // Encode the cleaned pixels so the private read avoids another JPEG pass and source metadata.
+        try {
+            ByteArrayOutputStream png = new ByteArrayOutputStream();
+            if (ImageIO.write(image, "png", png) && png.size() <= MAX_BYTES) return png.toByteArray();
+        } catch (IOException ignored) {
+            // The canonical JPEG is already available for the worker.
+        }
+        return jpeg;
     }
 
     private byte[] encode(BufferedImage image, float quality) throws IOException {

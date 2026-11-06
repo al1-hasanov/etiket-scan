@@ -1,5 +1,22 @@
 # Etiket validation
 
+## 0.6.0 full nutrition tables
+
+All 120 tests passed across core, backend and Android. The backend tests ran with the pinned Tesseract models. Android lint reported zero issues, the debug APK built with version code 8, and the signing certificate matched the prior demo.
+
+The packaged backend reported version 0.6.0 and returned 404 for a private OCR job polled without its capability. Local upload checks covered the full image sanitisation and OCR job flow.
+
+| Nutrition photo | Suggestions |
+| --- | --- |
+| Clear single-column German table | All eight expected values per 100 g |
+| Dark two-column German fixture | 378 kcal, 9.8 g fat and 0.29 g salt per 100 g |
+| Light two-column German fixture | 378 kcal, 66 g carbohydrates and 5.2 g protein per 100 g |
+| Serving column first and a missing reference fat cell | 3.3 g saturated fat and 5.2 g protein per 100 ml. Fat stayed blank. |
+| Two crops from the purple package screenshots | One returned 378 kcal per 100 g. The other required manual entry. |
+| Blue biscuit preview and Lipton table crop | Manual entry |
+
+The sample PP-OCRv4 comparison on the package crops also contained digit and unit errors. Version 0.6.0 uses Tesseract with layout-based extraction and agreement between two reads. Test the original full-resolution label on the phone after deployment to check the capture flow and how many cells it can read.
+
 ## 0.5.3 nutrition suggestions
 
 All 111 tests passed across core, backend and Android. The tests cover German row names, a wrapped saturated fat label, separate printed kJ and kcal values, a serving column with missing cells, and Android hiding the copy action when the result has no suggestions. The native Tesseract tests ran with the production language models. Android lint passed.

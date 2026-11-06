@@ -2,6 +2,7 @@ package az.etiket.backend;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.mock.web.MockMultipartFile;
@@ -21,6 +22,19 @@ class LabelPhotosTest {
         java.util.zip.CRC32 crc=new java.util.zip.CRC32();crc.update(source,12,17);java.nio.ByteBuffer.wrap(source,29,4).putInt((int)crc.getValue());
         var error=assertThrows(SubmissionException.class,()->new LabelPhotos().sanitize(new MockMultipartFile("photo","large.png","image/png",source)));
         assertEquals(413,error.status);
+    }
+    @Test void privateNutritionImagePreservesPixelsAndMatchesTheStoredPhoto() throws Exception {
+        byte[] source = SubmissionFixtures.photo();
+        var photo = new MockMultipartFile("photo", "source.png", "image/png", source);
+        var images = new LabelPhotos();
+        var evidence = images.sanitize(photo);
+        var analysis = images.sanitizeForAnalysis(photo, true);
+        assertEquals(evidence.sha256(), analysis.evidenceHash());
+        assertTrue(analysis.bytes().length <= LabelPhotos.MAX_BYTES);
+        var original = ImageIO.read(new ByteArrayInputStream(source));
+        var raster = ImageIO.read(new ByteArrayInputStream(analysis.bytes()));
+        assertArrayEquals(original.getRGB(0, 0, 24, 16, null, 0, 24),
+            raster.getRGB(0, 0, 24, 16, null, 0, 24));
     }
     @Test void largeCameraImagesAreSubsampledAndStoredWithinTheDisplayBound() throws Exception {
         var source=new java.awt.image.BufferedImage(4000,3000,java.awt.image.BufferedImage.TYPE_INT_RGB);

@@ -48,7 +48,7 @@ final class LabelAnalysis {
         if(input.language()==null||!TesseractOcr.LANGUAGES.containsKey(input.language()))throw new SubmissionException(400,"OCR_LANGUAGE_UNSUPPORTED");
         if(!processing.tryAcquire())throw new SubmissionException(429,"OCR_BUSY");
         try {
-            var image=images.sanitize(photo);
+            var image=images.sanitizeForAnalysis(photo, input.role().equals("nutrition"));
             return tx.execute(status->{
                 guard();
                 long now=System.currentTimeMillis();
@@ -56,7 +56,7 @@ final class LabelAnalysis {
                 var existing=jobs(id);
                 if(!existing.isEmpty()){
                     Job old=authorized(existing.getFirst(),token);
-                    if(!old.hash().equals(image.sha256())||!old.role().equals(input.role())||!old.language().equals(input.language()))
+                    if(!old.hash().equals(image.evidenceHash())||!old.role().equals(input.role())||!old.language().equals(input.language()))
                         throw new SubmissionException(409,"ANALYSIS_ID_CONFLICT");
                     return result(old);
                 }
@@ -64,7 +64,7 @@ final class LabelAnalysis {
                     ||db.queryForObject("SELECT COUNT(*) FROM label_analysis_jobs WHERE status IN ('QUEUED','PROCESSING')",Integer.class)>=pendingMaximum)
                     throw new SubmissionException(429,"OCR_QUEUE_FULL");
                 db.update("INSERT INTO label_analysis_jobs(id,access_hash,role,language,photo_data,photo_sha256,status,created_at,expires_at,output) VALUES (?,?,?,?,?,?,'QUEUED',?,?,?)",
-                    id,hash(token),input.role(),input.language(),image.bytes(),image.sha256(),now,now+86_400_000,"{}");
+                    id,hash(token),input.role(),input.language(),image.bytes(),image.evidenceHash(),now,now+86_400_000,"{}");
                 return new Result(id,"QUEUED",null,"");
             });
         } finally { processing.release(); }
@@ -100,15 +100,18 @@ final class LabelAnalysis {
         });
         if(claimed==null)return;
         try {
-            OcrEngine.Text text=engine.recognize(claimed.photo(),claimed.language());
-            var parsed=claimed.role().equals("nutrition")?NutritionTextParser.parse(text.text()):new NutritionTextParser.Result(NutritionLabel.empty(),List.of());
+            boolean nutrition = claimed.role().equals("nutrition");
+            OcrEngine.Text text = nutrition ? engine.recognizeNutrition(claimed.photo(), claimed.language())
+                : engine.recognize(claimed.photo(), claimed.language());
+            var parsed = new NutritionTextParser.Result(NutritionLabel.empty(), List.of());
+            if (nutrition) parsed = text.tableNutrition() != null ? text.tableNutrition() : NutritionTextParser.parse(text.text());
             List<String> warnings=new ArrayList<>(text.warnings());
             warnings.addAll(parsed.warnings());
             boolean retake=!OcrQuality.assess(text.text(),text.confidence()).readable()
                 ||text.warnings().stream().anyMatch(warning->warning.startsWith("RETAKE_"));
             if(retake)warnings.add("RETAKE_CLEAR_CLOSE_UP");
             else if(!text.uncertainWords().isEmpty())warnings.add("CHECK_UNCERTAIN_WORDS");
-            var snapshot=new Snapshot("Tesseract/Etiket-0.5.3",claimed.language(),text.text(),text.confidence(),
+            var snapshot=new Snapshot("Tesseract/Etiket-0.6.0",claimed.language(),text.text(),text.confidence(),
                 text.uncertainWords(),text.rotation(),retake?NutritionLabel.empty():parsed.nutrition(),List.copyOf(warnings));
             db.update("UPDATE label_analysis_jobs SET status=?,output=?,error_code='',photo_data=NULL WHERE id=? AND status='PROCESSING' AND attempts=?",
                 retake?"RETAKE":"COMPLETED",json.writeValueAsString(snapshot),claimed.id(),claimed.attempts());

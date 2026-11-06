@@ -102,8 +102,8 @@ public final class LabelCropActivity extends ComponentActivity {
         guide.setTextSize(14);
         guide.setPadding(0, dp(4), 0, dp(6));
         guide.setText(role.equals("nutrition")
-            ? t("Sətir adlarını və 100 q və ya 100 ml sütununu kəsimdə saxlayın. Porsiya sütununu kənarda qoyun.",
-                "Keep the row names and the 100 g or 100 ml column inside the crop. Leave the serving column outside.")
+            ? t("Qida cədvəlini başlıqlar, sətir adları və bütün sütunlarla birlikdə kəsimdə saxlayın.",
+                "Keep the full nutrition table in the crop, including its headings, row names and columns.")
             : t("Küncləri yalnız tərkib abzasının ətrafına çəkin. Bütün sətirlər görünsün.",
                 "Drag the corners around the ingredients paragraph. Keep every line inside."));
         root.addView(guide);

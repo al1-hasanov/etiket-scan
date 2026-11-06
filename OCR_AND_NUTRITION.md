@@ -1,4 +1,4 @@
-# OCR and nutrition contract — 0.5.3
+# OCR and nutrition contract — 0.6.0
 
 ## Private analysis
 
@@ -11,6 +11,8 @@ States: `QUEUED` → `PROCESSING` → `COMPLETED`, `RETAKE` or `FAILED`. One sch
 A result snapshot contains the engine name, selected language, `rawText`, engine confidence, uncertain words, attempted image rotation, conservative nutrition suggestions and warnings. Engine confidence is not a calibrated probability of correctness. Text remains data. It is never an instruction to call another tool, alter access or publish.
 
 Image limits are 2 MiB per file and 20 million source pixels, sanitised to a maximum 2048-pixel side. Android lets the user crop, rotate and straighten the label before uploading it. A new crop clears the previous analysis reference. The submission uses the same photo as the new analysis.
+
+Nutrition jobs use a metadata-free lossless raster when it fits the 2 MiB limit, with the sanitised JPEG as a fallback. Photo matching uses the stored evidence JPEG digest so analysis and submission continue to link to the same photo.
 
 The local executable has a 35-second total deadline, a bounded output and one CPU thread. It normalizes light print on dark labels before adjusting contrast and measuring coverage. It also tries deskew and quarter turns when needed. It uses the selected language's model. The Docker image installs five pinned models from tessdata_best. Model selection and arguments are fixed server-side.
 
@@ -38,7 +40,9 @@ The service verifies that each referenced result belongs to the capability and t
 
 `NutritionLabel` has an explicit `basis` (`PER_100_G`, `PER_100_ML`, or empty when unknown) and a partial `values` map. Keys: `energyKcal`, `fat`, `saturatedFat`, `carbohydrates`, `sugars`, `fiber`, `protein`, `salt`. Energy uses kcal; the other fields use grams for the chosen reference amount. Missing keys are unknown; zero is retained. Negative, non-finite, unknown-key and grossly out-of-range values are rejected. Saturated fat cannot exceed total fat; sugars cannot exceed carbohydrates. Per-100-ml upper bounds allow a liquid to weigh more than 100 g.
 
-Suggestions require an explicit 100 g or 100 ml heading and one unambiguous number with its unit per nutrient row. A detected serving column prevents suggestions for the entire table because some rows may have lost a value during recognition. Multiple columns, serving headers, percentages, inequalities, ranges, missing units and ambiguous reference amounts are left for manual entry. No kJ→kcal, sodium→salt, serving-size or density conversion is inferred. The app keeps the original OCR draft and prompts for manual entry when there are no suggestions to copy.
+Suggestions require an explicit 100 g or 100 ml heading. For tables with two separated amount headings, word positions tie values to the printed column and row. The grayscale and enhanced reads must identify the same reference column and agree on the numeric value with its unit. A missing or unclear reference cell remains unknown even if the serving cell is readable. The worker shares the same overall time budget across the passes.
+
+A flat draft without clear column positions still requires an unambiguous single column. Percentages inside a value cell, inequalities, ranges, missing units and ambiguous references require manual entry. Suggestions use printed values and units without converting kJ, sodium, serving sizes or density. Android preserves the raw OCR draft and shows the suggested reference amount and values in a confirmation dialog. Copying a partial draft into the same reference amount preserves fields outside the suggestions.
 
 Submitted values need a nutrition photo. Approval adds `nutrition` plus `nutritionPhotoChecked=true`; values require the reviewer's separate confirmation and the stored nutrition photo. Old approvals with no nutrition remain supported. A photo is public only after the existing approval transaction.
 
