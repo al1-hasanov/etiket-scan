@@ -61,11 +61,17 @@ final class TesseractOcr implements OcrEngine {
             var second = scan.enhanced() == null ? null : scan.enhanced().table();
             if (first == null && second == null && best.table() == null) return text;
             int turn = (text.rotation() + 45) / 90 * 90 % 360;
-            NutritionTextParser.Result checked;
+            List<NutritionTableReader.Reading> readings = new ArrayList<>();
             if (turn != 0 || scan.enhanced() == null) {
-                checked = verifyTable(original, directory, model, turn, best.table(), deadline);
+                readings.add(best.table());
+                readings.add(verifyTable(original, directory, model, turn, best.table(), deadline));
             } else {
-                checked = NutritionTableReader.agree(first, second);
+                readings.add(first);
+                readings.add(second);
+            }
+            NutritionTextParser.Result checked = NutritionTableReader.agree(readings);
+            if (checked.nutrition().values().size() < 4 && turn == 0 && System.nanoTime() < deadline) {
+                checked = fallbackTable(original, directory, model, readings, deadline);
             }
             return new Text(text.text(), text.confidence(), text.uncertainWords(), text.rotation(), text.warnings(), checked);
         } finally {
@@ -77,6 +83,26 @@ final class TesseractOcr implements OcrEngine {
     }
 
     private record Scan(Candidate draft, Candidate grayscale, Candidate enhanced) { }
+
+    private NutritionTextParser.Result fallbackTable(BufferedImage original, Path directory, String model,
+            List<NutritionTableReader.Reading> readings, long deadline) {
+        var prepared = OcrImages.prepare(original, false);
+        try {
+            Candidate global = read(directory, prepared.image(), model, 6, 0, prepared.angle(), deadline, true);
+            readings.add(global.table());
+            BufferedImage clean = OcrImages.withoutRuling(prepared.image());
+            try {
+                if (clean != prepared.image()) {
+                    Candidate ruled = read(directory, clean, model, 6, 2, prepared.angle(), deadline, true);
+                    readings.add(ruled.table());
+                }
+            } finally { if (clean != prepared.image()) clean.flush(); }
+            return NutritionTableReader.agree(readings);
+        } catch (Exception e) {
+            // An optional read must never fail a completed draft or consume a second job attempt.
+            return NutritionTableReader.agree(readings);
+        } finally { prepared.image().flush(); }
+    }
 
     private Scan recognizeText(BufferedImage original, Path directory, String model, long deadline,
                                boolean nutrition) throws Exception {
@@ -120,18 +146,18 @@ final class TesseractOcr implements OcrEngine {
         }
     }
 
-    private NutritionTextParser.Result verifyTable(BufferedImage original, Path directory, String model,
+    private NutritionTableReader.Reading verifyTable(BufferedImage original, Path directory, String model,
             int turn, NutritionTableReader.Reading first, long deadline) throws Exception {
         if (first == null || first.basis().isEmpty() || System.nanoTime() >= deadline)
-            return NutritionTableReader.unresolved();
+            return null;
         var prepared = OcrImages.prepare(original, turn == 0);
         BufferedImage rotated = OcrImages.rotate(prepared.image(), turn);
         try {
             // Check the layout using the other preprocessing variant in the same orientation.
             Candidate checked = read(directory, rotated, model, 6, 2, prepared.angle() + turn, deadline, true);
-            return NutritionTableReader.agree(first, checked.table());
+            return checked.table();
         } catch (TimeoutException | IOException | IllegalStateException e) {
-            return NutritionTableReader.unresolved();
+            return null;
         } finally {
             if (rotated != prepared.image()) rotated.flush();
             prepared.image().flush();
@@ -162,7 +188,32 @@ final class TesseractOcr implements OcrEngine {
             }
         }
         if (Files.size(output) > 2_000_000) throw new IllegalStateException("OCR_OUTPUT_TOO_LARGE");
-        return parseCandidate(Files.readString(output), Math.floorMod(rotation, 360), image, nutrition);
+        Candidate candidate = parseCandidate(Files.readString(output), Math.floorMod(rotation, 360), image, nutrition);
+        if (nutrition && psm != 7 && candidate.table() != null && !candidate.table().basis().isEmpty()
+                && !candidate.table().confirmed() && System.nanoTime() < deadline) {
+            var box = candidate.table().headingCrop();
+            int left = Math.max(0, box.left() - 12), top = Math.max(0, box.top() - 12);
+            int right = Math.min(image.getWidth(), box.right() + 12), bottom = Math.min(image.getHeight(), box.bottom() + 12);
+            BufferedImage heading = new BufferedImage(right - left + 40, bottom - top + 40, BufferedImage.TYPE_BYTE_GRAY);
+            var graphics = heading.createGraphics();
+            graphics.setColor(java.awt.Color.WHITE);
+            graphics.fillRect(0, 0, heading.getWidth(), heading.getHeight());
+            graphics.drawImage(image, 20, 20, heading.getWidth() - 20, heading.getHeight() - 20, left, top, right, bottom, null);
+            graphics.dispose();
+            try {
+                Candidate check = read(directory, heading, model, 7, 0, rotation, deadline, true);
+                var confirmed = NutritionTableReader.confirmHeading(candidate.table(), check.table());
+                if (!confirmed.confirmed() && threshold != 0 && System.nanoTime() < deadline) {
+                    check = read(directory, heading, model, 7, threshold, rotation, deadline, true);
+                    confirmed = NutritionTableReader.confirmHeading(candidate.table(), check.table());
+                }
+                candidate = new Candidate(candidate.text(), candidate.assessment(), candidate.coverage(),
+                    confirmed);
+            } catch (TimeoutException | IOException | IllegalStateException ignored) {
+                // Keep this heading unconfirmed. The other whole-image readings can still be used.
+            } finally { heading.flush(); }
+        }
+        return candidate;
     }
 
     private record Candidate(Text text, OcrQuality.Assessment assessment, double coverage,

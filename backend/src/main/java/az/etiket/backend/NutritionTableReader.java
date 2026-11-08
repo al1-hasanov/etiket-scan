@@ -38,7 +38,11 @@ final class NutritionTableReader {
             return top > previous.top && top - previous.bottom <= previous.bottom - previous.top;
         }
     }
-    record Reading(String basis, boolean referenceFirst, String otherAmount, Map<String, Cell> values) { }
+    record Crop(int left, int top, int right, int bottom) { }
+    record Reading(String basis, boolean referenceFirst, String otherAmount, Map<String, Cell> values,
+                   double headingConfidence, Crop headingCrop) {
+        boolean confirmed() { return !basis.isEmpty() && headingConfidence >= MIN_AGREEMENT_CONFIDENCE; }
+    }
 
     private NutritionTableReader() { }
 
@@ -73,7 +77,7 @@ final class NutritionTableReader {
         Heading reference = referenceFirst ? first : second;
         Heading other = referenceFirst ? second : first;
         int gap = second.left() - first.right();
-        if (gap < Math.max(4, reference.height() / 3) || reference.confidence() < MIN_AGREEMENT_CONFIDENCE)
+        if (gap < Math.max(4, reference.height() / 3))
             return ambiguous();
 
         int divider = first.right() + gap / 2;
@@ -95,22 +99,45 @@ final class NutritionTableReader {
             rows.add(new Row(name, join(values), line.stream().mapToInt(Word::top).min().orElseThrow(),
                 line.stream().mapToInt(Word::bottom).max().orElseThrow(), confidence(values)));
         }
-        return new Reading(reference.basis(), referenceFirst, other.amount(), values(rows, reference.basis()));
+        List<Word> header = lines.get(headerIndex).stream()
+            .filter(word -> word.right() > first.left() && word.left() < second.right()).toList();
+        Crop crop = new Crop(first.left(), header.stream().mapToInt(Word::top).min().orElseThrow(), second.right(),
+            header.stream().mapToInt(Word::bottom).max().orElseThrow());
+        return new Reading(reference.basis(), referenceFirst, other.amount(), values(rows, reference.basis()),
+            Math.min(reference.confidence(), other.confidence()), crop);
+    }
+
+    static Reading confirmHeading(Reading original, Reading checked) {
+        if (checked == null || !checked.confirmed() || !original.basis().equals(checked.basis())
+            || original.referenceFirst() != checked.referenceFirst() || !original.otherAmount().equals(checked.otherAmount()))
+            return original;
+        return new Reading(original.basis(), original.referenceFirst(), original.otherAmount(), original.values(),
+            checked.headingConfidence(), original.headingCrop());
     }
 
     static NutritionTextParser.Result agree(Reading first, Reading second) {
-        if (first == null || second == null || first.basis().isEmpty() || !first.basis().equals(second.basis())
-            || first.referenceFirst() != second.referenceFirst() || !first.otherAmount().equals(second.otherAmount()))
-            return unresolved();
+        List<Reading> readings = new ArrayList<>();
+        readings.add(first);
+        readings.add(second);
+        return agree(readings);
+    }
 
+    /** More fallback reads never turn a conflicting, legible cell into a majority vote. */
+    static NutritionTextParser.Result agree(List<Reading> input) {
+        List<Reading> readings = input.stream().filter(reading -> reading != null && reading.confirmed()).toList();
+        if (readings.size() < 2) return unresolved();
+        Reading first = readings.getFirst();
+        if (readings.stream().anyMatch(reading -> !first.basis().equals(reading.basis())
+            || first.referenceFirst() != reading.referenceFirst() || !first.otherAmount().equals(reading.otherAmount())))
+            return unresolved();
         Map<String, Double> values = new LinkedHashMap<>();
-        first.values().forEach((key, cell) -> {
-            Cell checked = second.values().get(key);
-            if (checked != null && cell.value() == checked.value()
-                && Math.min(cell.confidence(), checked.confidence()) >= MIN_AGREEMENT_CONFIDENCE
-                && Math.max(cell.confidence(), checked.confidence()) >= MIN_CLEAR_CONFIDENCE)
-                values.put(key, cell.value());
-        });
+        for (String key : NutritionLabel.KEYS) {
+            List<Cell> cells = readings.stream().map(reading -> reading.values().get(key))
+                .filter(cell -> cell != null && cell.confidence() >= MIN_AGREEMENT_CONFIDENCE).toList();
+            if (cells.size() >= 2 && cells.stream().anyMatch(cell -> cell.confidence() >= MIN_CLEAR_CONFIDENCE)
+                && cells.stream().allMatch(cell -> cell.value() == cells.getFirst().value()))
+                values.put(key, cells.getFirst().value());
+        }
         if (values.isEmpty()) return unresolved();
         try {
             return new NutritionTextParser.Result(new NutritionLabel(first.basis(), values), List.of());
@@ -124,7 +151,7 @@ final class NutritionTableReader {
     }
 
     private static Reading ambiguous() {
-        return new Reading("", false, "", Map.of());
+        return new Reading("", false, "", Map.of(), 0, null);
     }
 
     private static Map<String, Cell> values(List<Row> rows, String basis) {
@@ -161,13 +188,14 @@ final class NutritionTableReader {
     }
 
     private static Double number(String value, boolean energy) {
-        var match = (energy ? ENERGY : GRAMS).matcher(value);
+        var match = (energy ? ENERGY : GRAMS).matcher(NutritionTextParser.withoutTableBorders(value));
         if (!match.matches() || energy && ((match.group("open") == null) != (match.group("close") == null))) return null;
         return Double.parseDouble((energy ? match.group("kcal") : match.group(1)).replace(',', '.'));
     }
 
     private static List<Heading> headings(List<Word> line) {
-        var match = HEADING.matcher(join(line));
+        // Keep offsets aligned with the original word boxes, including border tokens.
+        var match = HEADING.matcher(String.join(" ", line.stream().map(Word::text).toList()));
         List<Heading> headings = new ArrayList<>();
         while (match.find()) {
             List<Word> cell = new ArrayList<>();
@@ -193,6 +221,6 @@ final class NutritionTableReader {
     }
 
     private static String join(List<Word> words) {
-        return String.join(" ", words.stream().map(Word::text).toList());
+        return NutritionTextParser.withoutTableBorders(String.join(" ", words.stream().map(Word::text).toList()));
     }
 }

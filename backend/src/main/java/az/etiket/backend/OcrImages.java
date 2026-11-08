@@ -13,6 +13,44 @@ final class OcrImages {
 
     private OcrImages() { }
 
+    /** A separate nutrition fallback; keeps the original prepared image and evidence untouched. */
+    static BufferedImage withoutRuling(BufferedImage gray) {
+        int width = gray.getWidth(), height = gray.getHeight();
+        byte[] source = pixels(gray);
+        int threshold = inkThreshold(source);
+        boolean[] mask = new boolean[source.length];
+        for (int angle = -3; angle <= 3; angle++) {
+            int[] offsets = new int[width];
+            double slope = Math.tan(Math.toRadians(angle));
+            int margin = (int) Math.ceil(Math.abs(slope) * width) + 1;
+            int[] rows = new int[height + margin * 2];
+            for (int x = 0; x < width; x++) offsets[x] = (int) Math.round(x * slope);
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                    if ((source[y * width + x] & 255) <= threshold) rows[y - offsets[x] + margin]++;
+            for (int row = 0; row < rows.length; row++) {
+                if (rows[row] < width * .55) continue;
+                int end = row;
+                while (end + 1 < rows.length && rows[end + 1] >= width * .55) end++;
+                // A wide dark band may be text or artwork. Only thin continuous rules are removed.
+                if (end - row + 1 <= Math.max(3, height / 60)) {
+                    for (int x = 0; x < width; x++) {
+                        for (int y = row + offsets[x] - margin - 2; y <= end + offsets[x] - margin + 2; y++)
+                            if (y >= 0 && y < height) mask[y * width + x] = true;
+                    }
+                }
+                row = end;
+            }
+        }
+        boolean changed = false;
+        for (int i = 0; i < source.length; i++) if (mask[i] && (source[i] & 255) < 255) { changed = true; break; }
+        if (!changed) return gray;
+        BufferedImage clean = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        byte[] destination = pixels(clean);
+        for (int i = 0; i < source.length; i++) destination[i] = mask[i] ? (byte) 255 : source[i];
+        return clean;
+    }
+
     static Prepared prepare(BufferedImage source, boolean enhanceColour) {
         double scale = Math.min(3, 1800d / Math.max(source.getWidth(), source.getHeight()));
         int width = Math.max(1, (int) Math.round(source.getWidth() * scale));

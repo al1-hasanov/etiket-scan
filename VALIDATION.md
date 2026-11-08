@@ -1,5 +1,23 @@
 # Etiket validation
 
+## 0.6.2 nutrition extraction and photo review
+
+All **131 tests passed**: 31 core, 62 backend and 38 Android. Native engine checks were enabled with Tesseract 5.5.0 and the same pinned five language models used by Docker/CI. Android lint reported no issues. The APK is `0.6.2-ocr`, version code 10, with the same demo signing certificate as 0.6.1.
+
+The native real-photo regression covers image sanitisation, a private OCR job, manual correction, reviewer confirmation and lookup of the approved barcode in an isolated H2 database. The existing PostgreSQL, private polling, retries, stored-image matching and legacy-record checks also passed. Android tests cover photo review, preserved manual entries, decimal commas, unknown versus zero, reference changes, cancellation and correction state across rotation.
+
+Local checks of the packaged 0.6.2 JAR covered actual multipart upload and private HTTP polling. Health reported version 0.6.2. Polling without the private capability returned 404 for every image.
+
+| Real photo | Previous reader | 0.6.2 packaged result |
+| --- | --- | --- |
+| Original purple 100 g / 22 g table | No suggestions | Saturated fat 3.3 g and salt 0.29 g per 100 g; six fields remain unknown |
+| Blue biscuit preview from a phone screenshot | No suggestions | Readable raw draft; nutrition requires manual entry |
+| Lipton nutrition crop with 100 ml, serving and percentage columns | No suggestions | Readable raw draft; nutrition requires manual entry |
+
+The purple request finished in about 9–11 seconds locally; the smaller previews took about 2–4 seconds. These timings describe this local run. The weak-heading native regression still recovers the clear synthetic table's energy value after the added heading re-read.
+
+This release retains Tesseract and changes preprocessing/extraction and the correction UI. Three real package images, including one reduced screenshot preview, are not a representative benchmark or evidence that every label is readable. A larger separately transcribed photo set remains necessary before selecting another engine. Physical-device capture and Railway redeployment are follow-up checks in `V0_6_2_UPDATE.md`.
+
 ## 0.6.0 full nutrition tables
 
 All 120 tests passed across core, backend and Android. The backend tests ran with the pinned Tesseract models. Android lint reported zero issues, the debug APK built with version code 8, and the signing certificate matched the prior demo.

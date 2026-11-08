@@ -33,6 +33,10 @@ public class SubmissionActivity extends ComponentActivity {
     private final Map<String,EditText> nutritionFields=new LinkedHashMap<>();
     private final Map<String,TextView> analysisPreviews=new HashMap<>();
     private final Map<String,Button> applyButtons=new HashMap<>();
+    private TextView nutritionSummary;
+    private Button nutritionRawToggle;
+    private boolean showNutritionRaw;
+    private NutritionReviewDialog nutritionReview;
     private boolean readAfterCrop;
     private CheckBox consent;
     private Button submit;
@@ -74,6 +78,7 @@ public class SubmissionActivity extends ComponentActivity {
         if (saved != null) {
             state.pendingRole = saved.getString("role", "front");
             readAfterCrop = saved.getBoolean("readAfterCrop");
+            showNutritionRaw = saved.getBoolean("showNutritionRaw");
         }
         build(saved);
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -102,6 +107,7 @@ public class SubmissionActivity extends ComponentActivity {
             }
         });
         state.analysisEvent.observe(this, event -> updateAnalysis());
+        if (saved != null && saved.containsKey("nutritionReview")) reviewNutrition(saved.getBundle("nutritionReview"));
     }
     private String t(String a, String e) { return az ? a : e; }
     private int dp(int size) { return Math.round(size * getResources().getDisplayMetrics().density); }
@@ -175,8 +181,23 @@ public class SubmissionActivity extends ComponentActivity {
                 use.setId(nutrition ? R.id.use_ocr_nutrition : R.id.use_ocr_ingredients);
                 use.setOnClickListener(view -> applyAnalysis(role));
                 if (!nutrition) form.addView(extracted);
+                if (nutrition) {
+                    nutritionSummary = new TextView(this);
+                    nutritionSummary.setId(R.id.nutrition_analysis_summary);
+                    nutritionSummary.setTextSize(14);
+                    nutritionSummary.setPadding(dp(10), dp(10), dp(10), dp(10));
+                    nutritionSummary.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+                    form.addView(nutritionSummary);
+                }
                 form.addView(use);
-                if (nutrition) form.addView(extracted);
+                if (nutrition) {
+                    nutritionRawToggle = new Button(this);
+                    nutritionRawToggle.setId(R.id.nutrition_raw_toggle);
+                    nutritionRawToggle.setAllCaps(false);
+                    nutritionRawToggle.setOnClickListener(view -> { showNutritionRaw = !showNutritionRaw; updateAnalysis(); });
+                    form.addView(nutritionRawToggle);
+                    form.addView(extracted);
+                }
                 applyButtons.put(role, use);
             }
         }
@@ -238,8 +259,11 @@ public class SubmissionActivity extends ComponentActivity {
             boolean canCopy = readable && (!nutritionRole || nutrition != null && !nutrition.values().isEmpty());
             boolean thisRole = job != null && role.equals(job.role());
             Button use = applyButtons.get(role);
-            use.setEnabled(canCopy && !state.busy);
-            use.setVisibility(canCopy ? View.VISIBLE : View.GONE);
+            boolean canReviewPhoto = nutritionRole && state.photos.containsKey("nutrition");
+            use.setEnabled((canCopy || canReviewPhoto) && !state.busy);
+            use.setVisibility(canCopy || canReviewPhoto ? View.VISIBLE : View.GONE);
+            if (nutritionRole) use.setText(canCopy ? t("Qida dəyərləri təkliflərinə bax", "Review suggested nutrition values")
+                : t("Fotodan qida dəyərlərini daxil et", "Enter nutrition values from photo"));
             preview.setTextColor(0xff19372a);
             if (thisRole && state.busy && Set.of("QUEUED", "PROCESSING").contains(job.status())) {
                 preview.setText(t("Etiket mətni oxunur…", "Reading the label…"));
@@ -275,6 +299,21 @@ public class SubmissionActivity extends ComponentActivity {
                 }
                 preview.setText(text);
             }
+            if (nutritionRole) {
+                String raw = result == null ? "" : result.optString("rawText");
+                boolean hasRaw = !raw.isBlank() && !state.busy;
+                String summary = preview.getText().toString();
+                int draftStart = summary.indexOf(t("Avtomatik oxunmuş qaralama", "Automatically read draft"));
+                if (draftStart >= 0) summary = summary.substring(0, draftStart).strip();
+                nutritionSummary.setText(summary);
+                nutritionSummary.setTextColor(preview.getCurrentTextColor());
+                nutritionRawToggle.setText(showNutritionRaw ? t("Oxunmuş mətni gizlət", "Hide recognised text")
+                    : t("Oxunmuş mətni göstər", "Show recognised text"));
+                nutritionRawToggle.setVisibility(hasRaw ? View.VISIBLE : View.GONE);
+                preview.setVisibility(hasRaw && showNutritionRaw ? View.VISIBLE : View.GONE);
+                if (hasRaw) preview.setText(String.format(t("Avtomatik oxunmuş qaralama — fotoya baxıb yoxlayın.\n%s",
+                    "Automatically read draft — check against the photo.\n%s"), raw));
+            }
         }
     }
 
@@ -285,11 +324,12 @@ public class SubmissionActivity extends ComponentActivity {
 
     private void applyAnalysis(String role){
         JSONObject result=state.analysisResults.get(role);
-        if(state.busy || !SubmissionState.readable(result))return;
+        if(state.busy)return;
         if (role.equals("nutrition")) {
-            reviewNutrition(ProductJson.nutrition(result.optJSONObject("nutrition")));
+            reviewNutrition(null);
             return;
         }
+        if(!SubmissionState.readable(result))return;
         new AlertDialog.Builder(this).setTitle(t("Qaralamanı köçür?","Use this draft?"))
             .setMessage(t("Bu, uyğun mətn sahələrində yazdıqlarınızı əvəz edəcək. Köçürdükdən sonra sözləri, rəqəmləri və əsas miqdarı foto ilə yoxlayın.","This replaces the corresponding fields, including any edits. After applying, check the words, numbers and reference amount against the photo."))
             .setNegativeButton(t("Ləğv et","Cancel"),null).setPositiveButton(t("Köçür","Use draft"),(dialog,which)->{
@@ -298,38 +338,20 @@ public class SubmissionActivity extends ComponentActivity {
             }).show();
     }
 
-    private void reviewNutrition(NutritionLabel suggestion) {
-        if (suggestion == null || suggestion.values().isEmpty()) {
-            feedback.setText(manualNutritionHint());
-            return;
-        }
-        int basis = suggestion.basis().equals("PER_100_G") ? 1 : 2;
-        boolean changesBasis = nutritionBasis.getSelectedItemPosition() != basis;
-        String reference = nutritionReference(suggestion);
-        StringBuilder preview = new StringBuilder(t(reference + " üçün", "Per " + reference));
-        for (int i = 0; i < NutritionLabel.KEYS.size(); i++) {
-            Double value = suggestion.values().get(NutritionLabel.KEYS.get(i));
-            if (value != null) preview.append('\n').append(t(NUTRITION_AZ[i], NUTRITION_EN[i]))
-                .append("  ").append(nutritionNumber(value));
-        }
-        preview.append("\n\n").append(t("Rəqəmləri etiketdəki sütunla müqayisə edin.",
-            "Check these numbers against the printed column."));
-        boolean hasEdits = nutritionFields.values().stream().anyMatch(field -> field.length() > 0);
-        if (hasEdits) preview.append('\n').append(changesBasis
-            ? t("Əsas miqdar dəyişəcək və əvvəlki qida dəyərləri silinəcək.",
-                "This changes the reference amount and replaces the existing nutrition entries.")
-            : t("Göstərilən sahələrdə əvvəlki rəqəmlər əvəz olunacaq.", "This replaces the values in the fields shown."));
-        new AlertDialog.Builder(this).setTitle(t("Qida dəyərləri təklifləri", "Suggested nutrition values"))
-            .setMessage(preview)
-            .setNegativeButton(t("Ləğv et", "Cancel"), null)
-            .setPositiveButton(t("Köçür", "Use draft"), (dialog, which) -> {
-                nutritionBasis.setSelection(basis);
-                for (var entry : nutritionFields.entrySet()) {
-                    Double value = suggestion.values().get(entry.getKey());
-                    if (value != null) entry.getValue().setText(nutritionNumber(value));
-                    else if (changesBasis) entry.getValue().setText("");
-                }
-            }).show();
+    private void reviewNutrition(Bundle saved) {
+        JSONObject result = state.analysisResults.get("nutrition");
+        NutritionLabel suggestion = SubmissionState.readable(result)
+            ? ProductJson.nutrition(result.optJSONObject("nutrition")) : NutritionLabel.empty();
+        if (suggestion == null) suggestion = NutritionLabel.empty();
+        Map<String, String> current = new LinkedHashMap<>();
+        nutritionFields.forEach((key, input) -> current.put(key, input.getText().toString()));
+        nutritionReview = new NutritionReviewDialog(this, az, state.photos.get("nutrition"), suggestion,
+            nutritionBasis.getSelectedItemPosition(), current, saved, checked -> {
+                nutritionBasis.setSelection(checked.basis().equals("PER_100_G") ? 1 : 2);
+                nutritionFields.forEach((key, input) -> input.setText(checked.values().containsKey(key)
+                    ? nutritionNumber(checked.values().get(key)) : ""));
+            });
+        nutritionReview.show();
     }
 
     private String nutritionReference(NutritionLabel nutrition) {
@@ -374,7 +396,10 @@ public class SubmissionActivity extends ComponentActivity {
         case "ANALYSIS_PHOTO_CHANGED","ANALYSIS_NOT_FOUND","ANALYSIS_NOT_READY"->t("Foto üçün mətni yenidən oxudun və ya əl ilə göndərin.","Read the photo again before submitting, or enter it manually.");
         default->t("Göndərmə alınmadı. Məlumatları və fotoları yoxlayın.","Submission failed. Check the details and photos.");};}
     @Override public void onSaveInstanceState(Bundle out){super.onSaveInstanceState(out);out.putString("draftId",state.id);out.putString("role",state.pendingRole);out.putBoolean("readAfterCrop",readAfterCrop);
+        out.putBoolean("showNutritionRaw",showNutritionRaw);
+        if(nutritionReview!=null&&nutritionReview.isShowing())out.putBundle("nutritionReview",nutritionReview.draft());
         out.putString("barcode",barcode.getText().toString());out.putString("name",name.getText().toString());out.putString("brand",brand.getText().toString());out.putString("quantity",quantity.getText().toString());
         out.putInt("nutritionBasis",nutritionBasis.getSelectedItemPosition());for(var entry:nutritionFields.entrySet())out.putString("nutrition-"+entry.getKey(),entry.getValue().getText().toString());
         out.putString("ingredients",ingredients.getText().toString());out.putString("allergens",allergens.getText().toString());out.putInt("language",language.getSelectedItemPosition());out.putBoolean("consent",consent.isChecked());out.putBoolean("optionalExpanded",optionalText.getVisibility()==View.VISIBLE);}
+    @Override public void onDestroy(){if(nutritionReview!=null)nutritionReview.dismiss();super.onDestroy();}
 }

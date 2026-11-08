@@ -70,6 +70,36 @@ class NutritionTableReaderTest {
         assertNull(NutritionTableReader.read(words));
     }
 
+    @Test void ignoresIsolatedBordersButDoesNotGuessDamagedUnitsOrDigits() {
+        List<Word> words = germanTable();
+        words.replaceAll(word -> word.text().equals("Brennwert") ? replace(word, "| Brennwert", 94)
+            : word.text().equals("(378 kcal)") ? replace(word, "| (378 kcal)", 94)
+            : word.text().equals("66 g") ? replace(word, "669", 94) : word);
+        var table = NutritionTableReader.read(words);
+        var values = NutritionTableReader.agree(table, table).nutrition().values();
+        assertEquals(378d, values.get("energyKcal"));
+        assertFalse(values.containsKey("carbohydrates"));
+    }
+
+    @Test void aFallbackCanConfirmACellButCannotOutvoteAConflictingNumber() {
+        var first = NutritionTableReader.read(germanTable());
+        var changed = NutritionTableReader.read(germanTable().stream()
+            .map(word -> word.text().equals("9,8 g") ? replace(word, "9,9 g", 94) : word).toList());
+        var values = NutritionTableReader.agree(List.of(first, first, changed)).nutrition().values();
+        assertFalse(values.containsKey("fat"));
+        assertEquals(.29d, values.get("salt"));
+    }
+
+    @Test void lowConfidenceServingHeadingsAndChangedServingAmountsCannotAnchorValues() {
+        var first = NutritionTableReader.read(germanTable());
+        var weak = NutritionTableReader.read(germanTable().stream()
+            .map(word -> word.text().equals("in 22 g") ? replace(word, "in 22 g", 8) : word).toList());
+        assertTrue(NutritionTableReader.agree(first, weak).nutrition().values().isEmpty());
+        var changed = NutritionTableReader.read(germanTable().stream()
+            .map(word -> word.text().equals("in 22 g") ? replace(word, "in 222 g", 94) : word).toList());
+        assertTrue(NutritionTableReader.agree(List.of(first, first, changed)).nutrition().values().isEmpty());
+    }
+
     private static List<Word> germanTable() {
         List<Word> words = new ArrayList<>();
         row(words, 30, "Nährwerte", "in 100 g", "in 22 g");
