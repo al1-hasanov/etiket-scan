@@ -1,14 +1,23 @@
-# Etiket 0.6.0 — Read full nutrition tables
+# Etiket 0.6.2 — Check nutrition against the photo
 
 Etiket reads ingredient and nutrition labels into editable drafts for the Android package-photo and private review flow. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
 
 The unchanged starter sample has **77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks**. Its records remain `WEB_SOURCED_UNVERIFIED`. Reviewed submissions are additional evidence with separate storage, source photos and review dates. No synthetic review fixture is published by default.
 
-## New in 0.6.0
+## New in 0.6.2
+
+- Nutrition tables get bounded fallback reads with global thresholding and thin table rules removed. Weak amount headings are checked again as a separate line. Two reads must agree on a value and its printed unit; conflicting legible values stay unknown.
+- **Review suggested nutrition values** opens an editable screen with the selected photo above the entries. Pinch, double tap or use the zoom buttons to inspect the photo. Existing entries take precedence when the reference amount matches.
+- **Enter nutrition values from photo** also works when OCR cannot produce suggestions. Choose 100 g or 100 ml, enter only printed numbers and leave unknown fields blank. Changing the reference clears the review's numbers. Applying the review is explicit; cancelling preserves the form.
+- Corrections survive rotation. The raw OCR draft is available under **Show recognised text** instead of taking over the submission form.
+
+Install Android 0.6.2 and deploy backend 0.6.2 together. Existing database settings and reviewer credentials are retained. The original purple photo is now a native regression fixture; it still needs manual correction for some fields. See [V0_6_2_UPDATE.md](V0_6_2_UPDATE.md) for Git commands, deployment and phone checks.
+
+## Full nutrition tables from 0.6.0
 
 For nutrition photos, crop around the full table, including both headings and every row name. The reader can separate the 100 g or 100 ml column from a serving column when it can locate both headings and two OCR passes agree on the value and unit. Unreadable cells stay available for manual entry.
 
-Install Android 0.6.1 over the existing demo and connect to backend 0.6.0. In the nutrition photo section, select the photo again for a fresh read. Use **Review suggested nutrition values** to check the reference amount and values before copying.
+Install Android 0.6.2 over the existing demo and connect to backend 0.6.2. In the nutrition photo section, select the photo again for a fresh read. Use **Review suggested nutrition values** to check the reference amount and values before copying.
 
 In **Crop label**, drag inside the rectangle to move it and drag any edge or corner to resize. Turn on **Square** to lock the crop to a 1:1 shape.
 
@@ -20,7 +29,7 @@ In **Crop label**, drag inside the rectangle to move it and drag any edge or cor
 ## OCR and nutrition
 
 - Ingredient-photo and nutrition-photo OCR through a local Tesseract worker. The Docker image includes Azerbaijani, Turkish, Russian, English and German language packs; no external OCR key is needed.
-- The Android form shows the original recognised text and uncertain words. Applying a draft is an explicit action and corrected text remains editable. Taking a new photo clears its old analysis reference.
+- The Android form preserves the recognised draft. Nutrition raw text starts collapsed; ingredient drafts include uncertain words. Applying a draft is an explicit action and corrected text remains editable. Taking a new photo clears its old analysis reference.
 - An optional fourth nutrition-table photo, explicit per-100-g / per-100-ml reference amount, and eight partial nutrition fields. Empty fields remain unknown; zero remains zero.
 - Nutrition suggestions for explicitly labelled per-100 values, including tables with a clearly separated serving column. Ambiguous columns, unclear units and inequalities require manual entry.
 - Private expiring background jobs, bounded retries/leases, resumable polling, duplicate-request protection and a separate raw OCR audit snapshot for reviewers.
@@ -58,7 +67,7 @@ See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, refer
 
 You can save products and reopen them from **Seçilmişlər / Saved**. Evidence flags and source links survive saving/restarting. The ingredient text stays in the source language; changing the UI to English does not translate it. The home screen also links to the old, clearly fictional engineering samples.
 
-Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet. Manual entry is available. Label photos use your camera app or the system document picker. Deploy the 0.6.0 API for the improved reader. The Docker image supplies the engine. Local Windows runs need a separate Tesseract installation or can use manual transcription.
+Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet. Manual entry is available. Label photos use your camera app or the system document picker. Deploy the 0.6.2 API for the improved reader. The Docker image supplies the engine. Local Windows runs need a separate Tesseract installation or can use manual transcription.
 
 ## 2. Start the Java API on Windows
 
@@ -109,7 +118,7 @@ $env:DB_PASSWORD='YOUR_LOCAL_DATABASE_PASSWORD'
 
 Use a JDBC URL, not a bare `postgres://` URL. The same migrations/importer run on PostgreSQL and H2. PostgreSQL integration tests start a real temporary database process without Docker; the first test run downloads its test binary. See `VALIDATION.md` for the actual tested versions and results.
 
-The Dockerfile builds the 0.6.0 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
+The Dockerfile builds the 0.6.2 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
 
 ## 5. Open and build the source
 

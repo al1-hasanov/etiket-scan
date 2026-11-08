@@ -66,4 +66,13 @@ class NutritionLabelTest {
         var p=new Product(old.barcode(),old.name(),old.brand(),old.quantity(),old.ingredients(),old.ingredientsLanguage(),"",Map.of(),List.of(),List.of(),"REVIEWED_LABEL","","","",false,null,null,new NutritionLabel("PER_100_ML",Map.of("protein",3d)));
         assertTrue(p.nutrients().isEmpty());assertEquals(3d,p.nutrition().values().get("protein"));
     }
+
+    @Test void tableBordersDoNotChangePrintedNumbersUnitsOrColumnChecks() {
+        var result = NutritionTextParser.parse("| Nährwerte in 100 g |\n| Brennwert 1595 kJ |\n| (378 kcal) |\n| Fett 9,8 g |\n| Salz 0 g |");
+        assertEquals(Map.of("energyKcal", 378d, "fat", 9.8d, "salt", 0d), result.nutrition().values());
+        assertEquals("energyKcal", NutritionTextParser.nutrientKey("| Brennwert"));
+        for (String damaged : List.of("| Fett 9,89 |", "| Salz 0,299 |", "| Zucker 279 |", "| Fett <9,8 g |"))
+            assertTrue(NutritionTextParser.parse("100 g\n" + damaged).nutrition().values().isEmpty(), damaged);
+        assertTrue(NutritionTextParser.parse("| in 100 g in 22 g |\n| Fett 9,8 g 2,1 g |").nutrition().values().isEmpty());
+    }
 }

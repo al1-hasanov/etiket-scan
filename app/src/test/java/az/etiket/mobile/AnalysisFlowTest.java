@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.*;
 import org.robolectric.annotation.*;
 import org.robolectric.shadows.ShadowAlertDialog;
+import org.robolectric.shadows.ShadowDialog;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk=35,qualifiers="w360dp-h800dp-xxhdpi")
@@ -231,7 +232,7 @@ public class AnalysisFlowTest {
         }
     }
 
-    @Test public void reviewsPartialSuggestionsBeforeCopyingAndKeepsEditsInTheSameBasis() throws Exception {
+    @Test public void editsSuggestionsBesideThePhotoAndPreservesExistingEntries() throws Exception {
         try (var controller = Robolectric.buildActivity(SubmissionActivity.class).setup()) {
             SubmissionActivity activity = controller.get();
             SubmissionState state = new ViewModelProvider(activity).get(SubmissionState.class);
@@ -243,28 +244,115 @@ public class AnalysisFlowTest {
             fat.setText("9.8");
             salt.setText("0.2");
             state.analysisResults.put("nutrition", result());
+            state.photos.put("nutrition", photo());
             state.analysisEvent.setValue(new SubmissionState.AnalysisEvent("nutrition", "COMPLETED", ""));
 
             review.performClick();
-            android.app.AlertDialog dialog = (android.app.AlertDialog) ShadowAlertDialog.getLatestDialog();
-            TextView message = dialog.findViewById(android.R.id.message);
-            assertTrue(message.getText().toString().contains("Per 100 ml"));
-            assertTrue(message.getText().toString().contains("Salt (g)  0"));
+            android.app.Dialog dialog = ShadowDialog.getLatestDialog();
+            assertNotNull(dialog.findViewById(R.id.nutrition_review_photo));
+            assertEquals(2, ((Spinner) dialog.findViewById(R.id.nutrition_review_basis)).getSelectedItemPosition());
+            EditText reviewSalt = dialog.findViewById(R.id.nutrition_review_salt);
+            assertEquals("0.2", reviewSalt.getText().toString());
+            assertEquals("3", ((EditText) dialog.findViewById(R.id.nutrition_review_protein)).getText().toString());
             assertEquals("0.2", salt.getText().toString());
-            dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+            reviewSalt.setText("0");
+            dialog.findViewById(R.id.nutrition_review_apply).performClick();
             Shadows.shadowOf(Looper.getMainLooper()).idle();
             assertEquals("9.8", fat.getText().toString());
             assertEquals("0", salt.getText().toString());
 
             basis.setSelection(1);
             review.performClick();
-            dialog = (android.app.AlertDialog) ShadowAlertDialog.getLatestDialog();
-            message = dialog.findViewById(android.R.id.message);
-            assertTrue(message.getText().toString().contains("changes the reference amount"));
-            dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+            dialog = ShadowDialog.getLatestDialog();
+            assertEquals("", ((EditText) dialog.findViewById(R.id.nutrition_review_fat)).getText().toString());
+            dialog.findViewById(R.id.nutrition_review_apply).performClick();
             Shadows.shadowOf(Looper.getMainLooper()).idle();
             assertEquals(2, basis.getSelectedItemPosition());
             assertEquals("", fat.getText().toString());
+        }
+    }
+
+    @Test public void reviewCorrectionsSurviveRotationAndCancelLeavesTheFormUntouched() throws Exception {
+        try (var controller = Robolectric.buildActivity(SubmissionActivity.class).setup()) {
+            SubmissionActivity activity = controller.get();
+            SubmissionState state = new ViewModelProvider(activity).get(SubmissionState.class);
+            File selected = new File(state.directory(), "nutrition.jpg");
+            java.nio.file.Files.copy(photo().toPath(), selected.toPath());
+            state.photos.put("nutrition", selected);
+            state.analysisResults.put("nutrition", result());
+            state.analysisEvent.setValue(new SubmissionState.AnalysisEvent("nutrition", "COMPLETED", ""));
+            ((Spinner) activity.findViewById(R.id.nutrition_basis)).setSelection(2);
+            ((EditText) activity.findViewById(R.id.nutrition_fat)).setText("9.8");
+            activity.findViewById(R.id.use_ocr_nutrition).performClick();
+            android.app.Dialog dialog = ShadowDialog.getLatestDialog();
+            ((EditText) dialog.findViewById(R.id.nutrition_review_salt)).setText("0,29");
+            ((EditText) dialog.findViewById(R.id.nutrition_review_saturated)).setText("3,3");
+            controller.recreate();
+            dialog = ShadowDialog.getLatestDialog();
+            assertTrue(dialog.isShowing());
+            assertEquals("0,29", ((EditText) dialog.findViewById(R.id.nutrition_review_salt)).getText().toString());
+            assertEquals("3,3", ((EditText) dialog.findViewById(R.id.nutrition_review_saturated)).getText().toString());
+            dialog.findViewById(R.id.nutrition_review_cancel).performClick();
+            assertEquals("", ((EditText) controller.get().findViewById(R.id.nutrition_salt)).getText().toString());
+            assertEquals("9.8", ((EditText) controller.get().findViewById(R.id.nutrition_fat)).getText().toString());
+        }
+    }
+
+    @Test public void transcribesFromThePhotoWhenOcrFailsAndValidatesBeforeApplying() throws Exception {
+        try (var controller = Robolectric.buildActivity(SubmissionActivity.class).setup()) {
+            SubmissionActivity activity = controller.get();
+            SubmissionState state = new ViewModelProvider(activity).get(SubmissionState.class);
+            File evidence = new File("../backend/src/test/resources/ocr/nutrition-purple-de.jpg");
+            assertTrue(evidence.isFile());
+            state.photos.put("nutrition", evidence);
+            state.analysisResults.put("nutrition", result().put("_status", "RETAKE"));
+            state.analysisEvent.setValue(new SubmissionState.AnalysisEvent("nutrition", "RETAKE", ""));
+            Button open = activity.findViewById(R.id.use_ocr_nutrition);
+            assertEquals("Enter nutrition values from photo", open.getText().toString());
+            open.performClick();
+            android.app.Dialog dialog = ShadowDialog.getLatestDialog();
+            assertEquals("", ((EditText) dialog.findViewById(R.id.nutrition_review_protein)).getText().toString());
+            dialog.findViewById(R.id.nutrition_review_apply).performClick();
+            assertTrue(dialog.isShowing());
+            ((Spinner) dialog.findViewById(R.id.nutrition_review_basis)).setSelection(1);
+            Shadows.shadowOf(Looper.getMainLooper()).idle();
+            ((EditText) dialog.findViewById(R.id.nutrition_review_fat)).setText("9,8");
+            ((EditText) dialog.findViewById(R.id.nutrition_review_saturated)).setText("33");
+            ((EditText) dialog.findViewById(R.id.nutrition_review_salt)).setText("0");
+            dialog.findViewById(R.id.nutrition_review_apply).performClick();
+            assertTrue(dialog.isShowing());
+            assertEquals("", ((EditText) activity.findViewById(R.id.nutrition_fat)).getText().toString());
+            ((EditText) dialog.findViewById(R.id.nutrition_review_saturated)).setText("3,3");
+            capture(dialog.getWindow().getDecorView(), "nutrition-review-en.png");
+            dialog.findViewById(R.id.nutrition_review_apply).performClick();
+            assertFalse(dialog.isShowing());
+            assertEquals("9.8", ((EditText) activity.findViewById(R.id.nutrition_fat)).getText().toString());
+            assertEquals("0", ((EditText) activity.findViewById(R.id.nutrition_salt)).getText().toString());
+            assertEquals("", ((EditText) activity.findViewById(R.id.nutrition_sugars)).getText().toString());
+            assertEquals(1, ((Spinner) activity.findViewById(R.id.nutrition_basis)).getSelectedItemPosition());
+        }
+    }
+
+    @Test public void changingTheReviewReferenceClearsNumbersAndRawTextStartsCollapsed() throws Exception {
+        try (var controller = Robolectric.buildActivity(SubmissionActivity.class).setup()) {
+            SubmissionActivity activity = controller.get();
+            SubmissionState state = new ViewModelProvider(activity).get(SubmissionState.class);
+            state.analysisResults.put("nutrition", result());
+            state.analysisEvent.setValue(new SubmissionState.AnalysisEvent("nutrition", "COMPLETED", ""));
+            Button raw = activity.findViewById(R.id.nutrition_raw_toggle);
+            assertEquals("Show recognised text", raw.getText().toString());
+            raw.performClick();
+            assertEquals("Hide recognised text", raw.getText().toString());
+            controller.recreate();
+            activity = controller.get();
+            assertEquals("Hide recognised text", ((Button) activity.findViewById(R.id.nutrition_raw_toggle)).getText().toString());
+            activity.findViewById(R.id.use_ocr_nutrition).performClick();
+            android.app.Dialog dialog = ShadowDialog.getLatestDialog();
+            assertEquals("0", ((EditText) dialog.findViewById(R.id.nutrition_review_salt)).getText().toString());
+            ((Spinner) dialog.findViewById(R.id.nutrition_review_basis)).setSelection(1);
+            Shadows.shadowOf(Looper.getMainLooper()).idle();
+            assertEquals("", ((EditText) dialog.findViewById(R.id.nutrition_review_salt)).getText().toString());
+            assertEquals("", ((EditText) dialog.findViewById(R.id.nutrition_review_protein)).getText().toString());
         }
     }
 

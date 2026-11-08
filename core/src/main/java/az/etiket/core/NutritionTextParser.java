@@ -33,7 +33,7 @@ public final class NutritionTextParser {
 
     /** Matches the name cell of an OCR row using the same aliases as the text parser. */
     public static String nutrientKey(String name) {
-        String label = normalize(name.split("/", 2)[0]).strip()
+        String label = normalize(withoutTableBorders(name).split("/", 2)[0]).strip()
             .replaceFirst("^[-–—]\\h*", "").replaceFirst(":$", "").strip();
         for (var entry : LABELS.entrySet())
             if (label.matches(entry.getValue())) return entry.getKey();
@@ -41,7 +41,7 @@ public final class NutritionTextParser {
     }
 
     public static Result parse(String raw) {
-        String text = normalize(raw == null ? "" : raw)
+        String text = normalize(withoutTableBorders(raw == null ? "" : raw))
             .replaceAll("(?m)^\\h*davon gesattigte\\h*\\R\\h*fettsauren(?=\\h|:|$)", "davon gesattigte fettsauren");
         Matcher reference = REFERENCE.matcher(text);
         boolean grams = false;
@@ -95,6 +95,12 @@ public final class NutritionTextParser {
     }
     private static Result empty(String warning) {
         return new Result(NutritionLabel.empty(), List.of(warning));
+    }
+
+    /** Only isolated border marks are removed. Digits, letters, signs and decimal separators stay intact. */
+    public static String withoutTableBorders(String text) {
+        return text.replaceAll("(?m)^\\h*[|¦]\\h+", "")
+            .replaceAll("(?m)\\h+[|¦]\\h*$", "");
     }
 
     private static String normalize(String text) {

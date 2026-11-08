@@ -22,4 +22,18 @@
     <item name="read_ingredients" type="id" />
     <item name="use_ocr_ingredients" type="id" />
     <item name="use_ocr_nutrition" type="id" />
+    <item name="nutrition_analysis_summary" type="id" />
+    <item name="nutrition_raw_toggle" type="id" />
+    <item name="nutrition_review_photo" type="id" />
+    <item name="nutrition_review_basis" type="id" />
+    <item name="nutrition_review_energy" type="id" />
+    <item name="nutrition_review_fat" type="id" />
+    <item name="nutrition_review_saturated" type="id" />
+    <item name="nutrition_review_carbs" type="id" />
+    <item name="nutrition_review_sugars" type="id" />
+    <item name="nutrition_review_fibre" type="id" />
+    <item name="nutrition_review_protein" type="id" />
+    <item name="nutrition_review_salt" type="id" />
+    <item name="nutrition_review_apply" type="id" />
+    <item name="nutrition_review_cancel" type="id" />
 </resources>
