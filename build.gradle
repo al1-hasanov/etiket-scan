@@ -1,4 +1,4 @@
 plugins {
     id 'org.springframework.boot' version '4.1.2' apply false
 }
-allprojects { group = 'az.etiket'; version = '0.6.2' }
+allprojects { group = 'az.etiket'; version = '0.6.3' }

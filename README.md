@@ -1,8 +1,14 @@
-# Etiket 0.6.2 — Check nutrition against the photo
+# Etiket 0.6.3 — OCR diagnostics
 
 Etiket reads ingredient and nutrition labels into editable drafts for the Android package-photo and private review flow. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
 
 The unchanged starter sample has **77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks**. Its records remain `WEB_SOURCED_UNVERIFIED`. Reviewed submissions are additional evidence with separate storage, source photos and review dates. No synthetic review fixture is published by default.
+
+## New in 0.6.3
+
+This backend-only update adds opt-in OCR job and table-extraction diagnostics. Set `OCR_DIAGNOSTICS=true` on the backend service and search its logs for `OCR_DIAGNOSTIC`. Entries share a job ID and show OCR pass parameters, input dimensions, confidence, coverage, rejected cells, agreement failures, cache reuse, retries and the final suggestion count.
+
+Keep Android 0.6.2 installed. The reader's extraction rules, time budget, stored evidence and API result format are retained. The diagnostic switch defaults to false. Raw label text, photos, filenames, access capabilities and exception messages are excluded from these logs. See [OCR_DIAGNOSTICS.md](OCR_DIAGNOSTICS.md) for enabling logs and interpreting reason codes, and [V0_6_3_UPDATE.md](V0_6_3_UPDATE.md) for applying and deploying the changed files.
 
 ## New in 0.6.2
 
@@ -11,13 +17,13 @@ The unchanged starter sample has **77 products · 10 web ingredient lists · 67 
 - **Enter nutrition values from photo** also works when OCR cannot produce suggestions. Choose 100 g or 100 ml, enter only printed numbers and leave unknown fields blank. Changing the reference clears the review's numbers. Applying the review is explicit; cancelling preserves the form.
 - Corrections survive rotation. The raw OCR draft is available under **Show recognised text** instead of taking over the submission form.
 
-Install Android 0.6.2 and deploy backend 0.6.2 together. Existing database settings and reviewer credentials are retained. The original purple photo is now a native regression fixture; it still needs manual correction for some fields. See [V0_6_2_UPDATE.md](V0_6_2_UPDATE.md) for Git commands, deployment and phone checks.
+Use Android 0.6.2 with backend 0.6.3. Existing database settings and reviewer credentials are retained. The original purple photo is now a native regression fixture; it still needs manual correction for some fields. See [V0_6_2_UPDATE.md](V0_6_2_UPDATE.md) for Git commands, deployment and phone checks.
 
 ## Full nutrition tables from 0.6.0
 
 For nutrition photos, crop around the full table, including both headings and every row name. The reader can separate the 100 g or 100 ml column from a serving column when it can locate both headings and two OCR passes agree on the value and unit. Unreadable cells stay available for manual entry.
 
-Install Android 0.6.2 over the existing demo and connect to backend 0.6.2. In the nutrition photo section, select the photo again for a fresh read. Use **Review suggested nutrition values** to check the reference amount and values before copying.
+Install Android 0.6.2 over the existing demo and connect to backend 0.6.3. In the nutrition photo section, select the photo again for a fresh read. Use **Review suggested nutrition values** to check the reference amount and values before copying.
 
 In **Crop label**, drag inside the rectangle to move it and drag any edge or corner to resize. Turn on **Square** to lock the crop to a 1:1 shape.
 
@@ -67,7 +73,7 @@ See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, refer
 
 You can save products and reopen them from **Seçilmişlər / Saved**. Evidence flags and source links survive saving/restarting. The ingredient text stays in the source language; changing the UI to English does not translate it. The home screen also links to the old, clearly fictional engineering samples.
 
-Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet. Manual entry is available. Label photos use your camera app or the system document picker. Deploy the 0.6.2 API for the improved reader. The Docker image supplies the engine. Local Windows runs need a separate Tesseract installation or can use manual transcription.
+Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet. Manual entry is available. Label photos use your camera app or the system document picker. Deploy the 0.6.3 API for the improved reader. The Docker image supplies the engine. Local Windows runs need a separate Tesseract installation or can use manual transcription.
 
 ## 2. Start the Java API on Windows
 
@@ -118,7 +124,7 @@ $env:DB_PASSWORD='YOUR_LOCAL_DATABASE_PASSWORD'
 
 Use a JDBC URL, not a bare `postgres://` URL. The same migrations/importer run on PostgreSQL and H2. PostgreSQL integration tests start a real temporary database process without Docker; the first test run downloads its test binary. See `VALIDATION.md` for the actual tested versions and results.
 
-The Dockerfile builds the 0.6.2 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
+The Dockerfile builds the 0.6.3 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
 
 ## 5. Open and build the source
 

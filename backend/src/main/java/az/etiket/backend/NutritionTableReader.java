@@ -64,27 +64,43 @@ final class NutritionTableReader {
             if (headings.stream().noneMatch(h -> !h.basis().isEmpty())) continue;
             if (!name.isEmpty() && headings.stream().noneMatch(Heading::explicit) && !TITLE.matcher(name).find()) continue;
             if (headings.size() == 1 && headerIndex < 0) continue;
-            if (headerIndex >= 0 || headings.size() != 2) return ambiguous();
+            if (headerIndex >= 0 || headings.size() != 2) {
+                OcrDiagnostics.event("table_rejected", "reason", "MULTIPLE_OR_AMBIGUOUS_HEADINGS", "headingCount", headings.size());
+                return ambiguous();
+            }
             headerIndex = i;
             columns = headings;
         }
-        if (headerIndex < 0) return null;
+        if (headerIndex < 0) {
+            OcrDiagnostics.event("table_rejected", "reason", "NO_TWO_COLUMN_REFERENCE_HEADING", "wordCount", words.size(), "lineCount", lines.size());
+            return null;
+        }
         Heading first = columns.getFirst();
         Heading second = columns.getLast();
         boolean referenceFirst = !first.basis().isEmpty();
         boolean referenceSecond = !second.basis().isEmpty();
-        if (referenceFirst == referenceSecond) return ambiguous();
+        if (referenceFirst == referenceSecond) {
+            OcrDiagnostics.event("table_rejected", "reason", "REFERENCE_COLUMN_AMBIGUOUS");
+            return ambiguous();
+        }
         Heading reference = referenceFirst ? first : second;
         Heading other = referenceFirst ? second : first;
         int gap = second.left() - first.right();
-        if (gap < Math.max(4, reference.height() / 3))
+        if (gap < Math.max(4, reference.height() / 3)) {
+            OcrDiagnostics.event("table_rejected", "reason", "HEADINGS_TOO_CLOSE", "gap", gap);
             return ambiguous();
+        }
+        OcrDiagnostics.event("table_heading", "basis", reference.basis(), "referenceSide", referenceFirst ? "LEFT" : "RIGHT",
+            "otherAmount", other.amount().replace("мл", "ml").replace("г", "g"),
+            "referenceConfidence", reference.confidence(), "otherConfidence", other.confidence(),
+            "confirmed", Math.min(reference.confidence(), other.confidence()) >= MIN_AGREEMENT_CONFIDENCE);
 
         int divider = first.right() + gap / 2;
         // Extend the gap between headings down the table and use the same spacing for the name boundary.
         int namesEnd = Math.min(first.left(), divider - (second.right() - first.right()));
         int valueStart = referenceFirst ? namesEnd : divider;
         int valueEnd = referenceFirst ? divider : second.right() + gap / 2;
+        OcrDiagnostics.event("table_columns", "namesEnd", namesEnd, "valueStart", valueStart, "valueEnd", valueEnd, "divider", divider);
         List<Row> rows = new ArrayList<>();
         for (List<Word> line : lines.subList(headerIndex + 1, lines.size())) {
             String name = join(line.stream().filter(word -> word.right() <= namesEnd).toList());
@@ -94,7 +110,13 @@ final class NutritionTableReader {
                 int tolerance = Math.max(reference.height(), (reference.right() - reference.left()) / 2);
                 boolean cutName = line.stream().anyMatch(word -> word.left() < namesEnd && word.right() > namesEnd);
                 if (cutName || values.getFirst().left() < valueStart || right > valueEnd
-                    || Math.abs(right - reference.right()) > tolerance) values = List.of();
+                    || Math.abs(right - reference.right()) > tolerance) {
+                    String key = NutritionTextParser.nutrientKey(name);
+                    OcrDiagnostics.event("cell_geometry_rejected", "field", key.isEmpty() ? "UNKNOWN" : key,
+                        "reason", cutName ? "CUT_ROW_LABEL" : values.getFirst().left() < valueStart || right > valueEnd
+                            ? "CROSSES_COLUMN_BOUNDARY" : "VALUE_NOT_ALIGNED", "rowTop", line.getFirst().top());
+                    values = List.of();
+                }
             }
             rows.add(new Row(name, join(values), line.stream().mapToInt(Word::top).min().orElseThrow(),
                 line.stream().mapToInt(Word::bottom).max().orElseThrow(), confidence(values)));
@@ -103,7 +125,9 @@ final class NutritionTableReader {
             .filter(word -> word.right() > first.left() && word.left() < second.right()).toList();
         Crop crop = new Crop(first.left(), header.stream().mapToInt(Word::top).min().orElseThrow(), second.right(),
             header.stream().mapToInt(Word::bottom).max().orElseThrow());
-        return new Reading(reference.basis(), referenceFirst, other.amount(), values(rows, reference.basis()),
+        Map<String, Cell> parsed = values(rows, reference.basis());
+        OcrDiagnostics.event("table_result", "rowCount", rows.size(), "validCellCount", parsed.size());
+        return new Reading(reference.basis(), referenceFirst, other.amount(), parsed,
             Math.min(reference.confidence(), other.confidence()), crop);
     }
 
@@ -125,23 +149,40 @@ final class NutritionTableReader {
     /** More fallback reads never turn a conflicting, legible cell into a majority vote. */
     static NutritionTextParser.Result agree(List<Reading> input) {
         List<Reading> readings = input.stream().filter(reading -> reading != null && reading.confirmed()).toList();
-        if (readings.size() < 2) return unresolved();
+        if (readings.size() < 2) {
+            OcrDiagnostics.event("consensus_rejected", "reason", "INSUFFICIENT_CONFIRMED_READINGS",
+                "totalReadings", input.size(), "confirmedReadings", readings.size());
+            return unresolved();
+        }
         Reading first = readings.getFirst();
         if (readings.stream().anyMatch(reading -> !first.basis().equals(reading.basis())
-            || first.referenceFirst() != reading.referenceFirst() || !first.otherAmount().equals(reading.otherAmount())))
+            || first.referenceFirst() != reading.referenceFirst() || !first.otherAmount().equals(reading.otherAmount()))) {
+            OcrDiagnostics.event("consensus_rejected", "reason", "HEADING_DISAGREEMENT", "confirmedReadings", readings.size());
             return unresolved();
+        }
         Map<String, Double> values = new LinkedHashMap<>();
         for (String key : NutritionLabel.KEYS) {
             List<Cell> cells = readings.stream().map(reading -> reading.values().get(key))
                 .filter(cell -> cell != null && cell.confidence() >= MIN_AGREEMENT_CONFIDENCE).toList();
             if (cells.size() >= 2 && cells.stream().anyMatch(cell -> cell.confidence() >= MIN_CLEAR_CONFIDENCE)
                 && cells.stream().allMatch(cell -> cell.value() == cells.getFirst().value()))
+            {
                 values.put(key, cells.getFirst().value());
+                OcrDiagnostics.event("field_agreed", "field", key, "matchingReadings", cells.size());
+            }
+            else {
+                long observed = readings.stream().filter(reading -> reading.values().containsKey(key)).count();
+                String reason = cells.size() < 2 ? observed > cells.size() ? "LOW_CELL_CONFIDENCE"
+                    : cells.isEmpty() ? "NO_VALID_CELL" : "ONLY_ONE_VALID_READING"
+                    : cells.stream().anyMatch(cell -> cell.value() != cells.getFirst().value()) ? "VALUE_DISAGREEMENT" : "NO_CLEAR_READING";
+                OcrDiagnostics.event("field_rejected", "field", key, "reason", reason, "eligibleReadings", cells.size(), "observedReadings", observed);
+            }
         }
         if (values.isEmpty()) return unresolved();
         try {
             return new NutritionTextParser.Result(new NutritionLabel(first.basis(), values), List.of());
         } catch (IllegalArgumentException e) {
+            OcrDiagnostics.event("consensus_rejected", "reason", "INCONSISTENT_NUTRIENT_VALUES");
             return new NutritionTextParser.Result(NutritionLabel.empty(), List.of("CHECK_INCONSISTENT_VALUES"));
         }
     }
@@ -165,9 +206,14 @@ final class NutritionTableReader {
                 if (previous.value().isEmpty() && row.follows(previous))
                     key = NutritionTextParser.nutrientKey(previous.name() + " " + row.name());
             }
-            if (key.isEmpty()) continue;
+            if (key.isEmpty()) {
+                if (!row.name().isEmpty() && !row.value().isEmpty())
+                    OcrDiagnostics.event("row_rejected", "reason", "UNKNOWN_NUTRIENT_LABEL", "rowTop", row.top());
+                continue;
+            }
             if (!seen.add(key)) {
                 values.remove(key);
+                OcrDiagnostics.event("cell_rejected", "field", key, "reason", "DUPLICATE_NUTRIENT_ROW");
                 continue;
             }
 
@@ -182,7 +228,11 @@ final class NutritionTableReader {
             }
             double maximum = energy ? 1000 : 100;
             if (basis.equals("PER_100_ML")) maximum *= 2;
-            if (value != null && value <= maximum) values.put(key, new Cell(value, row.confidence()));
+            if (value != null && value <= maximum) {
+                values.put(key, new Cell(value, row.confidence()));
+                OcrDiagnostics.event("cell_parsed", "field", key, "confidence", row.confidence());
+            } else OcrDiagnostics.event("cell_rejected", "field", key, "reason", value == null ? rejectedCell(row.value(), energy) : "OUT_OF_RANGE",
+                "confidence", row.confidence());
         }
         return values;
     }
@@ -191,6 +241,15 @@ final class NutritionTableReader {
         var match = (energy ? ENERGY : GRAMS).matcher(NutritionTextParser.withoutTableBorders(value));
         if (!match.matches() || energy && ((match.group("open") == null) != (match.group("close") == null))) return null;
         return Double.parseDouble((energy ? match.group("kcal") : match.group(1)).replace(',', '.'));
+    }
+
+    private static String rejectedCell(String text, boolean energy) {
+        if (text.isBlank()) return "EMPTY_REFERENCE_CELL";
+        if (text.contains("%")) return "PERCENTAGE_IN_VALUE_CELL";
+        if (text.matches(".*[<>≤≥].*")) return "INEQUALITY_IN_VALUE_CELL";
+        if (!(energy ? Pattern.compile("(?iu)kcal|ккал") : Pattern.compile("(?iu)(?<![\\p{L}])(?:g|q|г)(?![\\p{L}])")).matcher(text).find())
+            return "MISSING_OR_UNSUPPORTED_UNIT";
+        return "INVALID_VALUE_SHAPE";
     }
 
     private static List<Heading> headings(List<Word> line) {

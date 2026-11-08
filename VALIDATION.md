@@ -1,5 +1,20 @@
 # Etiket validation
 
+## 0.6.3 OCR diagnostics
+
+All **100 core/backend tests passed**: 31 core and 69 backend, with native Tesseract tests enabled and the pinned production language models. Android source and APK remain at 0.6.2 and were not rebuilt for this backend-only update.
+
+New checks exercise reason-code logging for missing units and numeric agreement, unchanged extraction results, diagnostic disablement, nested pass/job context cleanup, the detail cap and terminal summary, missing-executable diagnostics, job reuse, retries and exclusion of raw text, filenames, tokens and exception messages. The native photo check records table/pass decisions while preserving the original purple label's two reliable values.
+
+The packaged JAR was started locally with `OCR_DIAGNOSTICS=true`. Health reported 0.6.3. Actual multipart requests produced correlated queue, pass and result events for the original purple photo and the blue biscuit preview. Repeating a completed request produced `job_reused`; unauthorized polling returned 404. Captured output contained no private capabilities or raw label text.
+
+| Photo | Suggestions | Logged observations |
+| --- | --- | --- |
+| Original purple table | Saturated fat 3.3 g and salt 0.29 g per 100 g | Missing/unsupported units, some misassigned cells and insufficient agreement for other fields |
+| Blue biscuit screenshot preview | None | No usable reference heading; flat parsing requested reference confirmation |
+
+These are local checks. This update adds observability to the existing reader; phone/Railway logs are needed to diagnose the exact newly uploaded photo. See `OCR_DIAGNOSTICS.md` and `V0_6_3_UPDATE.md`.
+
 ## 0.6.2 nutrition extraction and photo review
 
 All **131 tests passed**: 31 core, 62 backend and 38 Android. Native engine checks were enabled with Tesseract 5.5.0 and the same pinned five language models used by Docker/CI. Android lint reported no issues. The APK is `0.6.2-ocr`, version code 10, with the same demo signing certificate as 0.6.1.

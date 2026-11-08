@@ -1,4 +1,4 @@
-# OCR and nutrition contract — 0.6.2
+# OCR and nutrition contract — 0.6.3
 
 ## Private analysis
 
@@ -17,6 +17,10 @@ Nutrition jobs use a metadata-free lossless raster when it fits the 2 MiB limit,
 The local executable has a 35-second total deadline, a bounded output and one CPU thread. It normalizes light print on dark labels before adjusting contrast and measuring coverage. It also tries deskew and quarter turns when needed. It uses the selected language's model. The Docker image installs five pinned models from tessdata_best. Model selection and arguments are fixed server-side.
 
 Short or fragmentary text and incomplete image coverage can yield `RETAKE` with no nutrition suggestions. The private snapshot retains the original reading for diagnosis. Android hides the unusable draft and prompts for a new crop, a close-up or manual entry.
+
+## Operational diagnostics
+
+`OCR_DIAGNOSTICS=true` enables bounded backend-only INFO events under `az.etiket.backend.OcrDiagnostics`. The default is false. Job IDs correlate upload, queue/reuse, native passes, table decisions, retries and the terminal summary. Detail is capped at 250 events per processing context; the terminal job result/failure is retained after that cap. Native parameters, timings, dimensions, counts, confidences and controlled reason codes are recorded. Raw text, photo bytes, filenames, capabilities, evidence hashes and exception messages are not logged. The separate private OCR snapshot and its original access rules are unchanged. See `OCR_DIAGNOSTICS.md`.
 
 ## Final submission and audit
 

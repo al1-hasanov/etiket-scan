@@ -28,16 +28,18 @@ final class LabelAnalysis {
     private final TransactionTemplate tx;
     private final LabelPhotos images;
     private final OcrEngine engine;
+    private final OcrDiagnostics diagnostics;
     private final boolean enabled, workerEnabled;
     private final int maximum, pendingMaximum;
     private final JsonMapper json = JsonMapper.builder().build();
     private final Semaphore processing = new Semaphore(2);
 
-    LabelAnalysis(JdbcTemplate db, TransactionTemplate tx, LabelPhotos images, OcrEngine engine,
+    LabelAnalysis(JdbcTemplate db, TransactionTemplate tx, LabelPhotos images, OcrEngine engine, OcrDiagnostics diagnostics,
             @Value("${review.password:}") String password, @Value("${ocr.enabled:true}") boolean enabled,
             @Value("${ocr.worker-enabled:true}") boolean workerEnabled, @Value("${ocr.max-jobs:200}") int maximum,
             @Value("${ocr.max-pending:8}") int pendingMaximum) {
         this.db=db; this.tx=tx; this.images=images; this.engine=engine; this.enabled=enabled && !password.isBlank();
+        this.diagnostics=diagnostics;
         this.workerEnabled=workerEnabled; this.maximum=maximum; this.pendingMaximum=pendingMaximum;
     }
     Result create(Request input, MultipartFile photo) {
@@ -47,8 +49,9 @@ final class LabelAnalysis {
         if(input.role()==null||!Set.of("ingredients","nutrition").contains(input.role()))throw new SubmissionException(400,"ANALYSIS_ROLE_INVALID");
         if(input.language()==null||!TesseractOcr.LANGUAGES.containsKey(input.language()))throw new SubmissionException(400,"OCR_LANGUAGE_UNSUPPORTED");
         if(!processing.tryAcquire())throw new SubmissionException(429,"OCR_BUSY");
-        try {
+        try (var diagnostic = diagnostics.job(id, input.role(), input.language(), 0)) {
             var image=images.sanitizeForAnalysis(photo, input.role().equals("nutrition"));
+            OcrDiagnostics.event("upload_prepared", "uploadBytes", photo.getSize(), "analysisBytes", image.bytes().length);
             return tx.execute(status->{
                 guard();
                 long now=System.currentTimeMillis();
@@ -58,6 +61,7 @@ final class LabelAnalysis {
                     Job old=authorized(existing.getFirst(),token);
                     if(!old.hash().equals(image.evidenceHash())||!old.role().equals(input.role())||!old.language().equals(input.language()))
                         throw new SubmissionException(409,"ANALYSIS_ID_CONFLICT");
+                    OcrDiagnostics.event("job_reused", "status", old.status(), "previousAttempts", old.attempts());
                     return result(old);
                 }
                 if(db.queryForObject("SELECT COUNT(*) FROM label_analysis_jobs",Integer.class)>=maximum
@@ -65,6 +69,7 @@ final class LabelAnalysis {
                     throw new SubmissionException(429,"OCR_QUEUE_FULL");
                 db.update("INSERT INTO label_analysis_jobs(id,access_hash,role,language,photo_data,photo_sha256,status,created_at,expires_at,output) VALUES (?,?,?,?,?,?,'QUEUED',?,?,?)",
                     id,hash(token),input.role(),input.language(),image.bytes(),image.evidenceHash(),now,now+86_400_000,"{}");
+                OcrDiagnostics.event("job_queued", "status", "QUEUED");
                 return new Result(id,"QUEUED",null,"");
             });
         } finally { processing.release(); }
@@ -99,26 +104,38 @@ final class LabelAnalysis {
             return job(id);
         });
         if(claimed==null)return;
-        try {
-            boolean nutrition = claimed.role().equals("nutrition");
-            OcrEngine.Text text = nutrition ? engine.recognizeNutrition(claimed.photo(), claimed.language())
-                : engine.recognize(claimed.photo(), claimed.language());
-            var parsed = new NutritionTextParser.Result(NutritionLabel.empty(), List.of());
-            if (nutrition) parsed = text.tableNutrition() != null ? text.tableNutrition() : NutritionTextParser.parse(text.text());
-            List<String> warnings=new ArrayList<>(text.warnings());
-            warnings.addAll(parsed.warnings());
-            boolean retake=!OcrQuality.assess(text.text(),text.confidence()).readable()
-                ||text.warnings().stream().anyMatch(warning->warning.startsWith("RETAKE_"));
-            if(retake)warnings.add("RETAKE_CLEAR_CLOSE_UP");
-            else if(!text.uncertainWords().isEmpty())warnings.add("CHECK_UNCERTAIN_WORDS");
-            var snapshot=new Snapshot("Tesseract/Etiket-0.6.2",claimed.language(),text.text(),text.confidence(),
-                text.uncertainWords(),text.rotation(),retake?NutritionLabel.empty():parsed.nutrition(),List.copyOf(warnings));
-            db.update("UPDATE label_analysis_jobs SET status=?,output=?,error_code='',photo_data=NULL WHERE id=? AND status='PROCESSING' AND attempts=?",
-                retake?"RETAKE":"COMPLETED",json.writeValueAsString(snapshot),claimed.id(),claimed.attempts());
-        } catch(Exception e) {
-            String code=e instanceof java.util.concurrent.TimeoutException?"OCR_TIMEOUT":"OCR_UNAVAILABLE";
-            db.update("UPDATE label_analysis_jobs SET status=?,error_code=?,photo_data=CASE WHEN attempts>=2 THEN NULL ELSE photo_data END WHERE id=? AND status='PROCESSING' AND attempts=?",
-                claimed.attempts()<2?"QUEUED":"FAILED",code,claimed.id(),claimed.attempts());
+        try (var diagnostic = diagnostics.job(claimed.id(), claimed.role(), claimed.language(), claimed.attempts())) {
+            OcrDiagnostics.event("job_started", "imageBytes", claimed.photo().length);
+            try {
+                boolean nutrition = claimed.role().equals("nutrition");
+                OcrEngine.Text text = nutrition ? engine.recognizeNutrition(claimed.photo(), claimed.language())
+                    : engine.recognize(claimed.photo(), claimed.language());
+                var parsed = new NutritionTextParser.Result(NutritionLabel.empty(), List.of());
+                if (nutrition) parsed = text.tableNutrition() != null ? text.tableNutrition() : NutritionTextParser.parse(text.text());
+                OcrDiagnostics.event("nutrition_parsed", "source", text.tableNutrition() != null ? "TABLE_AGREEMENT" : nutrition ? "FLAT_TEXT" : "NOT_REQUESTED",
+                    "basis", parsed.nutrition().basis().isEmpty() ? "UNKNOWN" : parsed.nutrition().basis(), "suggestionCount", parsed.nutrition().values().size());
+                for (String warning : parsed.warnings()) OcrDiagnostics.event("parser_warning", "reason", warning);
+                List<String> warnings=new ArrayList<>(text.warnings());
+                warnings.addAll(parsed.warnings());
+                boolean retake=!OcrQuality.assess(text.text(),text.confidence()).readable()
+                    ||text.warnings().stream().anyMatch(warning->warning.startsWith("RETAKE_"));
+                if(retake)warnings.add("RETAKE_CLEAR_CLOSE_UP");
+                else if(!text.uncertainWords().isEmpty())warnings.add("CHECK_UNCERTAIN_WORDS");
+                var snapshot=new Snapshot("Tesseract/Etiket-0.6.3",claimed.language(),text.text(),text.confidence(),
+                    text.uncertainWords(),text.rotation(),retake?NutritionLabel.empty():parsed.nutrition(),List.copyOf(warnings));
+                db.update("UPDATE label_analysis_jobs SET status=?,output=?,error_code='',photo_data=NULL WHERE id=? AND status='PROCESSING' AND attempts=?",
+                    retake?"RETAKE":"COMPLETED",json.writeValueAsString(snapshot),claimed.id(),claimed.attempts());
+                OcrDiagnostics.event("job_result", "status", retake ? "RETAKE" : "COMPLETED", "confidence", text.confidence(),
+                    "rawCharacters", text.text().length(), "uncertainWords", text.uncertainWords().size(),
+                    "suggestionCount", snapshot.nutrition().values().size(), "warningCount", warnings.size());
+                for (String warning : text.warnings()) OcrDiagnostics.event("reader_warning", "reason", warning);
+            } catch(Exception e) {
+                String code=e instanceof java.util.concurrent.TimeoutException?"OCR_TIMEOUT":"OCR_UNAVAILABLE";
+                db.update("UPDATE label_analysis_jobs SET status=?,error_code=?,photo_data=CASE WHEN attempts>=2 THEN NULL ELSE photo_data END WHERE id=? AND status='PROCESSING' AND attempts=?",
+                    claimed.attempts()<2?"QUEUED":"FAILED",code,claimed.id(),claimed.attempts());
+                OcrDiagnostics.event("job_failed", "reason", code, "exceptionType", e.getClass().getSimpleName(),
+                    "nextStatus", claimed.attempts() < 2 ? "QUEUED" : "FAILED");
+            }
         }
     }
     private Result result(Job j){return new Result(j.id(),j.status(),Set.of("COMPLETED","RETAKE").contains(j.status())?json.readValue(j.output(),Snapshot.class):null,j.error());}

@@ -24,6 +24,7 @@ services:
       OFF_ENABLED: "false"
       REVIEW_ADMIN_USERNAME: ${REVIEW_ADMIN_USERNAME:-reviewer}
       REVIEW_ADMIN_PASSWORD: ${REVIEW_ADMIN_PASSWORD:-}
+      OCR_DIAGNOSTICS: ${OCR_DIAGNOSTICS:-false}
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:
