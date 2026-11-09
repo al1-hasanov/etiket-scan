@@ -1,7 +1,7 @@
 {
-  "release": "0.6.2",
-  "baseGitSnapshot": "372a99365bc6dc100f659be83718112d2715bb3f",
-  "validatedAt": "2026-11-07T16:00:12.334572+00:00",
+  "release": "0.6.3",
+  "scope": "backend-only OCR diagnostics; Android stays at 0.6.2",
+  "validatedAt": "2026-11-08T16:02:50.733100+00:00",
   "testResults": {
     "core": {
       "tests": 31,
@@ -10,31 +10,18 @@
       "skipped": 0
     },
     "backend": {
-      "tests": 62,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    "app": {
-      "tests": 38,
+      "tests": 69,
       "failures": 0,
       "errors": 0,
       "skipped": 0
     }
   },
-  "totalPassed": 131,
+  "totalPassed": 100,
   "nativeOcrTestsEnabled": true,
-  "android": {
-    "applicationId": "az.etiket.scanner.demo",
-    "versionCode": 10,
-    "versionName": "0.6.2-ocr",
-    "lint": "No issues found.",
-    "signingCertificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5"
-  },
   "packagedHttpChecks": {
     "health": {
-      "version": "0.6.2",
-      "status": "UP"
+      "status": "UP",
+      "version": "0.6.3"
     },
     "nutrition-purple-de.jpg": {
       "status": "COMPLETED",
@@ -45,9 +32,22 @@
           "saturatedFat": 3.3
         }
       },
-      "engine": "Tesseract/Etiket-0.6.2",
+      "elapsedSeconds": 10.96,
       "unauthorizedStatus": 404,
-      "elapsedSeconds": 10.71
+      "logLines": 112,
+      "reasons": [
+        "CROSSES_COLUMN_BOUNDARY",
+        "CUT_ROW_LABEL",
+        "EMPTY_REFERENCE_CELL",
+        "FEWER_THAN_FOUR_VALUES",
+        "INSUFFICIENT_CONFIRMED_READINGS",
+        "MISSING_OR_UNSUPPORTED_UNIT",
+        "NO_TWO_COLUMN_REFERENCE_HEADING",
+        "NO_VALID_CELL",
+        "ONLY_ONE_VALID_READING",
+        "OUT_OF_RANGE",
+        "UNKNOWN_NUTRIENT_LABEL"
+      ]
     },
     "nutrition-blue-preview-de.png": {
       "status": "COMPLETED",
@@ -55,141 +55,170 @@
         "basis": "",
         "values": {}
       },
-      "engine": "Tesseract/Etiket-0.6.2",
+      "elapsedSeconds": 4.68,
       "unauthorizedStatus": 404,
-      "elapsedSeconds": 4.05
+      "logLines": 23,
+      "reasons": [
+        "CONFIRM_REFERENCE_AMOUNT_AND_ENTER_VALUES",
+        "NO_TABLE_LAYOUT",
+        "NO_TWO_COLUMN_REFERENCE_HEADING"
+      ]
     },
-    "nutrition-lipton-de.png": {
-      "status": "COMPLETED",
-      "nutrition": {
-        "basis": "",
-        "values": {}
-      },
-      "engine": "Tesseract/Etiket-0.6.2",
-      "unauthorizedStatus": 404,
-      "elapsedSeconds": 2.38
-    }
+    "diagnosticsEnabledByEnvironment": true,
+    "tokensAndRawTextExcluded": true
   },
-  "limits": [
-    "Only three real package images were checked; one is a screenshot preview. This is not a representative OCR accuracy benchmark.",
-    "Original purple label returns only two reliable suggested values. Other fields remain for manual entry.",
-    "Physical-phone capture and Railway deployment remain user verification steps."
-  ],
-  "baselineOriginalPurple": {
-    "version": "0.6.0 reader in uploaded 0.6.1 project",
-    "nutrition": {
-      "basis": "",
-      "values": {}
-    }
-  },
-  "isolatedWorkflow": [
-    "Real original photograph is sanitized and analyzed by native Tesseract.",
-    "Uncertain fields are corrected manually in an isolated H2 draft.",
-    "The barcode is not available as a reviewed product before approval.",
-    "Nutrition approval without separate photo confirmation is rejected.",
-    "After approval, barcode lookup returns the reviewed per-100-g values.",
-    "Raw OCR and capability tokens are absent from public product JSON."
+  "diagnosticsChecks": [
+    "Disabled diagnostics emit no job data.",
+    "Nested native passes restore parent context and job scope is cleared.",
+    "Detailed events are capped at 250 while the terminal summary is retained.",
+    "Queue, reuse, attempts and results correlate by job ID.",
+    "Missing units and missing reference headings produce explicit reason codes.",
+    "Exception messages, raw text, image filenames and capabilities are excluded."
   ],
   "previousRecordedResults": {
-    "release": "0.5.3",
-    "validatedDate": "2026-11-06",
-    "suites": {
+    "release": "0.6.2",
+    "baseGitSnapshot": "372a99365bc6dc100f659be83718112d2715bb3f",
+    "validatedAt": "2026-11-07T16:00:12.334572+00:00",
+    "testResults": {
       "core": {
-        "tests": 30,
+        "tests": 31,
         "failures": 0,
         "errors": 0,
         "skipped": 0
       },
       "backend": {
-        "tests": 50,
+        "tests": 62,
         "failures": 0,
         "errors": 0,
         "skipped": 0
       },
-      "android": {
-        "tests": 31,
+      "app": {
+        "tests": 38,
         "failures": 0,
         "errors": 0,
         "skipped": 0
       }
     },
-    "totalTests": 111,
-    "androidLint": {
-      "issues": []
-    },
-    "apk": {
+    "totalPassed": 131,
+    "nativeOcrTestsEnabled": true,
+    "android": {
       "applicationId": "az.etiket.scanner.demo",
-      "versionCode": 7,
-      "versionName": "0.5.3-ocr",
-      "certificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
-      "sha256": "bf2c7fd086a29210a37638d7830eb543d82b76dfa2cb96868565207af3330f58"
+      "versionCode": 10,
+      "versionName": "0.6.2-ocr",
+      "lint": "No issues found.",
+      "signingCertificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5"
     },
-    "packagedCheck": {
-      "oneColumnValues": {
-        "energyKcal": 378,
-        "fat": 9.8,
-        "saturatedFat": 3.3,
-        "carbohydrates": 66,
-        "sugars": 27,
-        "fiber": 2.7,
-        "protein": 5.2,
-        "salt": 0.29
+    "packagedHttpChecks": {
+      "health": {
+        "version": "0.6.2",
+        "status": "UP"
       },
-      "twoColumns": "COMPLETED_WITHOUT_VALUES",
-      "screenshot": "COMPLETED_WITHOUT_VALUES"
+      "nutrition-purple-de.jpg": {
+        "status": "COMPLETED",
+        "nutrition": {
+          "basis": "PER_100_G",
+          "values": {
+            "salt": 0.29,
+            "saturatedFat": 3.3
+          }
+        },
+        "engine": "Tesseract/Etiket-0.6.2",
+        "unauthorizedStatus": 404,
+        "elapsedSeconds": 10.71
+      },
+      "nutrition-blue-preview-de.png": {
+        "status": "COMPLETED",
+        "nutrition": {
+          "basis": "",
+          "values": {}
+        },
+        "engine": "Tesseract/Etiket-0.6.2",
+        "unauthorizedStatus": 404,
+        "elapsedSeconds": 4.05
+      },
+      "nutrition-lipton-de.png": {
+        "status": "COMPLETED",
+        "nutrition": {
+          "basis": "",
+          "values": {}
+        },
+        "engine": "Tesseract/Etiket-0.6.2",
+        "unauthorizedStatus": 404,
+        "elapsedSeconds": 2.38
+      }
     },
-    "productionModified": false,
-    "previousRelease": {
-      "release": "0.5.1",
-      "validatedDate": "2026-11-05",
+    "limits": [
+      "Only three real package images were checked; one is a screenshot preview. This is not a representative OCR accuracy benchmark.",
+      "Original purple label returns only two reliable suggested values. Other fields remain for manual entry.",
+      "Physical-phone capture and Railway deployment remain user verification steps."
+    ],
+    "baselineOriginalPurple": {
+      "version": "0.6.0 reader in uploaded 0.6.1 project",
+      "nutrition": {
+        "basis": "",
+        "values": {}
+      }
+    },
+    "isolatedWorkflow": [
+      "Real original photograph is sanitized and analyzed by native Tesseract.",
+      "Uncertain fields are corrected manually in an isolated H2 draft.",
+      "The barcode is not available as a reviewed product before approval.",
+      "Nutrition approval without separate photo confirmation is rejected.",
+      "After approval, barcode lookup returns the reviewed per-100-g values.",
+      "Raw OCR and capability tokens are absent from public product JSON."
+    ],
+    "previousRecordedResults": {
+      "release": "0.5.3",
+      "validatedDate": "2026-11-06",
       "suites": {
         "core": {
-          "tests": 28,
+          "tests": 30,
           "failures": 0,
           "errors": 0,
           "skipped": 0
         },
         "backend": {
-          "tests": 48,
+          "tests": 50,
           "failures": 0,
           "errors": 0,
           "skipped": 0
         },
         "android": {
-          "tests": 30,
+          "tests": 31,
           "failures": 0,
           "errors": 0,
           "skipped": 0
         }
       },
-      "totalTests": 106,
+      "totalTests": 111,
       "androidLint": {
-        "errors": 0,
-        "warnings": [
-          "AndroidGradlePluginVersion"
-        ]
+        "issues": []
       },
       "apk": {
         "applicationId": "az.etiket.scanner.demo",
-        "versionCode": 6,
-        "versionName": "0.5.1-ocr",
+        "versionCode": 7,
+        "versionName": "0.5.3-ocr",
         "certificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
-        "sha256": "7eb28f815f34dd825c10c1d80b44cf844e1c55a0a44654de0ebd7256e331a959"
+        "sha256": "bf2c7fd086a29210a37638d7830eb543d82b76dfa2cb96868565207af3330f58"
       },
-      "starterData": "unchanged",
-      "productionModified": false,
       "packagedCheck": {
-        "packagedJar": "0.5.1",
-        "realPhotos": 1,
-        "privateJobAccess": "passed",
-        "fullPhotoStatus": "RETAKE",
-        "ingredientCropStatus": "COMPLETED",
-        "ingredientCropSeconds": 3.65,
-        "exactTranscription": false,
-        "database": "isolated H2"
+        "oneColumnValues": {
+          "energyKcal": 378,
+          "fat": 9.8,
+          "saturatedFat": 3.3,
+          "carbohydrates": 66,
+          "sugars": 27,
+          "fiber": 2.7,
+          "protein": 5.2,
+          "salt": 0.29
+        },
+        "twoColumns": "COMPLETED_WITHOUT_VALUES",
+        "screenshot": "COMPLETED_WITHOUT_VALUES"
       },
-      "backendHotfix": {
-        "release": "0.5.2",
+      "productionModified": false,
+      "previousRelease": {
+        "release": "0.5.1",
+        "validatedDate": "2026-11-05",
         "suites": {
           "core": {
             "tests": 28,
@@ -198,18 +227,67 @@
             "skipped": 0
           },
           "backend": {
-            "tests": 49,
+            "tests": 48,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "android": {
+            "tests": 30,
             "failures": 0,
             "errors": 0,
             "skipped": 0
           }
         },
-        "totalTests": 77,
-        "darkLabelBefore": "RETAKE",
-        "darkLabelAfter": "COMPLETED",
-        "liptonCrop": "COMPLETED",
-        "liptonFull": "RETAKE",
-        "androidApkVersion": "0.5.1-ocr"
+        "totalTests": 106,
+        "androidLint": {
+          "errors": 0,
+          "warnings": [
+            "AndroidGradlePluginVersion"
+          ]
+        },
+        "apk": {
+          "applicationId": "az.etiket.scanner.demo",
+          "versionCode": 6,
+          "versionName": "0.5.1-ocr",
+          "certificateSha256": "70cb443a22c0b25867d07bb627458a3c8d877cca17a592ea717498b661afe8b5",
+          "sha256": "7eb28f815f34dd825c10c1d80b44cf844e1c55a0a44654de0ebd7256e331a959"
+        },
+        "starterData": "unchanged",
+        "productionModified": false,
+        "packagedCheck": {
+          "packagedJar": "0.5.1",
+          "realPhotos": 1,
+          "privateJobAccess": "passed",
+          "fullPhotoStatus": "RETAKE",
+          "ingredientCropStatus": "COMPLETED",
+          "ingredientCropSeconds": 3.65,
+          "exactTranscription": false,
+          "database": "isolated H2"
+        },
+        "backendHotfix": {
+          "release": "0.5.2",
+          "suites": {
+            "core": {
+              "tests": 28,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "backend": {
+              "tests": 49,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          "totalTests": 77,
+          "darkLabelBefore": "RETAKE",
+          "darkLabelAfter": "COMPLETED",
+          "liptonCrop": "COMPLETED",
+          "liptonFull": "RETAKE",
+          "androidApkVersion": "0.5.1-ocr"
+        }
       }
     }
   }
