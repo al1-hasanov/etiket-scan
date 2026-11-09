@@ -20,4 +20,13 @@ public record NutritionLabel(String basis, Map<String, Double> values) {
                 throw new IllegalArgumentException("NUTRITION_VALUES_INCONSISTENT");
     }
     public static NutritionLabel empty() { return new NutritionLabel("", Map.of()); }
+
+    /** Compare explicit amounts only. Missing fields are not zero. */
+    public boolean disagreesWith(NutritionLabel other) {
+        if (values.isEmpty() || other.values().isEmpty()) return false;
+        return !basis.equals(other.basis()) || values.entrySet().stream().anyMatch(entry -> {
+            Double value = other.values().get(entry.getKey());
+            return value != null && value.doubleValue() != entry.getValue();
+        });
+    }
 }

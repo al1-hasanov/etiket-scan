@@ -1,6 +1,8 @@
 package az.etiket.backend;
 
 import static az.etiket.backend.SubmissionModels.*;
+import az.etiket.core.NutritionLabel;
+import az.etiket.core.NutritionSource;
 import java.io.*;
 import java.net.*;
 import java.net.http.*;
@@ -30,6 +32,7 @@ class SubmissionApiTest {
     String auth = "Basic " + Base64.getEncoder().encodeToString("reviewer:only-for-local-tests".getBytes(StandardCharsets.UTF_8));
 
     @BeforeEach void reset() {
+        db.update("DELETE FROM nutrition_reports");
         db.update("DELETE FROM reviewed_products"); db.update("DELETE FROM submission_photos"); db.update("DELETE FROM label_submissions"); token=null;
     }
     HttpResponse<String> get(String path, boolean admin) throws Exception {
@@ -69,6 +72,55 @@ class SubmissionApiTest {
         assertEquals(403,post(path,SubmissionFixtures.approval(0,""),false).statusCode());
         assertEquals(200,get("/review",true).statusCode());
         var response=post(path,SubmissionFixtures.approval(0,""),true);assertEquals(200,response.statusCode(),response.body());
+    }
+    @Test void previewsSevenRetailerCandidatesAndKeepsConflictsOutOfTheScanResult() throws Exception {
+        String path = "/api/v1/review/nutrition-import";
+        var feed = new NutritionFeeds.Feed("retailer-fixture", NutritionSource.Kind.RETAILER_REPORTED, "Test retailer",
+            "2025-01-01T00:00:00Z", List.of(
+                nutritionReport("4760177560085", "400 g", Map.of("energyKcal", 224.8d, "fat", 18d, "protein", 13d)),
+                nutritionReport("4760095105863", "1 L", Map.of("energyKcal", 19.3d, "sugars", 2.3d, "salt", 0d)),
+                nutritionReport("4760018505107", "400 g", Map.of("energyKcal", 260d, "sugars", 60d)),
+                nutritionReport("4760065703150", "720 g", Map.of("energyKcal", 85.5d, "sugars", 15d)),
+                nutritionReport("4760068002243", "640 g", Map.of("energyKcal", 90d, "sugars", 6d)),
+                nutritionReport("4760065708957", "640 g", Map.of("energyKcal", 36d, "sugars", 5d)),
+                nutritionReport("4760065708018", "660 g", Map.of("energyKcal", 70d, "sugars", 3.6d))));
+        assertEquals(403, post(path + "?dryRun=false", feed, false).statusCode());
+        var preview = post(path, feed, true);
+        assertEquals(200, preview.statusCode(), preview.body());
+        JsonNode result = json.readTree(preview.body());
+        assertFalse(result.path("applied").asBoolean());
+        assertEquals(7, result.path("records").asInt());
+        assertEquals("PACK_SIZE_MISMATCH", result.at("/conflicts/0/reason").asString());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM nutrition_reports", Integer.class));
+        assertEquals(200, post(path + "?dryRun=false", feed, true).statusCode());
+        assertEquals(200, post(path + "?dryRun=false", feed, true).statusCode());
+        assertEquals(7, db.queryForObject("SELECT COUNT(*) FROM nutrition_reports", Integer.class));
+        JsonNode n1 = json.readTree(get("/api/v1/products/4760177560085", false).body());
+        assertEquals("RETAILER_REPORTED", n1.at("/nutritionSource/kind").asString());
+        assertEquals("Test retailer", n1.at("/nutritionSource/name").asString());
+        assertEquals(224.8d, n1.at("/nutrition/values/energyKcal").asDouble(-1));
+        assertFalse(n1.at("/nutrition/values").has("sugars"));
+        assertFalse(n1.at("/evidence/labelPhotoChecked").asBoolean());
+        assertTrue(n1.path("ingredients").asString().contains("inək südü"));
+        JsonNode kefir = json.readTree(get("/api/v1/products/4760095105863", false).body());
+        assertEquals("PER_100_G", kefir.at("/nutrition/basis").asString());
+        assertEquals(0d, kefir.at("/nutrition/values/salt").asDouble(-1));
+        assertEquals("CONFLICT", json.readTree(get("/api/v1/products/4760065708018", false).body())
+            .at("/nutritionSource/kind").asString());
+    }
+    @Test void invalidBatchDoesNotLeavePartialRows() throws Exception {
+        var feed = new NutritionFeeds.Feed("retailer-fixture", NutritionSource.Kind.RETAILER_REPORTED, "Test retailer",
+            "2025-01-01T00:00:00Z", List.of(
+                nutritionReport("4760177560085", "400 g", Map.of("energyKcal", 224.8d)),
+                nutritionReport("3017620422003", "400 g", Map.of("energyKcal", 539d))));
+        var response = post("/api/v1/review/nutrition-import?dryRun=false", feed, true);
+        assertEquals(400, response.statusCode(), response.body());
+        assertEquals("NUTRITION_IMPORT_UNKNOWN_BARCODE", json.readTree(response.body()).path("code").asString());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM nutrition_reports", Integer.class));
+    }
+    private static NutritionFeeds.Input nutritionReport(String barcode, String packSize, Map<String, Double> values) {
+        return new NutritionFeeds.Input(barcode, packSize, "https://example.test/products/" + barcode,
+            new NutritionLabel("PER_100_G", values));
     }
     @Test void approvalPublishesPhotosAndIngredientsWithoutInventingNutrition() throws Exception {
         Draft draft=submit("5201360553457");String id=draft.clientRequestId();

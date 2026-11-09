@@ -1,8 +1,17 @@
-# Etiket 0.6.3 — OCR diagnostics
+# Etiket 0.6.4 — Nutrition from catalogue sources
 
 Etiket reads ingredient and nutrition labels into editable drafts for the Android package-photo and private review flow. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
 
 The unchanged starter sample has **77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks**. Its records remain `WEB_SOURCED_UNVERIFIED`. Reviewed submissions are additional evidence with separate storage, source photos and review dates. No synthetic review fixture is published by default.
+
+## New in 0.6.4
+
+- Reviewers can preview and apply a batch of retailer or manufacturer nutrition reports for existing barcodes from **Import nutrition reports** on `/review`.
+- A scan uses package-checked nutrition first. It can display a saved source panel for the same pack, with separate attribution. Conflicting reports hold the panel for package review.
+- Open Food Facts can fill an empty panel on a known barcode when its Azerbaijan market, pack size and explicit nutrition basis match. The backend caches provider results and keeps the catalogue entry available if the provider fails.
+- Fresh Android installs start with live lookup at the Railway address. Saved API settings and the offline catalogue still work.
+
+See [V0_6_4_UPDATE.md](V0_6_4_UPDATE.md) for deployment, the feed format and phone checks.
 
 ## New in 0.6.3
 
@@ -59,7 +68,7 @@ See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, refer
 ## 1. Try the app without a server
 
 1. Build `:app:assembleDebug` and install `app/build/outputs/apk/debug/app-debug.apk` on Android 8.0 or newer. It keeps the existing application ID and development signing key. The old `dist/` binaries are historical 0.2 builds.
-2. Open **Etiket Demo**. The default mode is **Offline catalogue**. Existing installations retain their API/language settings. A previously refreshed catalogue is also available offline.
+2. Open **Etiket Demo**. To test offline explicitly, turn off **Live product lookup** in Settings. Fresh installs default to the production Railway address. Existing installations retain their API and language settings.
 3. Open **Kataloq / Catalogue**. Search by product name, brand or barcode.
 4. Enter or scan the following codes. These expectations describe the unchanged starter snapshot before real approvals. Manual entry avoids needing the scanner module's first download.
 
@@ -73,14 +82,14 @@ See [INGREDIENT_DICTIONARY.md](INGREDIENT_DICTIONARY.md) for the contract, refer
 
 You can save products and reopen them from **Seçilmişlər / Saved**. Evidence flags and source links survive saving/restarting. The ingredient text stays in the source language; changing the UI to English does not translate it. The home screen also links to the old, clearly fictional engineering samples.
 
-Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet. Manual entry is available. Label photos use your camera app or the system document picker. Deploy the 0.6.3 API for the improved reader. The Docker image supplies the engine. Local Windows runs need a separate Tesseract installation or can use manual transcription.
+Barcode scanning uses Google Code Scanner through Google Play services. The first scanner-module download requires internet. Manual entry is available. Label photos use your camera app or the system document picker. The Docker image supplies the OCR engine. Local Windows runs need a separate Tesseract installation or can use manual transcription.
 
 ## 2. Start the Java API on Windows
 
 1. Apply the changed-files ZIP to your existing project root containing `settings.gradle`, `backend/`, `app/` and `run-backend.bat`.
 2. Install JDK 25. Check `java -version`, or configure `JAVA_HOME` to that JDK.
 3. Run `gradlew.bat -PbackendOnly :backend:bootJar`, then double-click **run-backend.bat**. The script runs the newly built JAR from `backend/build/libs/`.
-4. Open the health endpoint. Expect `{"status":"UP","version":"0.6.0"}`. Field order can differ. [Health](http://127.0.0.1:8080/api/v1/health)
+4. Open the health endpoint. Expect `{"status":"UP","version":"0.6.4"}`. Field order can differ. [Health](http://127.0.0.1:8080/api/v1/health)
 5. Open [catalogue summary](http://127.0.0.1:8080/api/v1/catalogue/summary). Expect 77 products, 10 with ingredients, 67 missing, 0 label-verified.
 6. Open [N1 lookup](http://127.0.0.1:8080/api/v1/products/4760177560085) and [croissant lookup](http://127.0.0.1:8080/api/v1/products/5201360553457).
 
@@ -124,7 +133,7 @@ $env:DB_PASSWORD='YOUR_LOCAL_DATABASE_PASSWORD'
 
 Use a JDBC URL, not a bare `postgres://` URL. The same migrations/importer run on PostgreSQL and H2. PostgreSQL integration tests start a real temporary database process without Docker; the first test run downloads its test binary. See `VALIDATION.md` for the actual tested versions and results.
 
-The Dockerfile builds the 0.6.3 Java 25 backend for Railway/AWS. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
+The Dockerfile builds the 0.6.4 Java 25 backend. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
 
 ## 5. Open and build the source
 
@@ -137,7 +146,7 @@ gradlew.bat -PbackendOnly :core:test :backend:test :backend:bootJar
 gradlew.bat :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.6.0.jar` under `backend/build/libs/`. The start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
+Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.6.4.jar` under `backend/build/libs/`. The start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
 
 ## 6. Understand the API and data
 
@@ -172,9 +181,9 @@ Do not edit the generated assets independently. Update captured facts with sourc
 
 ## 7. Optional external source
 
-Open Food Facts is **disabled by default** (`OFF_ENABLED=false`). The 77-product tests therefore work without a third-party service. A known product with missing ingredients is returned as-is: the API does not merge an external recipe into it.
+Open Food Facts is **disabled by default** (`OFF_ENABLED=false`). Enable it with `OFF_ENABLED=true` and a contact-bearing `OFF_USER_AGENT`. The v3.6 adapter can return an external product for an unknown barcode or attach an eligible nutrition panel to a known product. A known product keeps its own ingredient and allergen evidence.
 
-The retained experimental adapter can be enabled using `OFF_ENABLED=true` and a real contact-bearing `OFF_USER_AGENT`. It only handles codes outside the starter catalogue. Its v3.4 nutrition contract is pinned; migrate it with provider fixtures before relying on newer response structures. Positive provider results use a separate 24-hour cache and a process-local five-second lookup interval. Multiple deployed API instances need shared quota control. Provider data has its own attribution/reuse conditions. See `DATA_SOURCES.md`.
+Provider results use a separate 24-hour cache and a process-local five-second lookup interval. Use shared quota control before running multiple replicas with the same outgoing IP. See [DATA_SOURCES.md](DATA_SOURCES.md) for attribution and reuse terms.
 
 ## What comes after this increment
 

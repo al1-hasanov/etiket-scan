@@ -1,46 +1,41 @@
 package az.etiket.backend;
 
-import az.etiket.core.*;
-import java.time.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
+import az.etiket.core.Barcode;
+import az.etiket.core.DemoCatalog;
+import az.etiket.core.Product;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.json.JsonMapper;
 
 @Service
 final class ProductService {
-    private final JdbcTemplate db;
-    private final OpenFoodFactsClient source;
     private final CatalogueStore catalogue;
-    private final SubmissionService submissions;
-    private final boolean externalEnabled;
-    private final long cacheMillis;
-    private final JsonMapper json = JsonMapper.builder().build();
-    ProductService(JdbcTemplate db, OpenFoodFactsClient source, CatalogueStore catalogue, SubmissionService submissions,
-            @Value("${off.cache-hours}") long hours, @Value("${off.enabled:false}") boolean externalEnabled) {
-        this.db = db; this.source = source; this.catalogue = catalogue;
-        this.submissions = submissions;
-        this.externalEnabled = externalEnabled; cacheMillis = Duration.ofHours(hours).toMillis();
+    private final NutritionFeeds feeds;
+    private final OpenFoodFactsCatalogue external;
+
+    ProductService(CatalogueStore catalogue, NutritionFeeds feeds, OpenFoodFactsCatalogue external) {
+        this.catalogue = catalogue;
+        this.feeds = feeds;
+        this.external = external;
     }
-    synchronized Product lookup(String input) {
-        String code = Barcode.normalize(input);
-        for (Product demo : DemoCatalog.products()) if (demo.barcode().equals(code)) return demo;
-        var reviewed = submissions.findReviewed(code);
-        if (reviewed.isPresent()) return reviewed.get();
-        var local = catalogue.find(code);
-        if (local.isPresent()) return local.get();
-        if (!externalEnabled) throw new LookupException(404, "PRODUCT_NOT_IN_CATALOGUE");
-        var cached = db.query("SELECT payload FROM product_cache WHERE barcode=? AND stored_at>?",
-            (rs, row) -> rs.getString(1), code, System.currentTimeMillis() - cacheMillis);
-        if (!cached.isEmpty()) {
-            try { return json.readValue(cached.getFirst(), Product.class); }
-            catch (RuntimeException ignored) { db.update("DELETE FROM product_cache WHERE barcode=?", code); }
+
+    Product lookup(String input) {
+        String barcode = Barcode.normalize(input);
+        for (Product demo : DemoCatalog.products()) if (demo.barcode().equals(barcode)) return demo;
+        var local = catalogue.find(barcode);
+        if (local.isEmpty()) return external.lookup(barcode).product();
+
+        Product product = local.get();
+        if (!product.nutrition().values().isEmpty()) return product;
+        Product enriched = feeds.addSavedNutrition(product);
+        if (enriched.nutritionSource() != null || !external.enabled()) return enriched;
+        try {
+            var source = external.lookup(barcode);
+            var localPack = PackageSize.product(product);
+            Product candidate = source.product();
+            if (source.azerbaijanMarket() && localPack.isPresent() && localPack.equals(PackageSize.product(candidate)))
+                return product.withNutrition(candidate.nutrition(), candidate.nutritionSource());
+        } catch (LookupException ignored) {
+            // The catalogue result is still useful during a provider outage or a missing match.
         }
-        Product product = source.fetch(code);
-        String payload = json.writeValueAsString(product);
-        long now = System.currentTimeMillis();
-        int updated = db.update("UPDATE product_cache SET payload=?, stored_at=? WHERE barcode=?", payload, now, code);
-        if (updated == 0) db.update("INSERT INTO product_cache(barcode,payload,stored_at) VALUES (?,?,?)", code, payload, now);
         return product;
     }
 }

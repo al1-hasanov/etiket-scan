@@ -3,6 +3,7 @@ package az.etiket.mobile;
 import az.etiket.core.Product;
 import az.etiket.core.ProductEvidence;
 import az.etiket.core.Barcode;
+import az.etiket.core.NutritionSource;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -10,6 +11,7 @@ import org.json.*;
 import java.util.*;
 
 final class ApiClient {
+    static final String DEFAULT_BASE = "https://etiket-scan-production.up.railway.app";
     static final class Failure extends Exception {
         final String code;
         Failure(String code) { super(code); this.code = code; }
@@ -97,8 +99,12 @@ final class ApiClient {
         ProductEvidence e = p.evidence();
         var evidence = new ProductEvidence(e.reviewStatus(), e.ingredientsStatus(), e.labelPhotoChecked(), resolveSource(base, e.ingredientsSourceUrl()),
             e.ingredientSectionAsReported(), e.declaredAllergenStatement(), e.notes(), e.externalCandidateAvailable());
+        var nutritionSource = p.nutritionSource();
+        if (nutritionSource != null) nutritionSource = new NutritionSource(nutritionSource.kind(), nutritionSource.name(),
+            resolveSource(base, nutritionSource.url()), nutritionSource.observedAt(), nutritionSource.packSize());
         return new Product(p.barcode(), p.name(), p.brand(), p.quantity(), p.ingredients(), p.ingredientsLanguage(), p.nutriScore(),
-            p.nutrients(), p.allergens(), p.traces(), p.source(), resolveSource(base, p.sourceUrl()), p.retrievedAt(), p.sourceUpdatedAt(), p.demo(), evidence, null, p.nutrition());
+            p.nutrients(), p.allergens(), p.traces(), p.source(), resolveSource(base, p.sourceUrl()), p.retrievedAt(), p.sourceUpdatedAt(),
+            p.demo(), evidence, null, p.nutrition(), nutritionSource);
     }
     static String resolveSource(String base, String source) {
         if (source == null || source.isEmpty()) return "";

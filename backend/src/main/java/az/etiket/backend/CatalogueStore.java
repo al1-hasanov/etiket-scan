@@ -73,7 +73,7 @@ final class CatalogueStore implements InitializingBean {
     }
 
     Optional<Product> find(String code) {
-        return db.query("SELECT payload FROM catalogue_products WHERE barcode=?",
+        return db.query("SELECT payload FROM " + VISIBLE + " WHERE barcode=?",
             (rs, row) -> json.readValue(rs.getString(1), Product.class), code).stream().findFirst();
     }
 

@@ -11,7 +11,7 @@ class ProductController {
     private final ProductService service;
     private final CatalogueStore catalogue;
     ProductController(ProductService service, CatalogueStore catalogue) { this.service = service; this.catalogue = catalogue; }
-    @GetMapping("/health") Map<String, String> health() { return Map.of("status", "UP", "version", "0.6.3"); }
+    @GetMapping("/health") Map<String, String> health() { return Map.of("status", "UP", "version", "0.6.4"); }
     @GetMapping("/catalogue/summary") Map<String, Object> summary() { return catalogue.summary(); }
     @GetMapping("/catalogue/products") Map<String, Object> products(
             @RequestParam(defaultValue="0") int page, @RequestParam(defaultValue="20") int size) {

@@ -70,4 +70,50 @@ async function open(id){
 byId('status').onchange=()=>{page=0;loadQueue().catch(e=>message(e.message,true));};
 byId('previous').onclick=()=>{if(page>0)page--;loadQueue().catch(e=>message(e.message,true));};
 byId('next').onclick=()=>{page++;loadQueue().catch(e=>message(e.message,true));};
-(async()=>{try{csrf=await api('/api/v1/review/csrf');await loadQueue();}catch(e){message(e.message,true);}})();
+const nutritionFile = byId('nutrition-file');
+const previewImport = byId('preview-import');
+const applyImport = byId('apply-import');
+const importMessage = byId('import-message');
+const importConflicts = byId('import-conflicts');
+let previewedFeed;
+nutritionFile.onchange = () => {
+  previewedFeed = undefined;
+  applyImport.disabled = true;
+  previewImport.disabled = !csrf || !nutritionFile.files.length;
+  importMessage.textContent = '';
+  importConflicts.replaceChildren();
+};
+async function importNutrition(dryRun) {
+  const file = nutritionFile.files[0];
+  previewImport.disabled = applyImport.disabled = nutritionFile.disabled = true;
+  importMessage.textContent = dryRun ? 'Checking feed…' : 'Applying feed…';
+  importMessage.className = '';
+  importConflicts.replaceChildren();
+  try {
+    if (!file || file.size > 1024 * 1024) throw new Error('Choose a JSON feed up to 1 MB.');
+    const feed = dryRun ? JSON.parse(await file.text()) : previewedFeed;
+    const result = await api('/api/v1/review/nutrition-import?dryRun=' + dryRun, feed);
+    previewedFeed = dryRun ? feed : undefined;
+    importMessage.textContent = (result.applied ? 'Applied ' : 'Previewed ') + result.records
+      + ' reports. ' + result.conflicts.length + ' need review.';
+    for (const conflict of result.conflicts) {
+      const reason = {
+        PACK_SIZE_UNKNOWN: 'Catalogue pack size is unclear',
+        PACK_SIZE_MISMATCH: 'Pack sizes differ',
+        NUTRITION_DISAGREEMENT: 'Nutrition panels disagree'
+      }[conflict.reason] || conflict.reason;
+      importConflicts.append(el('li', conflict.barcode + ' · ' + reason));
+    }
+  } catch (error) {
+    previewedFeed = undefined;
+    importMessage.textContent = error.message;
+    importMessage.className = 'error';
+  } finally {
+    nutritionFile.disabled = false;
+    previewImport.disabled = !nutritionFile.files.length;
+    applyImport.disabled = !previewedFeed;
+  }
+}
+previewImport.onclick = () => importNutrition(true);
+applyImport.onclick = () => importNutrition(false);
+(async()=>{try{csrf=await api('/api/v1/review/csrf');nutritionFile.onchange();await loadQueue();}catch(e){message(e.message,true);}})();

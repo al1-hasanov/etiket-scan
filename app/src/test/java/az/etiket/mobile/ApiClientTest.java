@@ -1,7 +1,10 @@
 package az.etiket.mobile;
 
 import az.etiket.core.Product;
+import az.etiket.core.NutritionLabel;
+import az.etiket.core.NutritionSource;
 import java.net.InetAddress;
+import java.util.Map;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.*;
@@ -30,6 +33,17 @@ public class ApiClientTest {
     @After public void stopApi() throws Exception { if (server != null) server.shutdown(); }
     @Test public void liveLookupPreservesAzerbaijaniAndReviewEvidence() throws Exception {
         assertEquals(expected, lookup());
+    }
+    @Test public void nutritionSourceSurvivesWireAndDeviceCache() throws Exception {
+        var source = new NutritionSource(NutritionSource.Kind.RETAILER_REPORTED, "Retailer",
+            "https://example.test/report", "2025-01-01T00:00:00Z", "400 g");
+        var panel = expected.withNutrition(new NutritionLabel("PER_100_ML", Map.of("salt", 0d, "energyKcal", 22d)), source);
+        body = ProductJson.write(panel).toString();
+        Product loaded = lookup();
+        assertEquals(panel, loaded);
+        assertEquals(panel, ProductJson.read(ProductJson.write(loaded)));
+        assertTrue(loaded.nutrients().isEmpty());
+        assertFalse(loaded.evidence().labelPhotoChecked());
     }
     @Test public void anOlderApiWithoutAnalysisStillGetsOfflineDictionaryDescriptions() throws Exception {
         assertFalse(body.contains("ingredientAnalysis"));

@@ -34,6 +34,7 @@ public class SubmissionFlowTest {
     @Before public void reset(){context=RuntimeEnvironment.getApplication();context.getSharedPreferences("etiket",Context.MODE_PRIVATE).edit().clear().putBoolean("az",false).commit();}
     private Intent form(){return new Intent(context,SubmissionActivity.class).putExtra("barcode","5201360553457").putExtra("name","Synthetic package fixture");}
     @Test public void missingProductScreenStartsPrefilledPhotoSubmission(){
+        context.getSharedPreferences("etiket",Context.MODE_PRIVATE).edit().putBoolean("live",false).commit();
         try(var controller=Robolectric.buildActivity(MainActivity.class).setup()){
             click(controller.get().getWindow().getDecorView(),"7 DAYS MİDİ KRUASSAN 65 Q BİŞMİŞ SÜDLÜ");
             click(controller.get().getWindow().getDecorView(),"Submit label photos");

@@ -18,14 +18,18 @@ Approved products use `REVIEWED_LABEL`, an immutable approved source snapshot, r
 
 Android removes photo metadata and prepares upright JPEGs; the backend validates, bounds and re-encodes images before storing them in the database. Camera/gallery permissions use temporary content URIs. No label photos or synthetic approval test records are included in the shipped starter catalogue.
 
+### Retailer and manufacturer nutrition reports
+
+An authenticated reviewer can import a feed they have permission to reuse. Each report keeps its source, URL, observation time, pack size and reference amount. Reports live in a separate table from the starter snapshot and reviewed label evidence. The seven research examples are exercised as test inputs. Production data is supplied by the operator. See [V0_6_4_UPDATE.md](V0_6_4_UPDATE.md).
+
 ### Optional Open Food Facts adapter
 
-The following provider is disabled by default in 0.2. Enabling it does not alter the starter catalogue's evidence status or fill its missing recipes automatically.
+The provider is disabled by default. For a known product, an eligible panel is displayed with its own attribution and the original product and ingredient evidence.
 
 - Provider: Open Food Facts and its contributors, https://world.openfoodfacts.org/
 - API documentation: https://openfoodfacts.github.io/openfoodfacts-server/api/
 - Schema changes: https://openfoodfacts.github.io/openfoodfacts-server/api/ref-api-and-product-schema-change-log/
-- API contract used: read-only `GET /api/v3.4/product/{barcode}.json`, selected fields only. Newer API versions change the nutrition structure.
+- The read-only `GET /api/v3.6/product/{barcode}.json` request selects product metadata and `nutrition.input_sets`. It uses explicit packaging or manufacturer values for 100 g or 100 ml as sold. Inputs with an estimate, a qualifier or a serving basis stay out of the displayed panel.
 - Data licences: Open Database License 1.0 (database), Database Contents License 1.0 (individual contents). Attribution and share-alike obligations apply to reuse of the database; see the provider's published terms: https://openfoodfacts.github.io/openfoodfacts-server/api/tutorials/license-be-on-the-legal-side/
 - Local cache: separate `product_cache` table storing attributed provider records. No product images are bundled. If images are introduced later, OFF lists CC BY-SA licensing for them.
 - The source's Nutri-Score, if present, is displayed as its own nutrition indicator. No Yuka scoring method, proprietary data, logo or artwork is copied.

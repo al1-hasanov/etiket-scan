@@ -4,7 +4,11 @@ import com.sun.net.httpserver.HttpServer;
 import java.net.*;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import az.etiket.core.NutritionLabel;
+import az.etiket.core.NutritionSource;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,14 +47,18 @@ class ProductApiTest {
     }
     @LocalServerPort int port;
     @Autowired JdbcTemplate db;
+    @Autowired NutritionFeeds feeds;
     final HttpClient http = HttpClient.newHttpClient();
     final JsonMapper json = JsonMapper.builder().build();
     @BeforeEach void reset() {
-        db.update("DELETE FROM product_cache"); calls.set(0); sourceStatus = 200;
+        db.update("DELETE FROM product_cache");
+        db.update("DELETE FROM nutrition_reports");
+        calls.set(0); sourceStatus = 200;
         sourceBody = """
             {"product":{"code":"3017620422003","product_name":"Test food","brands":"Fixture",
             "quantity":"100 g","lang":"en","ingredients_text":"Oats, salt", "nutriscore_grade":"b",
-            "nutriments":{"energy-kcal_100g":321,"salt_100g":0,"proteins_100g":5.5},
+            "nutrition":{"input_sets":[{"per":"100g","per_quantity":100,"per_unit":"g","preparation":"as_sold","source":"packaging",
+            "nutrients":{"energy-kcal":{"value":321,"unit":"kcal"},"salt":{"value":0,"unit":"g"},"proteins":{"value":5.5,"unit":"g"}}}]},
             "allergens_tags":["en:gluten"],"traces_tags":["en:milk"],"last_modified_t":1735689600}}
             """;
     }
@@ -68,10 +76,50 @@ class ProductApiTest {
     @Test void invalidCodeRejectedBeforeProvider() throws Exception {
         assertEquals(400, get("products/3017620422004").statusCode()); assertEquals(0, calls.get());
     }
-    @Test void starterCatalogueTakesPriorityOverProvider() throws Exception {
+    @Test void starterCatalogueSurvivesAnUnavailableProvider() throws Exception {
+        sourceStatus = 503;
         JsonNode p = json.readTree(get("products/4760177560085").body());
         assertEquals("BAZARSTORE", p.path("source").asString());
-        assertEquals(0, calls.get());
+        assertTrue(p.at("/nutrition/values").isEmpty());
+        assertEquals(1, calls.get());
+    }
+    @Test void knownBarcodeUsesMatchedPanelAndKeepsLocalProductAndBasis() throws Exception {
+        sourceBody = providerPanel("4760095105863", "1000 ml", "azerbaijan", "ml");
+        var response = get("products/4760095105863");
+        assertEquals(200, response.statusCode(), response.body());
+        JsonNode p = json.readTree(response.body());
+        assertEquals("BAZARSTORE", p.path("source").asString());
+        assertTrue(p.path("name").asString().contains("KEFİR"));
+        assertEquals("OPEN_FOOD_FACTS", p.at("/nutritionSource/kind").asString());
+        assertEquals("PER_100_ML", p.at("/nutrition/basis").asString());
+        assertEquals(0d, p.at("/nutrition/values/salt").asDouble(-1));
+        assertTrue(p.path("nutrients").isEmpty());
+        assertFalse(p.at("/evidence/labelPhotoChecked").asBoolean());
+        sourceStatus = 503;
+        assertEquals(p, json.readTree(get("products/4760095105863").body()));
+        assertEquals(1, calls.get());
+    }
+    @Test void foreignMarketAndDifferentPackDoNotFillLocalNutrition() throws Exception {
+        sourceBody = providerPanel("4760177560085", "400 g", "germany", "g");
+        assertTrue(json.readTree(get("products/4760177560085").body()).at("/nutrition/values").isEmpty());
+        db.update("DELETE FROM product_cache");
+        sourceBody = providerPanel("4760177560085", "350 g", "azerbaijan", "g");
+        assertTrue(json.readTree(get("products/4760177560085").body()).at("/nutrition/values").isEmpty());
+        assertEquals(2, calls.get());
+    }
+    @Test void cachedProviderDisagreementRemainsFlaggedAfterCacheExpiry() throws Exception {
+        String barcode = "4760018505107";
+        sourceBody = providerPanel(barcode, "400 g", "germany", "g");
+        assertEquals(200, get("products/" + barcode).statusCode());
+        var imported = new NutritionFeeds.Feed("retailer-test", NutritionSource.Kind.RETAILER_REPORTED,
+            "Test retailer", "2025-01-01T00:00:00Z", List.of(new NutritionFeeds.Input(barcode, "400 g", "https://example.test/jam",
+            new NutritionLabel("PER_100_G", Map.of("sugars", 60d)))));
+        assertEquals("NUTRITION_DISAGREEMENT", feeds.importFeed(imported, false).conflicts().getFirst().reason());
+        db.update("UPDATE product_cache SET stored_at=0");
+        var product = json.readTree(get("products/" + barcode).body());
+        assertEquals("CONFLICT", product.at("/nutritionSource/kind").asString());
+        assertTrue(product.at("/nutrition/values").isEmpty());
+        assertEquals(1, calls.get());
     }
     @Test void realLookupPreservesProvenanceAndZero() throws Exception {
         var response = get("products/3017620422003"); assertEquals(200, response.statusCode());
@@ -113,7 +161,17 @@ class ProductApiTest {
         assertEquals(503, get("products/3017620422003").statusCode());
     }
     @Test void incompleteDataStaysUnknown() throws Exception {
-        sourceBody = "{\"product\":{\"code\":\"3017620422003\",\"nutriscore_grade\":\"unknown\",\"nutriments\":{\"salt_100g\":-4,\"sugars_100g\":\"unknown\"}}}";
+        sourceBody = """
+            {"product":{"code":"3017620422003","nutriscore_grade":"unknown",
+             "nutrition":{"input_sets":[
+                {"per":"100g","per_quantity":100,"per_unit":"g","preparation":"as_sold","source":"estimate",
+                 "nutrients":{"salt":{"value":0,"unit":"g"}}},
+                {"per":"serving","per_quantity":100,"per_unit":"g","preparation":"as_sold","source":"packaging",
+                 "nutrients":{"sugars":{"value":6,"unit":"g"}}},
+                {"per":"100g","per_quantity":100,"per_unit":"g","preparation":"as_sold","source":"packaging",
+                 "nutrients":{"salt":{"value_computed":0,"unit":"g"},"sugars":{"value":1,"modifier":"<","unit":"g"}}}
+             ]}}}
+            """;
         JsonNode p = json.readTree(get("products/3017620422003").body());
         assertTrue(p.path("nutrients").isEmpty()); assertEquals("", p.path("nutriScore").asString());
         assertEquals("", p.path("ingredients").asString());
@@ -123,5 +181,12 @@ class ProductApiTest {
         limited.fetch("3017620422003");
         LookupException e = assertThrows(LookupException.class, () -> limited.fetch("3017620422003"));
         assertEquals(429, e.status); assertEquals(1, calls.get());
+    }
+    private static String providerPanel(String code, String pack, String market, String unit) {
+        return """
+            {"product":{"code":"%s","product_name":"External example","quantity":"%s","countries_tags":["en:%s"],
+            "nutrition":{"input_sets":[{"per":"100%s","per_quantity":100,"per_unit":"%s","preparation":"as_sold","source":"manufacturer",
+             "nutrients":{"energy-kcal":{"value":272,"unit":"kcal"},"salt":{"value":0,"unit":"g"},"sugars":{"value":68,"unit":"g"}}}]}}}
+            """.formatted(code, pack, market, unit, unit);
     }
 }
