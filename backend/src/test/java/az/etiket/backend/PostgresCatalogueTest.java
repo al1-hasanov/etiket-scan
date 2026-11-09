@@ -1,6 +1,10 @@
 package az.etiket.backend;
 
+import az.etiket.core.NutritionLabel;
+import az.etiket.core.NutritionSource;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +34,7 @@ class PostgresCatalogueTest {
     @Autowired ProductService products;
     @Autowired JdbcTemplate db;
     @Autowired SubmissionService submissions;
+    @Autowired NutritionFeeds feeds;
     @AfterAll static void stop() throws Exception { postgres.close(); }
 
     @Test void migrationsAndIdempotentImportWorkOnPostgres() throws Exception {
@@ -38,7 +43,23 @@ class PostgresCatalogueTest {
         assertEquals(10, catalogue.summary().get("withIngredients"));
         catalogue.importBundledCatalogue();
         assertEquals(77, db.queryForObject("SELECT COUNT(*) FROM catalogue_products", Integer.class));
-        assertEquals(3, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
+        assertEquals(4, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
+    }
+    @Test void nutritionImportSurvivesCatalogueReimportOnPostgres() throws Exception {
+        String barcode = "4760177560085";
+        var feed = new NutritionFeeds.Feed("postgres-test", NutritionSource.Kind.RETAILER_REPORTED, "Test retailer",
+            "2025-01-01T00:00:00Z", List.of(new NutritionFeeds.Input(barcode, "400 g", "https://example.test/product",
+            new NutritionLabel("PER_100_G", Map.of("energyKcal", 224.8d)))));
+        try {
+            assertTrue(feeds.importFeed(feed, false).applied());
+            feeds.importFeed(feed, false);
+            catalogue.importBundledCatalogue();
+            var product = products.lookup(barcode);
+            assertEquals(224.8d, product.nutrition().values().get("energyKcal"));
+            assertEquals(NutritionSource.Kind.RETAILER_REPORTED, product.nutritionSource().kind());
+        } finally {
+            db.update("DELETE FROM nutrition_reports WHERE source_id='postgres-test'");
+        }
     }
     @Test void unicodeAndPartialProductSurviveDatabaseRoundTrip() {
         assertTrue(products.lookup("4760177560085").ingredients().contains("inək südü"));

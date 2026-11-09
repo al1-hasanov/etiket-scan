@@ -13,7 +13,11 @@ import org.springframework.web.multipart.*;
 @RestController
 final class SubmissionController {
     private final SubmissionService service;
-    SubmissionController(SubmissionService service) { this.service = service; }
+    private final NutritionFeeds nutritionFeeds;
+    SubmissionController(SubmissionService service, NutritionFeeds nutritionFeeds) {
+        this.service = service;
+        this.nutritionFeeds = nutritionFeeds;
+    }
 
     @PostMapping(path="/api/v1/submissions", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<Receipt> submit(@RequestPart("metadata") Draft draft, @RequestPart("front") MultipartFile front,
@@ -26,6 +30,11 @@ final class SubmissionController {
     @GetMapping("/api/v1/submissions/{id}/status") Receipt status(@PathVariable String id) { return service.status(id); }
     @GetMapping("/api/v1/review/csrf") Map<String, String> csrf(CsrfToken token) {
         return Map.of("token", token.getToken(), "headerName", token.getHeaderName());
+    }
+    @PostMapping("/api/v1/review/nutrition-import")
+    NutritionFeeds.Result importNutrition(@RequestBody NutritionFeeds.Feed feed,
+            @RequestParam(defaultValue="true") boolean dryRun) {
+        return nutritionFeeds.importFeed(feed, dryRun);
     }
     @GetMapping("/api/v1/review/submissions") Map<String, Object> queue(
             @RequestParam(defaultValue="PENDING") String status, @RequestParam(defaultValue="0") int page) { return service.queue(status, page); }

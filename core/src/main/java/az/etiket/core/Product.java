@@ -8,7 +8,8 @@ public record Product(String barcode, String name, String brand, String quantity
         String ingredients, String ingredientsLanguage, String nutriScore,
         Map<String, Double> nutrients, List<String> allergens, List<String> traces,
         String source, String sourceUrl, String retrievedAt, String sourceUpdatedAt,
-        boolean demo, ProductEvidence evidence, IngredientAnalysis ingredientAnalysis, NutritionLabel nutrition) {
+        boolean demo, ProductEvidence evidence, IngredientAnalysis ingredientAnalysis, NutritionLabel nutrition,
+        NutritionSource nutritionSource) {
     public Product {
         nutrition = nutrition == null ? (nutrients.isEmpty() ? NutritionLabel.empty() : new NutritionLabel("PER_100_G", nutrients)) : nutrition;
         // Older clients label this legacy map per 100 g. Never expose per-100-ml values in it.
@@ -16,9 +17,30 @@ public record Product(String barcode, String name, String brand, String quantity
         allergens = List.copyOf(allergens);
         traces = List.copyOf(traces);
         if (evidence == null) evidence = ProductEvidence.unreviewed(source, ingredients, demo);
+        if (nutritionSource == null && !nutrition.values().isEmpty()) {
+            if ("REVIEWED_LABEL".equals(source) && evidence.labelPhotoChecked())
+                nutritionSource = new NutritionSource(NutritionSource.Kind.PACKAGE_CHECKED, "", sourceUrl, sourceUpdatedAt, quantity);
+            else if ("OPEN_FOOD_FACTS".equals(source))
+                nutritionSource = new NutritionSource(NutritionSource.Kind.OPEN_FOOD_FACTS, "Open Food Facts", sourceUrl, retrievedAt, quantity);
+        }
         // Always derive descriptions from the reported text and this dictionary version.
         // Stored payloads and older APIs do not need an ingredientAnalysis field.
         ingredientAnalysis = IngredientExplainer.analyze(ingredients, ingredientsLanguage);
+    }
+
+    public Product withNutrition(NutritionLabel label, NutritionSource panelSource) {
+        return new Product(barcode, name, brand, quantity, ingredients, ingredientsLanguage, nutriScore,
+            nutrients, allergens, traces, source, sourceUrl, retrievedAt, sourceUpdatedAt, demo, evidence,
+            ingredientAnalysis, label, panelSource);
+    }
+
+    public Product(String barcode, String name, String brand, String quantity,
+            String ingredients, String ingredientsLanguage, String nutriScore,
+            Map<String, Double> nutrients, List<String> allergens, List<String> traces,
+            String source, String sourceUrl, String retrievedAt, String sourceUpdatedAt,
+            boolean demo, ProductEvidence evidence, IngredientAnalysis ingredientAnalysis, NutritionLabel nutrition) {
+        this(barcode, name, brand, quantity, ingredients, ingredientsLanguage, nutriScore,
+            nutrients, allergens, traces, source, sourceUrl, retrievedAt, sourceUpdatedAt, demo, evidence, ingredientAnalysis, nutrition, null);
     }
 
     public Product(String barcode, String name, String brand, String quantity,

@@ -1,5 +1,13 @@
 # Etiket validation
 
+## 0.6.4 sourced nutrition
+
+Passed 31 core, 75 backend and 41 Android unit tests. Backend checks exercised Flyway V4 on H2 and PostgreSQL, the native OCR fixtures, atomic batch import, the seven catalogue examples, the cached jam disagreement, and the provider fallback with explicit market and basis. Android checks exercised the fresh-install Railway default, source persistence and the photo option on conflicted panels.
+
+Started the packaged JAR against an isolated database and stub provider. HTTP checks confirmed version 0.6.4, reviewer authentication and CSRF, preview without writes, idempotent apply, sourced N1 nutrition and the held jam panel. Repeat lookups for the saved reports used the database.
+
+Android lint passed. The debug APK has application ID `az.etiket.scanner.demo`, version code 11, version name 0.6.4 and the existing development certificate. Bundletool validated the unsigned release bundle at target API 36. Phone and Play Console checks are in [V0_6_4_UPDATE.md](V0_6_4_UPDATE.md).
+
 ## 0.6.3 OCR diagnostics
 
 All **100 core/backend tests passed**: 31 core and 69 backend, with native Tesseract tests enabled and the pinned production language models. Android source and APK remain at 0.6.2 and were not rebuilt for this backend-only update.

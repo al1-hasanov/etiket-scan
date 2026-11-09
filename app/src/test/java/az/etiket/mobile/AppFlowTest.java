@@ -23,7 +23,34 @@ import org.robolectric.shadows.ShadowAlertDialog;
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 public class AppFlowTest {
     @Before public void clearData() {
-        RuntimeEnvironment.getApplication().getSharedPreferences("etiket", Context.MODE_PRIVATE).edit().clear().commit();
+        RuntimeEnvironment.getApplication().getSharedPreferences("etiket", Context.MODE_PRIVATE).edit()
+            .clear().putBoolean("live", false).commit();
+    }
+    @Test public void cleanInstallDefaultsToRailwayAndLiveLookup() {
+        var prefs = RuntimeEnvironment.getApplication().getSharedPreferences("etiket", Context.MODE_PRIVATE);
+        prefs.edit().clear().commit();
+        try (ActivityController<MainActivity> c = Robolectric.buildActivity(MainActivity.class).create().start()) {
+            View root = c.get().getWindow().getDecorView();
+            assertNotNull(find(root, "● Canlı API"));
+            click(root, "Parametrlər");
+            AlertDialog dialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
+            assertEquals(ApiClient.DEFAULT_BASE, firstEditText(dialog.getWindow().getDecorView()).getText().toString());
+        }
+    }
+    @Test public void conflictIsShownInTheProductPanelWithThePhotoOption() {
+        var prefs = RuntimeEnvironment.getApplication().getSharedPreferences("etiket", Context.MODE_PRIVATE);
+        Product p = StarterCatalogue.load(RuntimeEnvironment.getApplication()).stream()
+            .filter(x -> x.barcode().equals("4760177560085")).findFirst().orElseThrow();
+        new ProductStore(prefs).cacheCatalogue(ApiClient.DEFAULT_BASE,
+            java.util.List.of(p.withNutrition(NutritionLabel.empty(), NutritionSource.conflict())));
+        try (ActivityController<MainActivity> c = Robolectric.buildActivity(MainActivity.class).setup()) {
+            click(c.get().getWindow().getDecorView(), "EN");
+            click(c.get().getWindow().getDecorView(), p.name());
+            View root = c.get().getWindow().getDecorView();
+            assertNotNull(find(root, "Nutrition reports disagree"));
+            assertNotNull(find(root, "Submit label photos"));
+            assertNull(find(root, "Amounts reported per 100 g by the source"));
+        }
     }
     @Test public void languageAndSavedProductsSurviveRecreation() throws Exception {
         try (ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup()) {

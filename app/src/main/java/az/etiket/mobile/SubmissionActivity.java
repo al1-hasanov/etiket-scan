@@ -244,7 +244,7 @@ public class SubmissionActivity extends ComponentActivity {
     private void analyze(String role){
         if(state.busy)return;
         if(!state.photos.containsKey(role)){feedback.setText(t("Əvvəl bu bölməyə foto əlavə edin.","Add a photo to this section first."));return;}
-        try{String base=ApiClient.validateBase(getSharedPreferences("etiket",MODE_PRIVATE).getString("base","http://10.0.2.2:8080"));state.analyze(base,role,languages[language.getSelectedItemPosition()]);}
+        try{String base=ApiClient.validateBase(getSharedPreferences("etiket",MODE_PRIVATE).getString("base",ApiClient.DEFAULT_BASE));state.analyze(base,role,languages[language.getSelectedItemPosition()]);}
         catch(IllegalArgumentException e){feedback.setText(t("Parametrlərdə server ünvanını yoxlayın.","Check the server address in Settings."));}
     }
     private void updateAnalysis() {
@@ -369,7 +369,7 @@ public class SubmissionActivity extends ComponentActivity {
             if(name.getText().toString().isBlank()){name.setError(t("Adı yazın.","Enter a product name."));return;}
             if(!consent.isChecked()){feedback.setText(t("Dərc razılığını seçin.","Please select the publication consent."));return;}
             for(String role:SubmissionClient.ROLES)if(!state.photos.containsKey(role)){feedback.setText(t("Hər üç foto yerini doldurun.","Add all three package photos."));return;}
-            String base=ApiClient.validateBase(getSharedPreferences("etiket",MODE_PRIVATE).getString("base","http://10.0.2.2:8080"));
+            String base=ApiClient.validateBase(getSharedPreferences("etiket",MODE_PRIVATE).getString("base",ApiClient.DEFAULT_BASE));
             JSONObject metadata=new JSONObject().put("clientRequestId",state.id).put("barcode",code).put("name",name.getText().toString().trim())
                 .put("brand",brand.getText().toString().trim()).put("quantity",quantity.getText().toString().trim()).put("ingredients",ingredients.getText().toString().trim())
                 .put("ingredientsLanguage",languages[language.getSelectedItemPosition()]).put("declaredAllergenStatement",allergens.getText().toString().trim()).put("consentToPublish",true);

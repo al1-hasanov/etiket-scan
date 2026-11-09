@@ -17,6 +17,7 @@ import androidx.activity.OnBackPressedCallback;
 import az.etiket.core.*;
 import com.google.android.gms.common.moduleinstall.*;
 import com.google.mlkit.vision.codescanner.*;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.*;
 import org.json.JSONObject;
@@ -44,7 +45,7 @@ public class MainActivity extends ComponentActivity {
         super.onCreate(state);
         prefs = getSharedPreferences("etiket", MODE_PRIVATE); store = new ProductStore(prefs);
         catalogue = StarterCatalogue.load(this);
-        List<Product> cached = store.cachedCatalogue(prefs.getString("base", "http://10.0.2.2:8080"));
+        List<Product> cached = store.cachedCatalogue(baseAddress());
         if (!cached.isEmpty()) catalogue = cached;
         az = prefs.getBoolean("az", true);
         if (state != null) {
@@ -70,18 +71,21 @@ public class MainActivity extends ComponentActivity {
     }
     @Override protected void onResume() {
         super.onResume();
-        if (prefs != null && prefs.getBoolean("live", false)) refreshCatalogue(false);
+        if (prefs != null && liveLookup()) refreshCatalogue(false);
     }
+    private String baseAddress() { return prefs.getString("base", ApiClient.DEFAULT_BASE); }
+    private boolean liveLookup() { return prefs.getBoolean("live", true); }
+
     private void refreshCatalogue(boolean showError) {
         if (refreshingCatalogue) return;
         refreshingCatalogue = true;
-        String base = prefs.getString("base", "http://10.0.2.2:8080");
+        String base = baseAddress();
         executor.execute(() -> {
             try {
                 List<Product> products = ApiClient.catalogue(base);
                 runOnUiThread(() -> {
                     refreshingCatalogue = false;
-                    if (isDestroyed() || !base.equals(prefs.getString("base", ""))) return;
+                    if (isDestroyed() || !liveLookup() || !base.equals(baseAddress())) return;
                     catalogue = products; store.cacheCatalogue(base, products);
                     if (current == null && !loading) render();
                 });
@@ -160,7 +164,7 @@ public class MainActivity extends ComponentActivity {
         TextView language = button(az ? "EN" : "AZ", false, () -> { az = !az; prefs.edit().putBoolean("az", az).apply(); render(); });
         header.addView(language, new LinearLayout.LayoutParams(dp(60), dp(46))); full(root, header); gap(root, 10);
         LinearLayout status = row();
-        boolean live = prefs.getBoolean("live", false);
+        boolean live = liveLookup();
         TextView mode = text(live ? t("● Canlı API", "● Live API") : t("● Offline kataloq", "● Offline catalogue"), 12, MUTED, false);
         status.addView(mode, new LinearLayout.LayoutParams(0, -2, 1));
         TextView settings = text(t("Parametrlər", "Settings"), 13, GREEN, true); settings.setPadding(dp(12), dp(10), 0, dp(10));
@@ -196,7 +200,7 @@ public class MainActivity extends ComponentActivity {
         full(body, button(t("Barkodu kamerayla skan et", "Scan a barcode"), true, this::scan)); gap(body, 10);
         full(body, button(t("Barkodu əl ilə yaz", "Enter barcode manually"), false, this::manual)); gap(body, 24);
         full(body, button(t("Məhsul kataloqunu aç", "Browse products"), false,
-            () -> { tab = "catalogue"; current = null; render(); if (prefs.getBoolean("live", false)) refreshCatalogue(true); })); gap(body, 10);
+            () -> { tab = "catalogue"; current = null; render(); if (liveLookup()) refreshCatalogue(true); })); gap(body, 10);
         full(body, button(t("Məhsul məlumatı əlavə et", "Add product information"), false, () -> submitLabel("", null))); gap(body, 10);
         full(body, button(t("Göndərdiklərim", "My submissions"), false, () -> startActivity(new Intent(this, MySubmissionsActivity.class)))); gap(body, 18);
         full(body, text(t("İlk məhsulları yoxlayın", "Try the first products"), 20, DARK, true)); gap(body, 5);
@@ -216,7 +220,7 @@ public class MainActivity extends ComponentActivity {
     private void cataloguePage() {
         full(body, text(t("Məhsul kataloqu", "Product catalogue"), 27, DARK, true)); gap(body, 6);
         full(body, text(catalogueSummary(), 12, MUTED, false)); gap(body, 12);
-        if (prefs.getBoolean("live", false)) {
+        if (liveLookup()) {
             full(body, button(t("Kataloqu yenilə", "Refresh catalogue"), false, () -> refreshCatalogue(true))); gap(body, 10);
         }
         EditText search = new EditText(this); search.setSingleLine(); search.setTextSize(15);
@@ -256,7 +260,7 @@ public class MainActivity extends ComponentActivity {
         full(copy, text(subtitle, 12, MUTED, false));
         top.addView(copy, new LinearLayout.LayoutParams(0, -2, 1)); c.addView(top);
         c.setContentDescription(name(p)); c.setOnClickListener(v -> {
-            if (refreshFromApi && prefs.getBoolean("live", false) && !p.demo()) lookup(p.barcode()); else open(p);
+            if (refreshFromApi && liveLookup() && !p.demo()) lookup(p.barcode()); else open(p);
         }); full(body, c); gap(body, 10);
     }
     private void open(Product p) { current = p; loading = false; store.remember(p); render(); }
@@ -304,18 +308,28 @@ public class MainActivity extends ComponentActivity {
         full(body, score); gap(body, 14);
         }
         LinearLayout nutrition = card(WHITE); full(nutrition, text(t("Qida dəyərləri", "Nutrition"), 20, DARK, true));
-        full(nutrition, text(p.nutrition().basis().equals("PER_100_ML") ? t("Mənbədə 100 ml üçün göstərilən miqdar", "Amounts reported per 100 ml by the source") : t("Mənbədə 100 q üçün göstərilən miqdar", "Amounts reported per 100 g by the source"), 12, MUTED, false)); gap(nutrition, 10);
+        showNutritionSource(nutrition, p.nutritionSource());
+        if (!p.nutrition().values().isEmpty()) {
+            full(nutrition, text(p.nutrition().basis().equals("PER_100_ML")
+                ? t("Mənbədə 100 ml üçün göstərilən miqdar", "Amounts reported per 100 ml by the source")
+                : t("Mənbədə 100 q üçün göstərilən miqdar", "Amounts reported per 100 g by the source"), 12, MUTED, false));
+            gap(nutrition, 10);
+        }
         String[][] values = {{"energyKcal", "Enerji", "Energy", "kcal"}, {"fat", "Yağ", "Fat", "g"},
             {"saturatedFat", "Doymuş yağ", "Saturated fat", "g"}, {"carbohydrates", "Karbohidrat", "Carbohydrates", "g"},
             {"sugars", "Şəkərlər", "Sugars", "g"}, {"fiber", "Lif", "Fibre", "g"}, {"protein", "Zülal", "Protein", "g"}, {"salt", "Duz", "Salt", "g"}};
-        if (p.nutrition().values().isEmpty()) full(nutrition, text(t("Bu mənbədə qida dəyərləri verilməyib.", "This source does not provide nutrition values."), 14, MUTED, false));
-        else for (String[] nutrient : values) {
+        if (p.nutrition().values().isEmpty()) {
+            if (p.nutritionSource() == null)
+                full(nutrition, text(t("Qida dəyərləri hələ məlum deyil.", "Nutrition values are unavailable."), 14, MUTED, false));
+        } else for (String[] nutrient : values) {
             LinearLayout line = row(); line.setPadding(0, dp(8), 0, dp(8));
             line.addView(text(t(nutrient[1], nutrient[2]), 14, MUTED, false), new LinearLayout.LayoutParams(0, -2, 1));
             Double number = p.nutrition().values().get(nutrient[0]);
-            String amount = number == null ? t("Məlum deyil", "Unknown") : String.format(Locale.ROOT, "%.2f", number).replaceAll("0+$", "").replaceAll("\\.$", "") + " " + nutrient[3];
+            String amount = number == null ? t("Məlum deyil", "Unknown")
+                : BigDecimal.valueOf(number).stripTrailingZeros().toPlainString() + " " + nutrient[3];
             line.addView(text(amount, 14, DARK, true)); full(nutrition, line);
         }
+        full(body, nutrition); gap(body, 14);
         LinearLayout ingredients = card(WHITE); full(ingredients, text(t("Tərkib", "Ingredients"), 20, DARK, true)); gap(ingredients, 8);
         String value = p.ingredients();
         if (!az && p.demo()) value = switch (p.barcode()) {
@@ -342,7 +356,6 @@ public class MainActivity extends ComponentActivity {
         if (!p.traces().isEmpty()) { gap(ingredients, 5); full(ingredients, text(t("İz miqdarları: ", "Possible traces: ") + tags(p.traces()), 13, MUTED, false)); }
         full(body, ingredients); gap(body, 14);
         ingredientExplanations(p);
-        full(body, nutrition); gap(body, 14);
         if (!p.demo()) { full(body, button(t("Etiket fotosu göndər", "Submit label photos"), false, () -> submitLabel(p.barcode(), p))); gap(body, 14); }
         full(body, button(store.contains("saved", p) ? t("Seçilmişlərdən çıxar", "Remove from saved") : t("Məhsulu yadda saxla", "Save product"), true,
             () -> { store.toggleSaved(p); render(); })); gap(body, 14);
@@ -354,10 +367,35 @@ public class MainActivity extends ComponentActivity {
             if (!p.retrievedAt().isEmpty()) full(body, text(t("Alınma tarixi: ", "Retrieved: ") + p.retrievedAt().substring(0, Math.min(10, p.retrievedAt().length())), 11, MUTED, false));
             gap(body, 7);
             full(body, button(reviewed ? t("Yoxlanmış etiket fotolarını aç", "Open reviewed label photos") : retailer ? t("Bazarstore mənbəsini aç", "Open Bazarstore source") : t("Open Food Facts mənbəsini aç", "Open source on Open Food Facts"), false,
-                () -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ApiClient.resolveSource(prefs.getString("base", "http://10.0.2.2:8080"), p.sourceUrl()))))));
+                () -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ApiClient.resolveSource(baseAddress(), p.sourceUrl()))))));
             gap(body, 7); full(body, text(reviewed ? t("Mənbə: yoxlanmış qablaşdırma fotoları", "Source: reviewed package photos") : retailer ? t("Mənbə: bazarstore.az • test üçün sayt məlumatları", "Source: bazarstore.az • web data for prototype testing")
                 : "Data © Open Food Facts contributors • ODbL 1.0", 11, MUTED, false));
         }
+    }
+    private void showNutritionSource(LinearLayout card, NutritionSource source) {
+        if (source == null) return;
+        String caption = switch (source.kind()) {
+            case PACKAGE_CHECKED -> t("Qablaşdırma ilə yoxlanıb", "Package checked");
+            case RETAILER_REPORTED -> t("Mağazanın məlumatı", "Retailer reported");
+            case MANUFACTURER_REPORTED -> t("İstehsalçının məlumatı", "Manufacturer reported");
+            case OPEN_FOOD_FACTS -> "Open Food Facts";
+            case CONFLICT -> t("Qida məlumatları fərqlidir", "Nutrition reports disagree");
+        };
+        if (!source.name().isBlank() && !source.name().equals(caption)) caption += " · " + source.name();
+        full(card, text(caption, 14, DARK, true));
+        if (source.kind() == NutritionSource.Kind.CONFLICT)
+            full(card, text(t("Cari qablaşdırmanın qida cədvəlinin fotosunu göndərin.",
+                "Submit a photo of the current package nutrition table."), 13, MUTED, false));
+        if (source.kind() == NutritionSource.Kind.OPEN_FOOD_FACTS)
+            full(card, text("Data © Open Food Facts contributors · ODbL 1.0", 11, MUTED, false));
+        if (!source.url().isBlank()) {
+            try {
+                String link = ApiClient.resolveSource(baseAddress(), source.url());
+                full(card, button(t("Qida məlumatının mənbəyini aç", "Open nutrition source"), false,
+                    () -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)))));
+            } catch (IllegalArgumentException ignored) { }
+        }
+        gap(card, 8);
     }
     private void ingredientExplanations(Product p) {
         IngredientAnalysis analysis = p.ingredientAnalysis();
@@ -424,7 +462,7 @@ public class MainActivity extends ComponentActivity {
         try { code = Barcode.normalize(raw); }
         catch (IllegalArgumentException e) { message(t("Barkod etibarlı deyil.", "This is not a valid product barcode.")); return; }
         for (Product p : DemoCatalog.products()) if (p.barcode().equals(code)) { open(p); return; }
-        if (!prefs.getBoolean("live", false)) {
+        if (!liveLookup()) {
             for (Product p : catalogue) if (p.barcode().equals(code)) { open(p); return; }
             new AlertDialog.Builder(this).setTitle(t("Məhsul tapılmadı", "Product not found"))
                 .setMessage(t("Bu barkod saxlanmış kataloqda yoxdur. Etiket fotosu göndərə və ya canlı axtarışı qoşa bilərsiniz.",
@@ -433,7 +471,7 @@ public class MainActivity extends ComponentActivity {
                 .setNeutralButton(t("Parametrlər", "Settings"), (d, w) -> settings()).setNegativeButton("OK", null).show(); return;
         }
         long token = ++requestId; loading = true; current = null; render();
-        String base = prefs.getString("base", "http://10.0.2.2:8080");
+        String base = baseAddress();
         executor.execute(() -> {
             try {
                 Product p = ApiClient.lookup(base, code);
@@ -441,6 +479,13 @@ public class MainActivity extends ComponentActivity {
             } catch (ApiClient.Failure e) {
                 runOnUiThread(() -> {
                     if (token != requestId || isDestroyed()) return;
+                    if (e.code.equals("CONNECTION_FAILED") || e.code.equals("SOURCE_UNAVAILABLE")) {
+                        for (Product product : catalogue) if (product.barcode().equals(code)) {
+                            open(product);
+                            message(t("Saxlanmış kataloq göstərilir.", "Showing the saved catalogue."));
+                            return;
+                        }
+                    }
                     loading = false; render();
                     String error = switch (e.code) {
                         case "PRODUCT_NOT_FOUND" -> t("Məhsul bazada tapılmadı. Məlumat uydurulmur. Qablaşdırmadakı etiketi yoxlayın.", "This product is not in the database. No details have been guessed. Check its package label.");
@@ -505,10 +550,10 @@ public class MainActivity extends ComponentActivity {
     }
     private void settings() {
         LinearLayout panel = column(); panel.setPadding(dp(22), dp(12), dp(22), dp(12));
-        Switch live = new Switch(this); live.setText(t("Canlı məhsul axtarışı", "Live product lookup")); live.setChecked(prefs.getBoolean("live", false));
+        Switch live = new Switch(this); live.setText(t("Canlı məhsul axtarışı", "Live product lookup")); live.setChecked(liveLookup());
         full(panel, live); gap(panel, 14);
         full(panel, text(t("API ünvanı", "API address"), 14, DARK, true));
-        EditText base = new EditText(this); base.setSingleLine(); base.setText(prefs.getString("base", "http://10.0.2.2:8080"));
+        EditText base = new EditText(this); base.setSingleLine(); base.setText(baseAddress());
         base.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI); full(panel, base); gap(panel, 8);
         full(panel, text(t("Emulator: 10.0.2.2:8080\nUSB + adb reverse: 127.0.0.1:8080\nİctimai server üçün HTTPS istifadə edin.",
             "Emulator: 10.0.2.2:8080\nUSB + adb reverse: 127.0.0.1:8080\nUse HTTPS for a public server."), 12, MUTED, false)); gap(panel, 14);

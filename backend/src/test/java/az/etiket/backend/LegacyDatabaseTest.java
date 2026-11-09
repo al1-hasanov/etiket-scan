@@ -16,7 +16,7 @@ class LegacyDatabaseTest {
             c.createStatement().execute("CREATE TABLE product_cache (barcode VARCHAR(14) PRIMARY KEY, payload TEXT NOT NULL, stored_at BIGINT NOT NULL)");
             String oldPayload = """
                 {"barcode":"3017620422003","name":"Legacy cache fixture","brand":"Fixture","quantity":"100 g",
-                "ingredients":"Oats","ingredientsLanguage":"en","nutriScore":"","nutrients":{},"allergens":[],"traces":[],
+                "ingredients":"Oats","ingredientsLanguage":"en","nutriScore":"","nutrients":{"energyKcal":25},"allergens":[],"traces":[],
                 "source":"OPEN_FOOD_FACTS","sourceUrl":"https://world.openfoodfacts.org/product/3017620422003",
                 "retrievedAt":"2026-11-04T00:00:00Z","sourceUpdatedAt":"","demo":false}
                 """;
@@ -34,12 +34,13 @@ class LegacyDatabaseTest {
     @Test void populatedLegacyDatabaseGetsCatalogueWithoutLosingCache() {
         assertEquals(77, catalogue.summary().get("products"));
         assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM product_cache", Integer.class));
-        assertEquals("3", flyway.info().current().getVersion().toString());
+        assertEquals("4", flyway.info().current().getVersion().toString());
     }
     @Test void oldProductJsonWithoutEvidenceRemainsReadable() {
         var p = service.lookup("3017620422003");
         assertEquals("Legacy cache fixture", p.name());
         assertEquals("COMMUNITY_UNVERIFIED", p.evidence().reviewStatus());
         assertFalse(p.evidence().labelPhotoChecked());
+        assertTrue(p.nutrition().values().isEmpty());
     }
 }
