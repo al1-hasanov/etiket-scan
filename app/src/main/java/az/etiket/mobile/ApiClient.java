@@ -14,7 +14,11 @@ final class ApiClient {
     static final String DEFAULT_BASE = "https://etiket-scan-production.up.railway.app";
     static final class Failure extends Exception {
         final String code;
-        Failure(String code) { super(code); this.code = code; }
+        final int retryAfterSeconds;
+        Failure(String code) { this(code, 0); }
+        Failure(String code, int retryAfterSeconds) {
+            super(code); this.code = code; this.retryAfterSeconds = retryAfterSeconds;
+        }
     }
     static String validateBase(String input) {
         String base = input.trim().replaceAll("/+$", "");
@@ -45,7 +49,9 @@ final class ApiClient {
             connection.setRequestProperty("Accept", "application/json");
             int status = connection.getResponseCode();
             if (status == 404) throw new Failure("PRODUCT_NOT_FOUND");
-            if (status == 429) throw new Failure("LOOKUP_RATE_LIMITED");
+            if (status == 429) throw new Failure("LOOKUP_RATE_LIMITED", retryAfter(connection));
+            if (status == 503 && connection.getHeaderField("Retry-After") != null)
+                throw new Failure("LOOKUP_RATE_LIMITED", retryAfter(connection));
             if (status == 400) throw new Failure("BARCODE_INVALID");
             if (status != 200) throw new Failure("SOURCE_UNAVAILABLE");
             try (InputStream in = connection.getInputStream(); ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
@@ -62,6 +68,10 @@ final class ApiClient {
         } catch (org.json.JSONException e) { throw new Failure("SOURCE_UNAVAILABLE");
         } catch (Exception e) { throw new Failure("CONNECTION_FAILED");
         } finally { if (connection != null) connection.disconnect(); }
+    }
+    private static int retryAfter(HttpURLConnection connection) {
+        try { return Math.max(1, Math.min(300, Integer.parseInt(connection.getHeaderField("Retry-After")))); }
+        catch (RuntimeException error) { return 5; }
     }
     static List<Product> catalogue(String base) throws Failure {
         List<Product> result = new ArrayList<>(); Set<String> codes = new HashSet<>();

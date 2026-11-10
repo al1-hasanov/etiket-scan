@@ -1,10 +1,19 @@
-# Etiket 0.6.4 — Nutrition from catalogue sources
+# Etiket 0.7.0 — Reliable barcode discovery and caching
 
 Etiket reads ingredient and nutrition labels into editable drafts for the Android package-photo and private review flow. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
 
 The unchanged starter sample has **77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks**. Its records remain `WEB_SOURCED_UNVERIFIED`. Reviewed submissions are additional evidence with separate storage, source photos and review dates. No synthetic review fixture is published by default.
 
-## New in 0.6.4
+## New in 0.7.0
+
+- Verified local/reviewed product evidence is still prioritized over Open Food Facts. Product discovery remains opt-in via `OFF_ENABLED=true`.
+- Persistent 24-hour **positive cache** (`product_cache`), 6-hour **confirmed-not-found cache** (`product_lookup_misses`, Flyway V5), and bounded 7-day **stale-on-temporary-error** fallback. A provider 404 deletes obsolete positive data; 429/503 and malformed provider responses never become product-not-found records.
+- Checks the API v3.6 `status/result` envelope, limits response size, keeps the existing nutrition provenance/quantity rules, and prefers Azerbaijani names/ingredients when available.
+- Upstream 429/5xx cooldowns and `Retry-After` handling, plus the existing conservative five-second in-process OFF limit. Keep **one API replica per shared outgoing IP** until a distributed limiter is introduced.
+- Android 0.7.0 caches up to 40 successful live lookups **per configured server** for seven days. Temporary network/429/503 failures show the stored product with an explicit stale-data message. A confirmed 404 does not use offline fallback.
+- See [V0_7_0_UPDATE.md](V0_7_0_UPDATE.md) for merge, test and Railway deployment instructions. Existing users/data are migrated in place; no destructive database reset is needed.
+
+## Previous in 0.6.4
 
 - Reviewers can preview and apply a batch of retailer or manufacturer nutrition reports for existing barcodes from **Import nutrition reports** on `/review`.
 - A scan uses package-checked nutrition first. It can display a saved source panel for the same pack, with separate attribution. Conflicting reports hold the panel for package review.
@@ -89,7 +98,7 @@ Barcode scanning uses Google Code Scanner through Google Play services. The firs
 1. Apply the changed-files ZIP to your existing project root containing `settings.gradle`, `backend/`, `app/` and `run-backend.bat`.
 2. Install JDK 25. Check `java -version`, or configure `JAVA_HOME` to that JDK.
 3. Run `gradlew.bat -PbackendOnly :backend:bootJar`, then double-click **run-backend.bat**. The script runs the newly built JAR from `backend/build/libs/`.
-4. Open the health endpoint. Expect `{"status":"UP","version":"0.6.4"}`. Field order can differ. [Health](http://127.0.0.1:8080/api/v1/health)
+4. Open the health endpoint. Expect `{"status":"UP","version":"0.7.0"}`. Field order can differ. [Health](http://127.0.0.1:8080/api/v1/health)
 5. Open [catalogue summary](http://127.0.0.1:8080/api/v1/catalogue/summary). Expect 77 products, 10 with ingredients, 67 missing, 0 label-verified.
 6. Open [N1 lookup](http://127.0.0.1:8080/api/v1/products/4760177560085) and [croissant lookup](http://127.0.0.1:8080/api/v1/products/5201360553457).
 
@@ -133,7 +142,7 @@ $env:DB_PASSWORD='YOUR_LOCAL_DATABASE_PASSWORD'
 
 Use a JDBC URL, not a bare `postgres://` URL. The same migrations/importer run on PostgreSQL and H2. PostgreSQL integration tests start a real temporary database process without Docker; the first test run downloads its test binary. See `VALIDATION.md` for the actual tested versions and results.
 
-The Dockerfile builds the 0.6.4 Java 25 backend. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
+The Dockerfile builds the 0.7.0 Java 25 backend. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
 
 ## 5. Open and build the source
 
@@ -146,7 +155,7 @@ gradlew.bat -PbackendOnly :core:test :backend:test :backend:bootJar
 gradlew.bat :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.6.4.jar` under `backend/build/libs/`. The start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
+Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.7.0.jar` under `backend/build/libs/`. The start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
 
 ## 6. Understand the API and data
 
@@ -183,7 +192,7 @@ Do not edit the generated assets independently. Update captured facts with sourc
 
 Open Food Facts is **disabled by default** (`OFF_ENABLED=false`). Enable it with `OFF_ENABLED=true` and a contact-bearing `OFF_USER_AGENT`. The v3.6 adapter can return an external product for an unknown barcode or attach an eligible nutrition panel to a known product. A known product keeps its own ingredient and allergen evidence.
 
-Provider results use a separate 24-hour cache and a process-local five-second lookup interval. Use shared quota control before running multiple replicas with the same outgoing IP. See [DATA_SOURCES.md](DATA_SOURCES.md) for attribution and reuse terms.
+Provider results use a persistent 24-hour positive cache, a six-hour confirmed-missing cache, and a seven-day stale-on-outage fallback. A process-local five-second lookup interval and upstream cooldown protect OFF quotas. Use only one replica per outgoing IP, or add a shared limiter before scaling horizontally. These TTLs can be configured with `OFF_CACHE_HOURS`, `OFF_MISS_CACHE_HOURS`, `OFF_STALE_CACHE_DAYS`, `OFF_COOLDOWN_SECONDS`, and `OFF_MIN_INTERVAL_MILLIS`. Live positive results and misses survive API restarts in PostgreSQL. See [DATA_SOURCES.md](DATA_SOURCES.md) for attribution and reuse terms.
 
 ## What comes after this increment
 

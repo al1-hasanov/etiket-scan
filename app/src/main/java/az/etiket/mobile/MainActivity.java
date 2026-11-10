@@ -475,21 +475,36 @@ public class MainActivity extends ComponentActivity {
         executor.execute(() -> {
             try {
                 Product p = ApiClient.lookup(base, code);
-                runOnUiThread(() -> { if (token == requestId && !isDestroyed()) open(p); });
+                runOnUiThread(() -> {
+                    if (token == requestId && !isDestroyed()) {
+                        store.cacheLiveLookup(base, p);
+                        open(p);
+                    }
+                });
             } catch (ApiClient.Failure e) {
                 runOnUiThread(() -> {
                     if (token != requestId || isDestroyed()) return;
-                    if (e.code.equals("CONNECTION_FAILED") || e.code.equals("SOURCE_UNAVAILABLE")) {
+                    if (e.code.equals("CONNECTION_FAILED") || e.code.equals("SOURCE_UNAVAILABLE")
+                            || e.code.equals("LOOKUP_RATE_LIMITED")) {
+                        Optional<Product> previouslyFound = store.cachedLiveLookup(base, code);
+                        if (previouslyFound.isPresent()) {
+                            open(previouslyFound.get());
+                            message(t("Son saxlanmış nəticə göstərilir. Məlumat köhnəlmiş ola bilər.",
+                                "Showing a previously saved result. Information may be outdated."));
+                            return;
+                        }
                         for (Product product : catalogue) if (product.barcode().equals(code)) {
                             open(product);
-                            message(t("Saxlanmış kataloq göstərilir.", "Showing the saved catalogue."));
+                            message(t("Saxlanmış kataloq göstərilir. Məlumat köhnəlmiş ola bilər.",
+                                "Showing the saved catalogue. Information may be outdated."));
                             return;
                         }
                     }
                     loading = false; render();
                     String error = switch (e.code) {
                         case "PRODUCT_NOT_FOUND" -> t("Məhsul bazada tapılmadı. Məlumat uydurulmur. Qablaşdırmadakı etiketi yoxlayın.", "This product is not in the database. No details have been guessed. Check its package label.");
-                        case "LOOKUP_RATE_LIMITED" -> t("Bir neçə saniyə gözləyib yenidən sınayın.", "Wait a few seconds and try again.");
+                        case "LOOKUP_RATE_LIMITED" -> t("Təxminən ", "Try again in approximately ")
+                            + Math.max(1, e.retryAfterSeconds) + t(" saniyə sonra yenidən sınayın.", " seconds.");
                         case "CONNECTION_FAILED" -> t("API-yə qoşulmaq mümkün olmadı. Backend-i və Parametrlərdəki ünvanı yoxlayın.", "Could not connect to your API. Check that the backend is running and the address in Settings is correct.");
                         default -> t("Mənbə hazırda cavab vermir. Bir az sonra yenidən sınayın.", "The data source is temporarily unavailable. Please try again later.");
                     };

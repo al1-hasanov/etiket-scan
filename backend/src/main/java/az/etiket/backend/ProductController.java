@@ -11,7 +11,7 @@ class ProductController {
     private final ProductService service;
     private final CatalogueStore catalogue;
     ProductController(ProductService service, CatalogueStore catalogue) { this.service = service; this.catalogue = catalogue; }
-    @GetMapping("/health") Map<String, String> health() { return Map.of("status", "UP", "version", "0.6.4"); }
+    @GetMapping("/health") Map<String, String> health() { return Map.of("status", "UP", "version", "0.7.0"); }
     @GetMapping("/catalogue/summary") Map<String, Object> summary() { return catalogue.summary(); }
     @GetMapping("/catalogue/products") Map<String, Object> products(
             @RequestParam(defaultValue="0") int page, @RequestParam(defaultValue="20") int size) {
@@ -34,7 +34,8 @@ class Errors {
     @ExceptionHandler(LookupException.class)
     ResponseEntity<Map<String, String>> lookup(LookupException e) {
         var response = ResponseEntity.status(e.status);
-        if (e.status == 429) response.header("Retry-After", "5");
+        if (e.status == 429 || e.code.equals("SOURCE_RATE_LIMITED"))
+            response.header("Retry-After", String.valueOf(Math.max(1, e.retryAfterSeconds)));
         return response.body(Map.of("code", e.code));
     }
 }

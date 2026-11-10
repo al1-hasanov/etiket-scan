@@ -48,3 +48,14 @@ Scanning occurs through Google's on-device UI. Initial module download requires 
 ## Build/runtime dependencies
 
 Spring Boot / Spring Framework, Android Gradle Plugin, H2, PostgreSQL JDBC driver, Jackson, JUnit, and Robolectric retain their respective upstream licences. Dependency coordinates and versions are recorded in the Gradle files. The Gradle wrapper retains the upstream copyright/licence header. Consult dependency licence notices before redistribution or a public release.
+
+
+## 0.7.0: external discovery and safe caching
+
+- The optional Open Food Facts (OFF) adapter uses the v3.6 product API and a contact-bearing User-Agent. The provider's publicly documented read cap is **15 product requests/minute per IP**. Do not run multiple API replicas on the same outgoing IP without a shared limiter.
+- Positive responses are stored by barcode in `product_cache` with a **24-hour freshness TTL** (`OFF_CACHE_HOURS`). Confirmed OFF misses go into a separate `product_lookup_misses` table for **6 hours** (`OFF_MISS_CACHE_HOURS`). A missing barcode should remain unknown, not invented.
+- During transient 429/503/provider errors, a positive result may be returned if stored within the last **7 days** (`OFF_STALE_CACHE_DAYS`). The original `retrievedAt`, source URL, provenance and nutrition data remain unchanged; this is stale data, *not* a refreshed or package-verified product. **A confirmed OFF 404 removes the old positive response, never stale-falls back.**
+- Unexpected OFF failure envelopes or responses are not negative-cached. Rate-limited responses obey a temporary cooldown. A successful refresh clears any older negative entry.
+- The independent Android fallback is saved only on that device, for the configured backend URL, at most 40 products and seven days. It is not synchronized with the server, and appears only for temporary failures, not confirmed 404s.
+- The starter catalogue and reviewed products are **not** overwritten by any provider cache operation; nutrition enrichment of existing starter products still requires an Azerbaijan-market indication, identical pack size and a usable explicit per-100-g/ml panel.
+- OFF is a community-maintained database and may contain incomplete or incorrect entries. Retain ODbL attribution and inspect the actual package. A public OFF hit is **not** a label verification.

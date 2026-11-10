@@ -17,4 +17,4 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 test { useJUnitPlatform() }
-bootJar { archiveFileName = 'etiket-backend-0.6.4.jar' }
+bootJar { archiveFileName = 'etiket-backend-0.7.0.jar' }

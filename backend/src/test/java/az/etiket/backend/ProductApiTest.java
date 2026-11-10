@@ -42,6 +42,7 @@ class ProductApiTest {
     @DynamicPropertySource static void properties(DynamicPropertyRegistry r) {
         r.add("off.base-url", () -> "http://127.0.0.1:" + source.getAddress().getPort());
         r.add("off.min-interval-millis", () -> "0");
+        r.add("off.cooldown-seconds", () -> "0");
         r.add("off.enabled", () -> "true");
         r.add("spring.datasource.url", () -> "jdbc:h2:mem:apitest;DB_CLOSE_DELAY=-1");
     }
@@ -52,6 +53,7 @@ class ProductApiTest {
     final JsonMapper json = JsonMapper.builder().build();
     @BeforeEach void reset() {
         db.update("DELETE FROM product_cache");
+        db.update("DELETE FROM product_lookup_misses");
         db.update("DELETE FROM nutrition_reports");
         calls.set(0); sourceStatus = 200;
         sourceBody = """
@@ -148,6 +150,7 @@ class ProductApiTest {
         sourceStatus = 404; sourceBody = "{\"status\":\"failure\"}";
         assertEquals(404, get("products/3017620422003").statusCode());
         assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM product_cache", Integer.class));
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM product_lookup_misses", Integer.class));
     }
     @Test void providerFailureDoesNotBecomeMissingProduct() throws Exception {
         sourceStatus = 503;
@@ -182,6 +185,74 @@ class ProductApiTest {
         LookupException e = assertThrows(LookupException.class, () -> limited.fetch("3017620422003"));
         assertEquals(429, e.status); assertEquals(1, calls.get());
     }
+    @Test void knownCatalogueDataIsNotRemovedByAProviderMiss() throws Exception {
+        sourceStatus = 404;
+        sourceBody = "{\"status\":\"failure\",\"result\":{\"id\":\"product_not_found\"}}";
+        var first = json.readTree(get("products/4760177560085").body());
+        assertEquals("BAZARSTORE", first.path("source").asString());
+        var repeated = json.readTree(get("products/4760177560085").body());
+        assertEquals(first, repeated);
+        assertEquals(1, calls.get());
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM product_lookup_misses", Integer.class));
+    }
+    @Test void confirmedMissingIsNegativelyCachedButExpires() throws Exception {
+        sourceStatus = 404;
+        sourceBody = "{\"status\":\"failure\",\"result\":{\"id\":\"product_not_found\"}}";
+        assertEquals(404, get("products/3017620422003").statusCode());
+        assertEquals(404, get("products/3017620422003").statusCode());
+        assertEquals(1, calls.get(), "Missing barcodes must not burn upstream quota repeatedly");
+        db.update("UPDATE product_lookup_misses SET checked_at=0");
+        sourceStatus = 200;
+        sourceBody = providerPanel("3017620422003", "100 g", "azerbaijan", "g");
+        assertEquals(200, get("products/3017620422003").statusCode());
+        assertEquals(2, calls.get());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM product_lookup_misses", Integer.class));
+    }
+    @Test void providerFailureEnvelopeCannotBecomeMissingCache() throws Exception {
+        sourceBody = "{\"status\":\"failure\",\"result\":{\"id\":\"temporarily_unavailable\"}}";
+        assertEquals(503, get("products/3017620422003").statusCode());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM product_lookup_misses", Integer.class));
+        sourceBody = "{\"status\":\"failure\",\"result\":{\"id\":\"product_not_found\"}}";
+        assertEquals(404, get("products/3017620422003").statusCode());
+        assertEquals(1, db.queryForObject("SELECT COUNT(*) FROM product_lookup_misses", Integer.class));
+    }
+    @Test void expiredPositiveDataIsServedOnlyOnTemporaryProviderFailure() throws Exception {
+        var original = json.readTree(get("products/3017620422003").body());
+        db.update("UPDATE product_cache SET stored_at=?", System.currentTimeMillis() - 2L * 86_400_000L);
+        sourceStatus = 503;
+        assertEquals(original, json.readTree(get("products/3017620422003").body()));
+        assertEquals(2, calls.get());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM product_lookup_misses", Integer.class));
+        db.update("UPDATE product_cache SET stored_at=?", System.currentTimeMillis() - 9L * 86_400_000L);
+        assertEquals(503, get("products/3017620422003").statusCode());
+    }
+    @Test void confirmedNotFoundInvalidatesExpiredPositiveCache() throws Exception {
+        assertEquals(200, get("products/3017620422003").statusCode());
+        db.update("UPDATE product_cache SET stored_at=?", System.currentTimeMillis() - 2L * 86_400_000L);
+        sourceStatus = 404;
+        assertEquals(404, get("products/3017620422003").statusCode());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM product_cache", Integer.class));
+        assertEquals(404, get("products/3017620422003").statusCode());
+        assertEquals(2, calls.get());
+    }
+    @Test void azerbaijaniNamesAndIngredientsArePreferredWhenProvided() throws Exception {
+        sourceBody = """
+            {"status":"success","product":{"code":"3017620422003","product_name":"Default",
+             "product_name_az":"Azərbaycan adı","ingredients_text":"Wheat", "ingredients_text_az":"Buğda",
+             "lang":"en"}}
+            """;
+        var product = json.readTree(get("products/3017620422003").body());
+        assertEquals("Azərbaycan adı", product.path("name").asString());
+        assertEquals("Buğda", product.path("ingredients").asString());
+        assertEquals("az", product.path("ingredientsLanguage").asString());
+    }
+    @Test void malformedCachedProductIsRefetched() throws Exception {
+        db.update("INSERT INTO product_cache(barcode,payload,stored_at) VALUES (?,?,?)",
+            "3017620422003", "{invalid", System.currentTimeMillis());
+        assertEquals(200, get("products/3017620422003").statusCode());
+        assertEquals(1, calls.get());
+    }
+
     private static String providerPanel(String code, String pack, String market, String unit) {
         return """
             {"product":{"code":"%s","product_name":"External example","quantity":"%s","countries_tags":["en:%s"],
