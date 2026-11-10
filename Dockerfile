@@ -14,7 +14,7 @@ RUN sh /app/install-ocr-models.sh /opt/etiket-tessdata
 ENV TESSDATA_PREFIX=/opt/etiket-tessdata
 ENV OMP_THREAD_LIMIT=1
 RUN mkdir /app/data && chown -R 10001:10001 /app
-COPY --from=build --chown=10001:10001 /src/backend/build/libs/etiket-backend-0.6.4.jar /app/etiket.jar
+COPY --from=build --chown=10001:10001 /src/backend/build/libs/etiket-backend-0.7.0.jar /app/etiket.jar
 USER 10001:10001
 ENV SERVER_ADDRESS=0.0.0.0
 EXPOSE 8080

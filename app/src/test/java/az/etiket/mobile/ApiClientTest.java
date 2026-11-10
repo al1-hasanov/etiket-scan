@@ -57,6 +57,15 @@ public class ApiClientTest {
         status = 503; assertFailure("SOURCE_UNAVAILABLE");
         status = 429; assertFailure("LOOKUP_RATE_LIMITED");
     }
+    @Test public void retryAfterFromBackendIsPreservedForTheUser() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(503).setHeader("Retry-After", "17")
+            .setHeader("Content-Type", "application/json").setBody("{\"code\":\"SOURCE_RATE_LIMITED\"}"));
+        try { ApiClient.lookup(base, expected.barcode()); fail("Expected temporary limit"); }
+        catch (ApiClient.Failure error) {
+            assertEquals("LOOKUP_RATE_LIMITED", error.code);
+            assertEquals(17, error.retryAfterSeconds);
+        }
+    }
     @Test public void malformedOrMismatchedResponseIsASourceFailure() throws Exception {
         body = "not-json"; assertFailure("SOURCE_UNAVAILABLE");
         body = ProductJson.write(expected).put("barcode", "5201360553457").toString();

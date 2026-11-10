@@ -43,7 +43,7 @@ class PostgresCatalogueTest {
         assertEquals(10, catalogue.summary().get("withIngredients"));
         catalogue.importBundledCatalogue();
         assertEquals(77, db.queryForObject("SELECT COUNT(*) FROM catalogue_products", Integer.class));
-        assertEquals(4, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
+        assertEquals(5, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
     }
     @Test void nutritionImportSurvivesCatalogueReimportOnPostgres() throws Exception {
         String barcode = "4760177560085";

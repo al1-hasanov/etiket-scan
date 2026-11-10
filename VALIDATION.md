@@ -1,5 +1,11 @@
 # Etiket validation
 
+## 0.7.0 barcode lookup and caching
+
+Passed 31 core, 82 backend and 44 Android tests. Backend checks covered Flyway V5 on H2 and PostgreSQL, confirmed misses, provider failures, stale cached results and the native OCR fixtures with the pinned models. Android checks covered cache expiry and isolation between backend URLs.
+
+The packaged JAR started against an isolated H2 database, applied Flyway V5 and reported `UP` and version `0.7.0`. A starter catalogue lookup returned the expected N1 barcode. Android lint found no issues. The 0.7.0 debug APK has application ID `az.etiket.scanner.demo`, version code 12 and the existing 0.6.4 demo signing certificate.
+
 ## 0.6.4 sourced nutrition
 
 Passed 31 core, 75 backend and 41 Android unit tests. Backend checks exercised Flyway V4 on H2 and PostgreSQL, the native OCR fixtures, atomic batch import, the seven catalogue examples, the cached jam disagreement, and the provider fallback with explicit market and basis. Android checks exercised the fresh-install Railway default, source persistence and the photo option on conflicted panels.
