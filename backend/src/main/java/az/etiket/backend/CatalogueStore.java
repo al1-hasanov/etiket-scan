@@ -14,14 +14,25 @@ import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Prototype seed data is separate from provider cache and future reviewed submissions. */
+/** The public catalogue combines reviewed submissions, CSV imports and the starter dataset. */
 @Component
 @DependsOnDatabaseInitialization
 final class CatalogueStore implements InitializingBean {
     static final String DATASET = "bazarstore-starter";
-    private static final String VISIBLE = "(SELECT barcode,name,has_ingredients,payload,TRUE AS label_reviewed FROM reviewed_products UNION ALL "
-        + "SELECT c.barcode,c.name,c.has_ingredients,c.payload,FALSE AS label_reviewed FROM catalogue_products c "
-        + "WHERE NOT EXISTS (SELECT 1 FROM reviewed_products r WHERE r.barcode=c.barcode)) visible_products";
+    private static final String VISIBLE = """
+        (SELECT barcode,name,has_ingredients,payload,TRUE AS label_reviewed,CAST(NULL AS TEXT) AS import_source
+            FROM reviewed_products
+        UNION ALL
+        SELECT i.barcode,i.name,i.has_ingredients,i.payload,TRUE AS label_reviewed,i.source_record
+            FROM imported_catalogue_products i
+            WHERE NOT EXISTS (SELECT 1 FROM reviewed_products r WHERE r.barcode=i.barcode)
+        UNION ALL
+        SELECT c.barcode,c.name,c.has_ingredients,c.payload,FALSE AS label_reviewed,CAST(NULL AS TEXT)
+            FROM catalogue_products c
+            WHERE NOT EXISTS (SELECT 1 FROM reviewed_products r WHERE r.barcode=c.barcode)
+              AND NOT EXISTS (SELECT 1 FROM imported_catalogue_products i WHERE i.barcode=c.barcode)
+        ) visible_products
+        """;
     private final JdbcTemplate db;
     private final TransactionTemplate transactions;
     private final JsonMapper json = JsonMapper.builder().build();
@@ -57,8 +68,7 @@ final class CatalogueStore implements InitializingBean {
         }
         if (rows.isEmpty()) throw new IllegalStateException("Catalogue is empty");
         transactions.executeWithoutResult(status -> {
-            // Schema migrations serialize database setup. This row serializes concurrent seed imports.
-            String previous = db.queryForObject("SELECT digest FROM catalogue_imports WHERE dataset_id=? FOR UPDATE", String.class, DATASET);
+            String previous = lockCatalogueImports();
             Integer existing = db.queryForObject("SELECT COUNT(*) FROM catalogue_products WHERE dataset_id=?", Integer.class, DATASET);
             if (digest.equals(previous) && existing != null && existing == rows.size()) return;
             db.update("DELETE FROM catalogue_products WHERE dataset_id=?", DATASET);
@@ -75,6 +85,21 @@ final class CatalogueStore implements InitializingBean {
     Optional<Product> find(String code) {
         return db.query("SELECT payload FROM " + VISIBLE + " WHERE barcode=?",
             (rs, row) -> json.readValue(rs.getString(1), Product.class), code).stream().findFirst();
+    }
+
+    // The starter and CSV publishers share this lock. Call inside the publishing transaction.
+    String lockCatalogueImports() {
+        return db.queryForObject("SELECT digest FROM catalogue_imports WHERE dataset_id=? FOR UPDATE", String.class, DATASET);
+    }
+
+    Optional<ExistingProduct> existingForImport(String barcode) {
+        return db.query("SELECT import_source FROM " + VISIBLE + " WHERE barcode=?",
+            (rs, row) -> new ExistingProduct(rs.getString(1)), barcode).stream().findFirst();
+    }
+
+    void insertImported(Product product, String sourceRecord) {
+        db.update("INSERT INTO imported_catalogue_products(barcode,name,has_ingredients,payload,source_record) VALUES (?,?,?,?,?)",
+            product.barcode(), product.name(), !product.ingredients().isBlank(), json.writeValueAsString(product), sourceRecord);
     }
 
     Map<String, Object> summary() {
@@ -95,6 +120,7 @@ final class CatalogueStore implements InitializingBean {
         return Map.of("items", products, "page", page, "size", size, "total", summary().get("products"));
     }
 
+    record ExistingProduct(String importSource) { }
     private record Row(Product product, String payload, String sourceRecord) { }
 }
 

@@ -22,6 +22,8 @@ import tools.jackson.databind.json.JsonMapper;
     "spring.datasource.url=jdbc:h2:mem:submissions;DB_CLOSE_DELAY=-1", "off.enabled=false",
     "review.username=reviewer", "review.password=only-for-local-tests", "submissions.max-pending=3"})
 class SubmissionApiTest {
+    private static final String CATALOGUE_IMPORT = "/api/v1/review/catalogue-import";
+    private static final String CSV_HEADER = "barcode,name,pack_size,source_url\n";
     @LocalServerPort int port;
     @Autowired JdbcTemplate db;
     @Autowired CatalogueStore catalogue;
@@ -32,6 +34,7 @@ class SubmissionApiTest {
     String auth = "Basic " + Base64.getEncoder().encodeToString("reviewer:only-for-local-tests".getBytes(StandardCharsets.UTF_8));
 
     @BeforeEach void reset() {
+        db.update("DELETE FROM imported_catalogue_products");
         db.update("DELETE FROM nutrition_reports");
         db.update("DELETE FROM reviewed_products"); db.update("DELETE FROM submission_photos"); db.update("DELETE FROM label_submissions"); token=null;
     }
@@ -41,10 +44,13 @@ class SubmissionApiTest {
         return client.send(request.GET().build(),HttpResponse.BodyHandlers.ofString());
     }
     HttpResponse<String> post(String path,Object body,boolean csrf) throws Exception {
+        return post(path, json.writeValueAsString(body), "application/json", csrf);
+    }
+    private HttpResponse<String> post(String path, String body, String contentType, boolean csrf) throws Exception {
         if(csrf&&token==null)token=json.readTree(get("/api/v1/review/csrf",true).body()).path("token").asString();
-        var request=HttpRequest.newBuilder(URI.create("http://127.0.0.1:"+port+path)).header("Authorization",auth).header("Content-Type","application/json");
+        var request=HttpRequest.newBuilder(URI.create("http://127.0.0.1:"+port+path)).header("Authorization",auth).header("Content-Type",contentType);
         if(csrf)request.header("X-CSRF-TOKEN",token);
-        return client.send(request.POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body))).build(),HttpResponse.BodyHandlers.ofString());
+        return client.send(request.POST(HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString());
     }
     HttpResponse<String> upload(Draft draft, byte[] photo) throws Exception {
         String boundary="etiket-test-"+UUID.randomUUID(); ByteArrayOutputStream out=new ByteArrayOutputStream();
@@ -72,6 +78,101 @@ class SubmissionApiTest {
         assertEquals(403,post(path,SubmissionFixtures.approval(0,""),false).statusCode());
         assertEquals(200,get("/review",true).statusCode());
         var response=post(path,SubmissionFixtures.approval(0,""),true);assertEquals(200,response.statusCode(),response.body());
+    }
+
+    @Test void reviewedCsvPreviewIsReadOnlyAndPublishingIsIdempotent() throws Exception {
+        String csv = "\uFEFFbarcode,name,pack_size,source_url,ingredients,ingredients_language,nutrition_basis,fat_g,salt_g\r\n"
+            + "012345678905,\"Sınaq, qida\",400 g,https://example.test/labels/food,\"Buğda unu, \"\"duz\"\"\r\nsu\",az,PER_100_G,\"2,5\",0\r\n"
+            + "4000000000013,Sınaq içkisi,500 ml,https://example.test/labels/drink,,,,,\r\n";
+        assertEquals(401, get("/review/catalogue-template.csv", false).statusCode());
+        assertTrue(get("/review/catalogue-template.csv", true).body().startsWith("barcode,name,pack_size,source_url"));
+        assertEquals(403, post(CATALOGUE_IMPORT, csv, "text/csv", false).statusCode());
+        JsonNode preview = catalogueCsv("", csv);
+        String digest = preview.path("digest").asString();
+        assertFalse(preview.path("published").asBoolean());
+        assertEquals(2, preview.path("ready").asInt());
+        assertEquals("0012345678905", preview.at("/rows/0/barcode").asString());
+        assertEquals(404, get("/api/v1/products/0012345678905", false).statusCode());
+        assertEquals(400, post(CATALOGUE_IMPORT + "?dryRun=false&digest=" + digest, csv, "text/csv", true).statusCode());
+        assertEquals(409, post(CATALOGUE_IMPORT + publishCatalogue(digest), csv + "\r\n", "text/csv", true).statusCode());
+
+        JsonNode published = catalogueCsv(publishCatalogue(digest), csv);
+        assertTrue(published.path("published").asBoolean());
+        assertEquals(2, published.path("added").asInt());
+        JsonNode food = json.readTree(get("/api/v1/products/0012345678905", false).body());
+        assertEquals("Sınaq, qida", food.path("name").asString());
+        assertEquals("Buğda unu, \"duz\"\r\nsu", food.path("ingredients").asString());
+        assertEquals("https://example.test/labels/food", food.path("sourceUrl").asString());
+        assertEquals("REVIEWED_LABEL", food.path("source").asString());
+        assertTrue(food.at("/evidence/labelPhotoChecked").asBoolean());
+        assertEquals("PACKAGE_CHECKED", food.at("/nutritionSource/kind").asString());
+        assertEquals(2.5, food.at("/nutrition/values/fat").asDouble());
+        assertEquals(0, food.at("/nutrition/values/salt").asDouble(-1));
+        assertFalse(food.at("/nutrition/values").has("fiber"));
+        assertFalse(food.has("reviewer"));
+        JsonNode drink = json.readTree(get("/api/v1/products/4000000000013", false).body());
+        assertEquals("MISSING", drink.at("/evidence/ingredientsStatus").asString());
+        assertTrue(drink.at("/nutrition/values").isEmpty());
+        catalogue.importBundledCatalogue();
+        JsonNode repeat = catalogueCsv(publishCatalogue(digest), csv);
+        assertEquals(0, repeat.path("added").asInt());
+        assertEquals(2, repeat.path("unchanged").asInt());
+        assertEquals(79, catalogue.summary().get("products"));
+        assertEquals(2, catalogue.summary().get("labelVerified"));
+        JsonNode items = json.readTree(get("/api/v1/catalogue/products?size=100", false).body()).path("items");
+        assertEquals(79, items.size());
+    }
+
+    @Test void invalidRowsAndExistingBarcodesBlockTheWholeCsv() throws Exception {
+        String csv = "barcode,name,pack_size,source_url,nutrition_basis,carbohydrates_g,sugars_g\n"
+            + "4000000000013,Valid row,250 g,https://example.test/valid,,,\n"
+            + "4760177560085,Conflicting starter row,400 g,https://example.test/starter,,,\n"
+            + "012345678905,Duplicate UPC,500 g,https://example.test/upc,,,\n"
+            + "0012345678905,Duplicate EAN,500 g,https://example.test/ean,,,\n"
+            + "4000000000020,Invalid nutrition,500 g,https://example.test/nutrition,PER_100_G,2,5\n"
+            + "4000000000037,Invalid source,100 g,javascript:alert(1),,,\n";
+        JsonNode preview = catalogueCsv("", csv);
+        assertEquals(1, preview.path("ready").asInt());
+        assertEquals(5, preview.path("blocked").asInt());
+        assertEquals("BARCODE_ALREADY_EXISTS", preview.at("/rows/1/reason").asString());
+        assertEquals("DUPLICATE_BARCODE", preview.at("/rows/2/reason").asString());
+        assertEquals("DUPLICATE_BARCODE", preview.at("/rows/3/reason").asString());
+        assertEquals("NUTRITION_VALUES_INCONSISTENT", preview.at("/rows/4/reason").asString());
+        assertEquals("SOURCE_URL_INVALID", preview.at("/rows/5/reason").asString());
+        assertFalse(catalogueCsv(publishCatalogue(preview.path("digest").asString()), csv).path("published").asBoolean());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM imported_catalogue_products", Integer.class));
+        assertEquals(77, catalogue.summary().get("products"));
+    }
+
+    @Test void csvCannotReplaceAnApprovedPackagePhoto() throws Exception {
+        String code = "4000000000013";
+        String csv = CSV_HEADER + code + ",CSV entry,400 g,https://example.test/label\n";
+        JsonNode preview = catalogueCsv("", csv);
+        Draft draft = submit(code);
+        String id = draft.clientRequestId();
+        assertEquals(200, post("/api/v1/review/submissions/" + id + "/approve", SubmissionFixtures.approval(0, ""), true).statusCode());
+        JsonNode blocked = catalogueCsv(publishCatalogue(preview.path("digest").asString()), csv);
+        assertFalse(blocked.path("published").asBoolean());
+        assertEquals("BARCODE_ALREADY_EXISTS", blocked.at("/rows/0/reason").asString());
+        JsonNode product = json.readTree(get("/api/v1/products/" + code, false).body());
+        assertEquals("/sources/labels/" + id, product.path("sourceUrl").asString());
+    }
+
+    @Test void malformedAndOversizedCsvReturnErrorsWithoutImporting() throws Exception {
+        assertEquals(400, post(CATALOGUE_IMPORT, CSV_HEADER + "4000000000013,\"Unclosed", "text/csv", true).statusCode());
+        assertEquals(400, post(CATALOGUE_IMPORT, "barcode,name,pack_size,source_url,unknown\n", "text/csv", true).statusCode());
+        assertEquals(413, post(CATALOGUE_IMPORT, "x".repeat(CatalogueCsvImport.MAX_BYTES + 1), "text/csv", true).statusCode());
+        assertEquals(0, db.queryForObject("SELECT COUNT(*) FROM imported_catalogue_products", Integer.class));
+    }
+
+    private static String publishCatalogue(String digest) {
+        return "?dryRun=false&confirmed=true&digest=" + digest;
+    }
+
+    private JsonNode catalogueCsv(String query, String csv) throws Exception {
+        var response = post(CATALOGUE_IMPORT + query, csv, "text/csv", true);
+        assertEquals(200, response.statusCode(), response.body());
+        return json.readTree(response.body());
     }
     @Test void previewsSevenRetailerCandidatesAndKeepsConflictsOutOfTheScanResult() throws Exception {
         String path = "/api/v1/review/nutrition-import";
