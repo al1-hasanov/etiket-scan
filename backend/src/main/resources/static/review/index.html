@@ -2,6 +2,15 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Etiket · Label review</title><link rel="stylesheet" href="/assets/labels.css"><script src="/review/review.js" defer></script></head>
 <body><header><h1>Etiket · Label review</h1><span>Compare the package. Publish only what it says.</span></header>
 <main><p id="message" role="status" aria-live="polite"></p>
+<details class="card"><summary>Import verified products</summary>
+<p>Upload a UTF-8 CSV of new products with links to the package label photos you checked. Preview the rows and resolve any errors or barcode conflicts before publishing.</p>
+<p><a class="link" href="/review/catalogue-template.csv" download>Download CSV template</a></p>
+<label for="catalogue-csv">Product catalogue CSV</label><input id="catalogue-csv" type="file" accept=".csv,text/csv">
+<div class="actions"><button id="preview-catalogue" disabled>Preview products</button></div>
+<p id="catalogue-import-message" role="status" aria-live="polite"></p><ul id="catalogue-import-rows"></ul>
+<label class="check"><input type="checkbox" id="confirm-catalogue" disabled><span>I checked the linked package photos against each barcode, pack size and supplied label value, and I have permission to publish this information.</span></label>
+<div class="actions"><button id="publish-catalogue" class="primary" disabled>Publish products</button></div>
+</details>
 <details class="card"><summary>Import nutrition reports</summary>
 <p>Choose a JSON feed for known barcodes with permission to reuse its data. Preview the batch, then apply it. Conflicting panels stay in review.</p>
 <label for="nutrition-file">Nutrition feed JSON</label><input id="nutrition-file" type="file" accept=".json,application/json">

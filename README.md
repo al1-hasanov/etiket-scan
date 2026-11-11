@@ -1,10 +1,17 @@
-# Etiket 0.7.0 — Reliable barcode discovery and caching
+# Etiket 0.7.1 — Verified product imports
 
 Etiket reads ingredient and nutrition labels into editable drafts for the Android package-photo and private review flow. Photos and reviewed records are stored in PostgreSQL/H2 independently of the replaceable starter import. The existing Azerbaijani dictionary, scanning, saved products and offline history are retained.
 
 The unchanged starter sample has **77 products · 10 web ingredient lists · 67 missing ingredient lists · 0 package-label checks**. Its records remain `WEB_SOURCED_UNVERIFIED`. Reviewed submissions are additional evidence with separate storage, source photos and review dates. No synthetic review fixture is published by default.
 
-## New in 0.7.0
+## New in 0.7.1
+
+- Reviewers can download a CSV template, preview new products and publish a checked batch from **Import verified products** on `/review`.
+- Flyway V6 stores the imported products and their source evidence separately from the starter catalogue. Successful imports appear in barcode lookups and catalogue pages.
+- The import checks GTINs, pack sizes, HTTPS label-photo sources and supplied nutrition values. Any invalid or conflicting row blocks publication. Identical rows can be retried.
+- Use Android 0.7.0 to scan imported products. See [V0_7_1_UPDATE.md](V0_7_1_UPDATE.md) for CSV fields, deployment and checks.
+
+## Previous in 0.7.0
 
 - Verified local/reviewed product evidence is still prioritized over Open Food Facts. Product discovery remains opt-in via `OFF_ENABLED=true`.
 - Persistent 24-hour **positive cache** (`product_cache`), 6-hour **confirmed-not-found cache** (`product_lookup_misses`, Flyway V5), and bounded 7-day **stale-on-temporary-error** fallback. A provider 404 deletes obsolete positive data; 429/503 and malformed provider responses never become product-not-found records.
@@ -98,7 +105,7 @@ Barcode scanning uses Google Code Scanner through Google Play services. The firs
 1. Apply the changed-files ZIP to your existing project root containing `settings.gradle`, `backend/`, `app/` and `run-backend.bat`.
 2. Install JDK 25. Check `java -version`, or configure `JAVA_HOME` to that JDK.
 3. Run `gradlew.bat -PbackendOnly :backend:bootJar`, then double-click **run-backend.bat**. The script runs the newly built JAR from `backend/build/libs/`.
-4. Open the health endpoint. Expect `{"status":"UP","version":"0.7.0"}`. Field order can differ. [Health](http://127.0.0.1:8080/api/v1/health)
+4. Open the health endpoint. Expect `{"status":"UP","version":"0.7.1"}`. Field order can differ. [Health](http://127.0.0.1:8080/api/v1/health)
 5. Open [catalogue summary](http://127.0.0.1:8080/api/v1/catalogue/summary). Expect 77 products, 10 with ingredients, 67 missing, 0 label-verified.
 6. Open [N1 lookup](http://127.0.0.1:8080/api/v1/products/4760177560085) and [croissant lookup](http://127.0.0.1:8080/api/v1/products/5201360553457).
 
@@ -142,7 +149,7 @@ $env:DB_PASSWORD='YOUR_LOCAL_DATABASE_PASSWORD'
 
 Use a JDBC URL, not a bare `postgres://` URL. The same migrations/importer run on PostgreSQL and H2. PostgreSQL integration tests start a real temporary database process without Docker; the first test run downloads its test binary. See `VALIDATION.md` for the actual tested versions and results.
 
-The Dockerfile builds the 0.7.0 Java 25 backend. Keep the existing Railway PostgreSQL variables and `REVIEW_ADMIN_PASSWORD` on the application service. Use PostgreSQL for hosted data and photos. The container's local H2 file is for local development.
+The Dockerfile builds the 0.7.1 Java 25 backend. Use the existing Railway PostgreSQL connection and `REVIEW_ADMIN_PASSWORD` on the application service. The container's local H2 file is for local development.
 
 ## 5. Open and build the source
 
@@ -155,7 +162,7 @@ gradlew.bat -PbackendOnly :core:test :backend:test :backend:bootJar
 gradlew.bat :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs no Android SDK. First builds need internet. A local build puts `etiket-backend-0.7.0.jar` under `backend/build/libs/`. The start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
+Use `./gradlew` on Linux/macOS. `-PbackendOnly` builds the API modules without loading the Android SDK. First builds need internet. A local build puts `etiket-backend-0.7.1.jar` under `backend/build/libs/`. The start scripts run that file. After changing backend code, rebuild it or run `:backend:bootRun`.
 
 ## 6. Understand the API and data
 
@@ -164,11 +171,12 @@ Use `./gradlew` on Linux/macOS. `-PbackendOnly` omits Android, so API work needs
 | `GET /api/v1/health` | Version and API availability |
 | `GET /api/v1/catalogue/summary` | Dataset counts and review status |
 | `GET /api/v1/catalogue/products?page=0&size=20` | Stable pagination; maximum size 100 |
-| `GET /api/v1/products/{barcode}` | Barcode validation, reviewed product before starter sample, optional provider fallback |
+| `GET /api/v1/products/{barcode}` | Barcode lookup with reviewed submissions, verified imports, starter catalogue and optional provider fallback |
 | `GET /api/v1/products/demo` | Three clearly fictional legacy fixtures |
 | `POST /api/v1/submissions` | Three package photos and metadata; pending review |
 | `GET /api/v1/submissions/{id}/status` | Device receipt tracking without exposing private photos |
-| `GET /review` | Reviewer authentication, transcription and decisions |
+| `GET /review` | Reviewer authentication, CSV import, transcription and decisions |
+| `POST /api/v1/review/catalogue-import` | Preview or publish verified new products from a `text/csv` request |
 | `GET /sources/labels/{id}` | Approved package-photo source page |
 
 Products include `evidence.reviewStatus`, `ingredientsStatus`, `labelPhotoChecked`, source URLs, original ingredient section, notes and `externalCandidateAvailable`. Empty ingredients/nutrition/allergen fields mean **unknown**, not zero or allergen-free. No health score is calculated. An empty `quantity` means no structured size was captured; size text in product names is retained as reported.

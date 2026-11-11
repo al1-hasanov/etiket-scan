@@ -1,5 +1,11 @@
 # Etiket validation
 
+## 0.7.1 verified product CSV import
+
+Passed 31 core, 87 backend and 44 Android tests with JDK 25. Backend checks included pinned native OCR models, authenticated CSV preview and publishing, mixed invalid rows, identical retries, and concurrent publications for one barcode on PostgreSQL. Android lint passed.
+
+The packaged backend upgraded a local 0.7.0 H2 database to Flyway V6 and reported version 0.7.1. A starter barcode returned the same product before and after the upgrade. The reviewer dashboard controls passed a DOM-based check against the packaged backend covering template download, conflict preview, confirmation, publication and a repeat preview. The published fixture appeared in the public barcode and catalogue endpoints with its label source.
+
 ## 0.7.0 barcode lookup and caching
 
 Passed 31 core, 82 backend and 44 Android tests. Backend checks covered Flyway V5 on H2 and PostgreSQL, confirmed misses, provider failures, stale cached results and the native OCR fixtures with the pinned models. Android checks covered cache expiry and isolation between backend URLs.

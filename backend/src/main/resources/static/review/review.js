@@ -2,9 +2,9 @@
 let csrf, page=0, selected, busy=false;
 const byId=id=>document.getElementById(id);
 const el=(tag,text,cls)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(cls)node.className=cls;return node;};
-async function api(path,body){
+async function api(path,body,contentType='application/json'){
   const options={credentials:'same-origin',headers:{'Accept':'application/json'},cache:'no-store'};
-  if(body!==undefined){options.method='POST';options.headers['Content-Type']='application/json';options.headers[csrf.headerName]=csrf.token;options.body=JSON.stringify(body);}
+  if(body!==undefined){options.method='POST';options.headers['Content-Type']=contentType;options.headers[csrf.headerName]=csrf.token;options.body=contentType==='application/json'?JSON.stringify(body):body;}
   const response=await fetch(path,options);let data;try{data=await response.json();}catch{data={};}
   if(!response.ok)throw new Error(response.status===403?'Session token expired. Reload the page and try again.':data.code||'Request failed ('+response.status+').');return data;
 }
@@ -116,4 +116,103 @@ async function importNutrition(dryRun) {
 }
 previewImport.onclick = () => importNutrition(true);
 applyImport.onclick = () => importNutrition(false);
-(async()=>{try{csrf=await api('/api/v1/review/csrf');nutritionFile.onchange();await loadQueue();}catch(e){message(e.message,true);}})();
+
+const catalogueFile = byId('catalogue-csv');
+const previewCatalogue = byId('preview-catalogue');
+const confirmCatalogue = byId('confirm-catalogue');
+const publishCatalogue = byId('publish-catalogue');
+const catalogueMessage = byId('catalogue-import-message');
+const catalogueRows = byId('catalogue-import-rows');
+let cataloguePreview;
+let catalogueBusy = false;
+
+function updateCatalogueControls() {
+  const canPublish = !catalogueBusy && cataloguePreview?.ready > 0 && cataloguePreview.blocked === 0;
+  catalogueFile.disabled = catalogueBusy;
+  previewCatalogue.disabled = catalogueBusy || !csrf || !catalogueFile.files.length;
+  confirmCatalogue.disabled = !canPublish;
+  publishCatalogue.disabled = !canPublish || !confirmCatalogue.checked;
+}
+
+function renderCatalogueRows(result) {
+  const labels = {READY: result.published ? 'Published' : 'Ready', UNCHANGED: 'Already imported',
+    INVALID: 'Invalid', CONFLICT: 'Conflict'};
+  for (const row of result.rows) {
+    const summary = ['Row ' + row.row, row.barcode, row.entry?.name, labels[row.status],
+      row.reason.toLowerCase().replaceAll('_', ' ')].filter(Boolean).join(' · ');
+    const item = el('li');
+    if (row.entry) {
+      const details = el('details');
+      const source = el('a', 'Open package label source', 'link');
+      source.href = row.entry.sourceUrl;
+      source.target = '_blank';
+      source.rel = 'noopener noreferrer';
+      details.append(el('summary', summary), el('p', [row.entry.brand, row.entry.packSize].filter(Boolean).join(' · ')), source);
+      if (row.entry.ingredients) details.append(el('p', row.entry.ingredients));
+      if (row.entry.declaredAllergens) details.append(el('p', row.entry.declaredAllergens));
+      if (row.entry.nutrition.basis) {
+        const values = Object.entries(row.entry.nutrition.values).map(([key, value]) => key + ' ' + value);
+        const basis = row.entry.nutrition.basis === 'PER_100_ML' ? 'Per 100 ml' : 'Per 100 g';
+        details.append(el('p', [basis, ...values].join(' · ')));
+      }
+      item.append(details);
+    } else {
+      item.textContent = summary;
+    }
+    catalogueRows.append(item);
+  }
+}
+
+async function importCatalogue(dryRun) {
+  const file = catalogueFile.files[0];
+  if (catalogueBusy || !file) return;
+  catalogueBusy = true;
+  updateCatalogueControls();
+  catalogueMessage.textContent = dryRun ? 'Checking CSV…' : 'Publishing products…';
+  catalogueMessage.className = '';
+  catalogueRows.replaceChildren();
+  try {
+    if (file.size > 1024 * 1024) throw new Error('Choose a CSV up to 1 MB.');
+    const query = new URLSearchParams({dryRun: String(dryRun)});
+    if (!dryRun) {
+      query.set('confirmed', String(confirmCatalogue.checked));
+      query.set('digest', cataloguePreview.digest);
+    }
+    const result = await api('/api/v1/review/catalogue-import?' + query, file, 'text/csv');
+    cataloguePreview = dryRun ? result : undefined;
+    catalogueMessage.textContent = result.published
+      ? 'Published ' + result.added + (result.added === 1 ? ' product. ' : ' products. ') + result.unchanged + ' already imported.'
+      : result.ready + ' ready, ' + result.unchanged + ' already imported, ' + result.blocked + ' blocked.'
+        + (result.blocked ? ' Correct the CSV and preview it again.' : '');
+    catalogueMessage.className = result.blocked ? 'error' : 'success';
+    renderCatalogueRows(result);
+  } catch (error) {
+    cataloguePreview = undefined;
+    const messages = {
+      CATALOGUE_CSV_HEADER_INVALID: 'Use the column names from the CSV template.',
+      CATALOGUE_CSV_UTF8_REQUIRED: 'Save the CSV as UTF-8.',
+      CATALOGUE_CSV_TOO_MANY_ROWS: 'Use a batch of up to 500 rows.',
+      CATALOGUE_CSV_INVALID: 'Check the commas and quotation marks in the CSV.',
+      CATALOGUE_CSV_EMPTY: 'Add product rows below the CSV header.',
+      CATALOGUE_PREVIEW_CHANGED: 'The file changed. Preview the current CSV again.'
+    };
+    catalogueMessage.textContent = messages[error.message] || error.message;
+    catalogueMessage.className = 'error';
+  } finally {
+    confirmCatalogue.checked = false;
+    catalogueBusy = false;
+    updateCatalogueControls();
+  }
+}
+
+catalogueFile.onchange = () => {
+  cataloguePreview = undefined;
+  confirmCatalogue.checked = false;
+  catalogueMessage.textContent = '';
+  catalogueRows.replaceChildren();
+  updateCatalogueControls();
+};
+confirmCatalogue.onchange = updateCatalogueControls;
+previewCatalogue.onclick = () => importCatalogue(true);
+publishCatalogue.onclick = () => importCatalogue(false);
+(async()=>{try{csrf=await api('/api/v1/review/csrf');nutritionFile.onchange();updateCatalogueControls();await loadQueue();}catch(e){message(e.message,true);}})();

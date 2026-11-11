@@ -3,8 +3,12 @@ package az.etiket.backend;
 import az.etiket.core.NutritionLabel;
 import az.etiket.core.NutritionSource;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +39,7 @@ class PostgresCatalogueTest {
     @Autowired JdbcTemplate db;
     @Autowired SubmissionService submissions;
     @Autowired NutritionFeeds feeds;
+    @Autowired CatalogueCsvImport csvImporter;
     @AfterAll static void stop() throws Exception { postgres.close(); }
 
     @Test void migrationsAndIdempotentImportWorkOnPostgres() throws Exception {
@@ -43,7 +48,36 @@ class PostgresCatalogueTest {
         assertEquals(10, catalogue.summary().get("withIngredients"));
         catalogue.importBundledCatalogue();
         assertEquals(77, db.queryForObject("SELECT COUNT(*) FROM catalogue_products", Integer.class));
-        assertEquals(5, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
+        assertEquals(6, db.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE", Integer.class));
+    }
+
+    @Test void concurrentCsvPublicationsCannotReplaceEachOther() throws Exception {
+        String barcode = "4000000000013";
+        String header = "barcode,name,pack_size,source_url\n";
+        byte[] first = (header + barcode + ",First fixture,100 g,https://example.test/first\n").getBytes(StandardCharsets.UTF_8);
+        byte[] second = (header + barcode + ",Second fixture,100 g,https://example.test/second\n").getBytes(StandardCharsets.UTF_8);
+        var firstPreview = csvImporter.importCsv(first, true, false, "", "reviewer");
+        var secondPreview = csvImporter.importCsv(second, true, false, "", "reviewer");
+        var start = new CountDownLatch(1);
+        try (var workers = Executors.newFixedThreadPool(2)) {
+            var left = workers.submit(() -> {
+                start.await();
+                return csvImporter.importCsv(first, false, true, firstPreview.digest(), "reviewer");
+            });
+            var right = workers.submit(() -> {
+                start.await();
+                return csvImporter.importCsv(second, false, true, secondPreview.digest(), "reviewer");
+            });
+            start.countDown();
+            var leftResult = left.get(15, TimeUnit.SECONDS);
+            var rightResult = right.get(15, TimeUnit.SECONDS);
+            assertEquals(1, leftResult.added() + rightResult.added());
+            assertEquals(1, leftResult.blocked() + rightResult.blocked());
+            assertEquals(leftResult.published() ? "First fixture" : "Second fixture", products.lookup(barcode).name());
+            assertEquals(78, catalogue.summary().get("products"));
+        } finally {
+            db.update("DELETE FROM imported_catalogue_products WHERE barcode=?", barcode);
+        }
     }
     @Test void nutritionImportSurvivesCatalogueReimportOnPostgres() throws Exception {
         String barcode = "4760177560085";
